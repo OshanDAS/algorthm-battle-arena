@@ -18,7 +18,7 @@ builder.Services.AddDbContext<DataContextEF>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-builder.Services.AddScoped<DataContextDapper>();
+builder.Services.AddScoped<IDataContextDapper, DataContextDapper>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<AuthHelper>();
 
@@ -84,3 +84,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

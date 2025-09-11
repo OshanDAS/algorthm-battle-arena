@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace AlgorithmBattleArina.Data
 {
-    public class DataContextDapper
+    public class DataContextDapper : IDataContextDapper
     {
         private readonly IConfiguration _config;
 

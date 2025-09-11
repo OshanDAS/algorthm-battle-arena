@@ -7,10 +7,10 @@ namespace AlgorithmBattleArina.Repositories
 {
     public class AuthRepository : IAuthRepository
     {
-        private readonly DataContextDapper _dapper;
+        private readonly IDataContextDapper _dapper;
         private readonly AuthHelper _authHelper;
 
-        public AuthRepository(DataContextDapper dapper, AuthHelper authHelper)
+        public AuthRepository(IDataContextDapper dapper, AuthHelper authHelper)
         {
             _dapper = dapper;
             _authHelper = authHelper;

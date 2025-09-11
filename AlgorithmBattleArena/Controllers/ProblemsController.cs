@@ -10,10 +10,10 @@ namespace AlgorithmBattleArina.Controllers
     [Route("api/[controller]")]
     public class ProblemsController : ControllerBase
     {
-        private readonly DataContextDapper _dapper;
+        private readonly IDataContextDapper _dapper;
         private readonly ILogger<ProblemsController> _logger;
 
-        public ProblemsController(DataContextDapper dapper, ILogger<ProblemsController> logger)
+        public ProblemsController(IDataContextDapper dapper, ILogger<ProblemsController> logger)
         {
             _dapper = dapper;
             _logger = logger;
