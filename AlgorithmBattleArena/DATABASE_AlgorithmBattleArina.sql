@@ -1,0 +1,182 @@
+CREATE DATABASE AlgorithmBattleArina;
+GO
+
+USE AlgorithmBattleArina;
+GO
+
+CREATE SCHEMA AlgorithmBattleArinaSchema;
+GO
+
+-- Create Auth table first (referenced by other tables)
+CREATE TABLE AlgorithmBattleArinaSchema.Auth (
+    Email NVARCHAR(50) PRIMARY KEY,
+    PasswordHash VARBINARY(MAX),
+    PasswordSalt VARBINARY(MAX)
+);
+
+-- Create Teachers table
+CREATE TABLE AlgorithmBattleArinaSchema.Teachers (
+    TeacherId INT IDENTITY(1, 1) PRIMARY KEY,
+    FirstName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    Email NVARCHAR(50) UNIQUE,
+    Active BIT,
+    -- Add foreign key constraint to Auth table
+    CONSTRAINT FK_Teacher_Auth 
+        FOREIGN KEY (Email) REFERENCES AlgorithmBattleArinaSchema.Auth(Email)
+);
+
+-- Create Student table with foreign key relationships
+CREATE TABLE AlgorithmBattleArinaSchema.Student (
+    StudentId INT IDENTITY(1, 1) PRIMARY KEY,
+    FirstName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    Email NVARCHAR(50) UNIQUE,
+    TeacherId INT,
+    Active BIT,
+    -- Add foreign key constraints
+    CONSTRAINT FK_Student_Teacher 
+        FOREIGN KEY (TeacherId) REFERENCES AlgorithmBattleArinaSchema.Teachers(TeacherId),
+    CONSTRAINT FK_Student_Auth 
+        FOREIGN KEY (Email) REFERENCES AlgorithmBattleArinaSchema.Auth(Email)
+);
+
+SELECT *FROM AlgorithmBattleArinaSchema.Auth;
+SELECT *FROM AlgorithmBattleArinaSchema.Teachers;
+SELECT *FROM AlgorithmBattleArinaSchema.Student;
+SELECT *FROM AlgorithmBattleArinaSchema.Problems;
+SELECT *FROM AlgorithmBattleArinaSchema.ProblemSolutions;
+SELECT *FROM AlgorithmBattleArinaSchema.ProblemTestCases;
+
+--------------------------------------------------------------------------------------
+
+CREATE TABLE AlgorithmBattleArinaSchema.Problems (
+    ProblemId INT IDENTITY(1,1) PRIMARY KEY,
+    Title NVARCHAR(255) NOT NULL,
+    Description NVARCHAR(MAX) NOT NULL,
+    DifficultyLevel NVARCHAR(50),
+    Category NVARCHAR(100),
+    TimeLimit INT,          -- in ms
+    MemoryLimit INT,        -- in MB
+    CreatedBy NVARCHAR(100),
+    Tags NVARCHAR(MAX),     -- store as JSON string or comma-separated
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE AlgorithmBattleArinaSchema.ProblemTestCases (
+    TestCaseId INT IDENTITY(1,1) PRIMARY KEY,
+    ProblemId INT NOT NULL,
+    InputData NVARCHAR(MAX),
+    ExpectedOutput NVARCHAR(MAX),
+    IsSample BIT DEFAULT 0,
+    FOREIGN KEY (ProblemId) REFERENCES AlgorithmBattleArinaSchema.Problems(ProblemId) ON DELETE CASCADE
+);
+
+CREATE TABLE AlgorithmBattleArinaSchema.ProblemSolutions (
+    SolutionId INT IDENTITY(1,1) PRIMARY KEY,
+    ProblemId INT NOT NULL,
+    Language NVARCHAR(50),
+    SolutionText NVARCHAR(MAX),
+    FOREIGN KEY (ProblemId) REFERENCES AlgorithmBattleArinaSchema.Problems(ProblemId) ON DELETE CASCADE
+);
+GO
+
+CREATE OR ALTER PROCEDURE AlgorithmBattleArinaSchema.spUpsertProblem
+    @Title NVARCHAR(255),
+    @Description NVARCHAR(MAX),
+    @DifficultyLevel NVARCHAR(50),
+    @Category NVARCHAR(100),
+    @TimeLimit INT,
+    @MemoryLimit INT,
+    @CreatedBy NVARCHAR(100),
+    @Tags NVARCHAR(MAX),
+    @TestCases NVARCHAR(MAX),
+    @Solutions NVARCHAR(MAX)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @ProblemId INT;
+
+    BEGIN TRANSACTION;
+
+    -- Upsert Problems
+    IF EXISTS (SELECT 1 FROM AlgorithmBattleArinaSchema.Problems WHERE Title = @Title)
+    BEGIN
+        UPDATE AlgorithmBattleArinaSchema.Problems
+        SET Description = @Description,
+            DifficultyLevel = @DifficultyLevel,
+            Category = @Category,
+            TimeLimit = @TimeLimit,
+            MemoryLimit = @MemoryLimit,
+            CreatedBy = @CreatedBy,
+            Tags = @Tags
+        WHERE Title = @Title;
+
+        SELECT @ProblemId = ProblemId
+        FROM AlgorithmBattleArinaSchema.Problems
+        WHERE Title = @Title;
+    END
+    ELSE
+    BEGIN
+        INSERT INTO AlgorithmBattleArinaSchema.Problems
+            (Title, Description, DifficultyLevel, Category, TimeLimit, MemoryLimit, CreatedBy, Tags)
+        VALUES
+            (@Title, @Description, @DifficultyLevel, @Category, @TimeLimit, @MemoryLimit, @CreatedBy, @Tags);
+
+        SET @ProblemId = SCOPE_IDENTITY();
+    END
+
+    -- Upsert TestCases
+    MERGE AlgorithmBattleArinaSchema.ProblemTestCases AS target
+    USING (
+        SELECT 
+            JSON_VALUE(value, '$.inputData') AS InputData,
+            JSON_VALUE(value, '$.expectedOutput') AS ExpectedOutput,
+            CAST(JSON_VALUE(value, '$.isSample') AS BIT) AS IsSample
+        FROM OPENJSON(@TestCases)
+    ) AS source
+    ON target.ProblemId = @ProblemId AND target.InputData = source.InputData
+    WHEN MATCHED THEN
+        UPDATE SET ExpectedOutput = source.ExpectedOutput, IsSample = source.IsSample
+    WHEN NOT MATCHED THEN
+        INSERT (ProblemId, InputData, ExpectedOutput, IsSample)
+        VALUES (@ProblemId, source.InputData, source.ExpectedOutput, source.IsSample);
+
+    -- Upsert Solutions
+    MERGE AlgorithmBattleArinaSchema.ProblemSolutions AS target
+    USING (
+        SELECT 
+            JSON_VALUE(value, '$.language') AS Language,
+            JSON_VALUE(value, '$.solutionText') AS SolutionText
+        FROM OPENJSON(@Solutions)
+    ) AS source
+    ON target.ProblemId = @ProblemId AND target.Language = source.Language
+    WHEN MATCHED THEN
+        UPDATE SET SolutionText = source.SolutionText
+    WHEN NOT MATCHED THEN
+        INSERT (ProblemId, Language, SolutionText)
+        VALUES (@ProblemId, source.Language, source.SolutionText);
+
+    COMMIT TRANSACTION;
+
+    
+    SELECT @ProblemId AS ProblemId;
+END
+
+GO
+
+EXEC AlgorithmBattleArinaSchema.spUpsertProblem
+    @Title = 'Updated Problem',
+    @Description = 'Updated description',
+    @DifficultyLevel = 'Hard',
+    @Category = 'Data Structures',
+    @TimeLimit = 2000,
+    @MemoryLimit = 256,
+    @CreatedBy = 'admin',
+    @Tags = N'["graph","dfs"]',
+    @TestCases = N'[{"inputData":"1 2 3","expectedOutput":"6","isSample":1}]',
+    @Solutions = N'[{"language":"Java","solutionText":"class Solution { ... }"}]';
+
+
+
+

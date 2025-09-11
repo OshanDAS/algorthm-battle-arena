@@ -1,0 +1,142 @@
+
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using System.Security.Claims;
+using AlgorithmBattleArina.Helpers;
+
+namespace AlgorithmBattleArena.Tests;
+
+public class AuthHelperTest
+{
+     private IConfiguration CreateMockConfiguration(string passwordKey = "test-password-key", string tokenKey = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#")
+    {
+        var inMemorySettings = new Dictionary<string, string> {
+            {"AppSettings:PasswordKey", passwordKey},
+            {"AppSettings:TokenKey", tokenKey},
+        };
+
+        return new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+    }
+
+    [Fact]
+    public void GetPasswordSalt_ShouldGenerateUniqueSalts()
+    {
+        var auth = new AuthHelper(CreateMockConfiguration());
+        var salt1 = auth.GetPasswordSalt();
+        var salt2 = auth.GetPasswordSalt();
+        
+        Assert.NotEqual(salt1, salt2);
+        Assert.Equal(16, salt1.Length);
+    }
+
+    [Fact]
+    public void GetPasswordHash_WithValidConfig_ShouldGenerateHash()
+    {
+        var auth = new AuthHelper(CreateMockConfiguration());
+        var salt = auth.GetPasswordSalt();
+        var hash = auth.GetPasswordHash("password123", salt);
+        
+        Assert.NotNull(hash);
+        Assert.Equal(32, hash.Length);
+    }
+
+    [Fact]
+    public void VerifyPasswordHash_WithMatchingPasswords_ShouldReturnTrue()
+    {
+        var auth = new AuthHelper(CreateMockConfiguration());
+        var salt = auth.GetPasswordSalt();
+        var hash = auth.GetPasswordHash("password123", salt);
+        
+        var result = auth.VerifyPasswordHash("password123", hash, salt);
+        
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void VerifyPasswordHash_WithNonMatchingPasswords_ShouldReturnFalse()
+    {
+        var auth = new AuthHelper(CreateMockConfiguration());
+        var salt = auth.GetPasswordSalt();
+        var hash = auth.GetPasswordHash("password123", salt);
+        
+        var result = auth.VerifyPasswordHash("wrongpassword", hash, salt);
+        
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void CreateToken_WithValidInputs_ShouldCreateValidToken()
+    {
+        var auth = new AuthHelper(CreateMockConfiguration());
+        var token = auth.CreateToken("test@test.com", "Student", 1);
+        
+        Assert.NotNull(token);
+        var principal = auth.ValidateToken(token);
+        Assert.NotNull(principal);
+    }
+
+    [Theory]
+    [InlineData("Student", "studentId")]
+    [InlineData("Teacher", "teacherId")]
+    public void CreateToken_WithUserRole_ShouldIncludeCorrectClaims(string role, string expectedClaimType)
+    {
+        var auth = new AuthHelper(CreateMockConfiguration());
+        var token = auth.CreateToken("test@test.com", role, 1);
+        var principal = auth.ValidateToken(token);
+        
+        Assert.NotNull(principal);
+        Assert.Equal("test@test.com", auth.GetEmailFromClaims(principal));
+        Assert.Equal(role, auth.GetRoleFromClaims(principal));
+        Assert.Equal("1", principal.FindFirst(expectedClaimType)?.Value);
+    }
+
+    [Fact]
+    public void ValidateToken_WithInvalidToken_ShouldReturnNull()
+    {
+        var auth = new AuthHelper(CreateMockConfiguration());
+        var result = auth.ValidateToken("invalid-token");
+        
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void GetClaimValue_WithExistingClaim_ShouldReturnValue()
+    {
+        var auth = new AuthHelper(CreateMockConfiguration());
+        var token = auth.CreateToken("test@test.com", "Student", 1);
+        var principal = auth.ValidateToken(token);
+        
+        var email = auth.GetClaimValue(principal!, "email", ClaimTypes.Email);
+        
+        Assert.Equal("test@test.com", email);
+    }
+
+    [Fact]
+    public void GetClaimValue_WithMissingClaim_ShouldReturnNull()
+    {
+        var auth = new AuthHelper(CreateMockConfiguration());
+        var token = auth.CreateToken("test@test.com", "Student", 1);
+        var principal = auth.ValidateToken(token);
+        
+        var value = auth.GetClaimValue(principal!, "nonexistent-claim");
+        
+        Assert.Null(value);
+    }
+
+    [Fact]
+    public void GetUserIdFromClaims_WithValidStudentRole_ShouldReturnId()
+    {
+        var auth = new AuthHelper(CreateMockConfiguration());
+        var token = auth.CreateToken("test@test.com", "Student", 1);
+        var principal = auth.ValidateToken(token);
+        
+        var userId = auth.GetUserIdFromClaims(principal!, "Student");
+        
+        Assert.Equal(1, userId);
+    }
+
+
+
+}
