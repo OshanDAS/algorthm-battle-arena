@@ -6,7 +6,7 @@ name: Build and deploy ASP.Net Core app to Azure Web App - AlgorithmBattleArena
 on:
   push:
     branches:
-      - dev
+      - main
   workflow_dispatch:
 
 jobs:
@@ -71,3 +71,4 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BD81C951B4754D6ABD5FD7AE9379497A }}
+
