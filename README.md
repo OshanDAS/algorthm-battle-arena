@@ -15,6 +15,7 @@ Players face off head-to-head, solving algorithm problems while **live leaderboa
 
 ---
 
+
 ## 🛠 Tech Stack  
 
 **Backend:**  
@@ -26,7 +27,7 @@ Players face off head-to-head, solving algorithm problems while **live leaderboa
 - React or Razor Pages  
 
 **Database:**  
-- MySQL 8  
+- MSSQL  
 
 **CI/CD & Deployment:**  
 - GitHub Actions  
