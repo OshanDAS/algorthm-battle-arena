@@ -1,0 +1,44 @@
+# Docs for GitHub Actions: https://docs.github.com/en/actions
+
+name: CI - Build and Test ASP.Net Core app - AlgorithmBattleArena
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # required for actions/checkout
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Restore dependencies   # ensures all NuGet packages are restored
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore  # skip restore since done above
+
+      - name: Run unit tests from separate test project   # runs AlgorithmBattleArena.Tests
+        run: |
+          mkdir -p ./TestResults  # ensure the folder exists
+          dotnet test AlgorithmBattleArena.Tests/AlgorithmBattleArena.Tests.csproj \
+            --configuration Release \
+            --logger "trx;LogFileName=test_results.trx" \
+            --results-directory ./TestResults \
+            -v minimal
+
+      - name: Upload test results   # saves test results as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ./TestResults
