@@ -1,111 +1,88 @@
-using AlgorithmBattleArena.Hubs;
-using AlgorithmBattleArena.Services;
+using AlgorithmBattleArina.Data;
+using AlgorithmBattleArina.Repositories;
+using AlgorithmBattleArina.Helpers;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models; // Required for Swagger
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// do not read Jwt:Secret into a top-level variable earlier — read it where it's needed
-var keyBytes = Encoding.UTF8.GetBytes(
-    builder.Configuration["Jwt:Secret"] 
-    ?? "dev-secret-change-me-to-a-long-random-value"
-);
-
-
-// --- Add services ---
+// Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen(); // Provided by Swashbuckle.AspNetCore
+builder.Services.AddSwaggerGen();
 
-// Register lobby service (MVP in-memory)
-builder.Services.AddSingleton<ILobbyService, InMemoryLobbyService>();
+// Register DbContexts, repositories, and helpers
+builder.Services.AddDbContext<DataContextEF>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
-// Configure JWT authentication
-builder.Services.AddAuthentication(options =>
+builder.Services.AddScoped<IDataContextDapper, DataContextDapper>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddSingleton<AuthHelper>();
+
+
+// JWT Authentication configuration
+var tokenKey = builder.Configuration.GetValue<string>("AppSettings:TokenKey");
+if (string.IsNullOrEmpty(tokenKey))
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    var secret = builder.Configuration["Jwt:Secret"]
-                 ?? "dev-secret-change-me-to-a-long-random-value";
+    throw new Exception("JWT TokenKey is missing in configuration!");
+}
 
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
-        ClockSkew = TimeSpan.FromSeconds(30),
-        NameClaimType = System.Security.Claims.ClaimTypes.NameIdentifier
-    };
-
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            var accessToken = context.Request.Query["access_token"].FirstOrDefault();
-            var path = context.HttpContext.Request.Path;
-            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/match"))
-            {
-                context.Token = accessToken;
-            }
-            return Task.CompletedTask;
-        }
-    };
-});
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
-builder.Services.AddAuthorization();
-builder.Services.AddSignalR();
+// CORS configuration
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DevCors", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200", "http://localhost:3000", "http://localhost:8000")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+
+    options.AddPolicy("ProdCors", policy =>
+    {
+        policy.WithOrigins("https://myProductionSite.com")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 
-// --- Middleware ---
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger(); // Provided by Swashbuckle.AspNetCore
-//     app.UseSwaggerUI(); // Provided by Swashbuckle.AspNetCore
-// }
+// Configure middleware
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("DevCors");
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
+{
+    app.UseCors("ProdCors");
+    app.UseHttpsRedirection();
+}
 
-app.UseHttpsRedirection();
-app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<MatchHub>("/hubs/match");
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
-// Simple health endpoint
-app.MapGet("/health", () => Results.Ok(new { status = "ok", time = DateTime.UtcNow }));
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
 
 public partial class Program { }
