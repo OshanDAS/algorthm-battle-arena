@@ -1,7 +1,6 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
+# Docs for GitHub Actions: https://docs.github.com/en/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - AlgorithmBattleArena
+name: CI - Build and Test ASP.Net Core app - AlgorithmBattleArena
 
 on:
   push:
@@ -10,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read # required for actions/checkout
@@ -23,13 +22,13 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      - name: Restore dependencies   # ✅ New: ensures all NuGet packages are restored before build
+      - name: Restore dependencies   # ensures all NuGet packages are restored
         run: dotnet restore
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release --no-restore  # ✅ New: skip restore here since already done
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore  # skip restore since done above
 
-      - name: Run unit tests from separate test project   # ✅ New: explicitly runs AlgorithmBattleArena.Tests
+      - name: Run unit tests from separate test project   # runs AlgorithmBattleArena.Tests
         run: |
           mkdir -p ./TestResults  # ensure the folder exists
           dotnet test AlgorithmBattleArena.Tests/AlgorithmBattleArena.Tests.csproj \
@@ -38,36 +37,8 @@ jobs:
             --results-directory ./TestResults \
             -v minimal
 
-      - name: Upload test results   # ✅ New: saves test results so you can download/view in GitHub Actions UI
+      - name: Upload test results   # saves test results as artifacts
         uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: ./TestResults
-
-      - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build   # ✅ New: ensures deployment only runs if build + tests succeed
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: .net-app
-      
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'AlgorithmBattleArena'
-          slot-name: 'Production'
-          package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BD81C951B4754D6ABD5FD7AE9379497A }}
