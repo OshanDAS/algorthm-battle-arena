@@ -1,11 +1,11 @@
-using AlgorithmBattleArena.Services;
+using AlgorithmBattleArina.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace AlgorithmBattleArena.Hubs
+namespace AlgorithmBattleArina.Hubs
 {
     /// <summary>
     /// SignalR hub for lobby operations and receiving MatchStarted broadcasts.
@@ -14,11 +14,11 @@ namespace AlgorithmBattleArena.Hubs
     [Authorize]
     public class MatchHub : Hub
     {
-        private readonly ILobbyService _lobbyService;
+        private readonly ILobbyRepository _lobbyRepository;
 
-        public MatchHub(ILobbyService lobbyService)
+        public MatchHub(ILobbyRepository lobbyRepository)
         {
-            _lobbyService = lobbyService;
+            _lobbyRepository = lobbyRepository;
         }
 
         private string? GetUserId()
@@ -27,6 +27,12 @@ namespace AlgorithmBattleArena.Hubs
             var id = Context.UserIdentifier ?? Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return id;
         }
+
+        public Task<string> Ping()
+        {
+            return Task.FromResult("pong");
+        }
+
 
         public override Task OnConnectedAsync()
         {
@@ -38,7 +44,7 @@ namespace AlgorithmBattleArena.Hubs
         public override Task OnDisconnectedAsync(Exception? exception)
         {
             // Remove connection from all lobbies to keep the in-memory store tidy.
-            _lobbyService.RemoveConnectionFromAllLobbies(Context.ConnectionId);
+            _lobbyRepository.RemoveConnectionFromAllLobbies(Context.ConnectionId);
             return base.OnDisconnectedAsync(exception);
         }
 
@@ -52,11 +58,11 @@ namespace AlgorithmBattleArena.Hubs
             if (string.IsNullOrEmpty(userId))
                 throw new HubException("User not authenticated");
 
-            if (!_lobbyService.IsMember(lobbyId, userId))
+            if (!_lobbyRepository.IsMember(lobbyId, userId))
                 throw new HubException("User not authorized to join this lobby");
 
             await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId);
-            _lobbyService.AddConnection(lobbyId, userId, Context.ConnectionId);
+            _lobbyRepository.AddConnection(lobbyId, userId, Context.ConnectionId);
 
             // Notify other members (optional)
             await Clients.Group(lobbyId).SendAsync("LobbyMemberJoined", new { UserId = userId, LobbyId = lobbyId });
@@ -68,7 +74,7 @@ namespace AlgorithmBattleArena.Hubs
             if (string.IsNullOrEmpty(userId)) return;
 
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, lobbyId);
-            _lobbyService.RemoveConnection(lobbyId, Context.ConnectionId);
+            _lobbyRepository.RemoveConnection(lobbyId, Context.ConnectionId);
 
             await Clients.Group(lobbyId).SendAsync("LobbyMemberLeft", new { UserId = userId, LobbyId = lobbyId });
         }

@@ -1,6 +1,6 @@
 using System;
 
-namespace AlgorithmBattleArena.Models
+namespace AlgorithmBattleArina.Models
 {
     /// <summary>
     /// Request body for starting a match in a lobby.

@@ -23,7 +23,7 @@ namespace AlgorithmBattleArina.Controllers
 
         [AllowAnonymous]
         [HttpPost("register/student")]
-        public IActionResult RegisterStudent(StudentForRegistrationDto studentDto)
+        public IActionResult RegisterStudent([FromBody] StudentForRegistrationDto studentDto)
         {
             try
             {
@@ -46,7 +46,7 @@ namespace AlgorithmBattleArina.Controllers
 
         [AllowAnonymous]
         [HttpPost("register/teacher")]
-        public IActionResult RegisterTeacher(TeacherForRegistrationDto teacherDto)
+        public IActionResult RegisterTeacher([FromBody] TeacherForRegistrationDto teacherDto)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace AlgorithmBattleArina.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public IActionResult Login(UserForLoginDto loginDto)
+        public IActionResult Login([FromBody] UserForLoginDto loginDto)
         {
             try
             {

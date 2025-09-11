@@ -1,6 +1,7 @@
 using AlgorithmBattleArina.Data;
 using AlgorithmBattleArina.Repositories;
 using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArina.Hubs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
 
 // Register DbContexts, repositories, and helpers
 builder.Services.AddDbContext<DataContextEF>(options =>
@@ -19,6 +21,7 @@ builder.Services.AddDbContext<DataContextEF>(options =>
 );
 
 builder.Services.AddScoped<IDataContextDapper, DataContextDapper>();
+builder.Services.AddScoped<ILobbyRepository, InMemoryLobbyRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<AuthHelper>();
 
@@ -48,7 +51,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevCors", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "http://localhost:3000", "http://localhost:8000")
+        policy.WithOrigins("http://localhost:4200", "http://localhost:3000", "http://localhost:8000", "http://localhost:5173")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -82,6 +85,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<MatchHub>("/matchhub");
+
 
 app.Run();
 

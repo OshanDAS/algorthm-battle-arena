@@ -1,68 +1,28 @@
-import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
-import { useAuth } from './auth.jsx'
-import { useEffect, useRef, useState } from 'react'
+import * as signalR from "@microsoft/signalr";
 
+/**
+ * Creates and returns a HubConnection instance for /hubs/match.
+ * supply getToken() to fetch the latest JWT (from localStorage or in-memory).
+ */
+export function createMatchHubConnection({ baseUrl = "", getToken = () => null }) {
+  const hubUrl = `${baseUrl || ""}/hubs/match`;
 
-const HUB_URL = (import.meta.env.VITE_API_BASE || '') + '/hubs/match'
+  const connection = new signalR.HubConnectionBuilder()
+    .withUrl(hubUrl, {
+      accessTokenFactory: async () => {
+        // SignalR will append ?access_token=...
+        const token = await getToken();
+        return token || null;
+      },
+      // transport fallback defaults are fine (WebSockets, ServerSentEvents, LongPolling)
+    })
+    .withAutomaticReconnect()
+    .build();
 
+  // Provide typed subscription helpers on connection object
+  connection.onMatchStarted = (handler) => connection.on("MatchStarted", handler);
+  connection.onLobbyMemberJoined = (handler) => connection.on("LobbyMemberJoined", handler);
+  connection.onLobbyMemberLeft = (handler) => connection.on("LobbyMemberLeft", handler);
 
-export function useMatchHub({ onMatchStarted, onError }) {
-const { token } = useAuth()
-const connRef = useRef(null)
-const [connected, setConnected] = useState(false)
-
-
-useEffect(() => {
-if (!token) return
-
-
-const connection = new HubConnectionBuilder()
-.withUrl(HUB_URL, {
-accessTokenFactory: () => token
-})
-.configureLogging(LogLevel.Warning)
-.withAutomaticReconnect()
-.build()
-
-
-connection.on('MatchStarted', payload => {
-try { onMatchStarted && onMatchStarted(payload) } catch (e) { console.error(e) }
-})
-
-
-connection.onclose(err => { setConnected(false); if (err) console.error('hub closed', err) })
-
-
-connection.start().then(() => { connRef.current = connection; setConnected(true) }).catch(err => {
-console.error('SignalR start failed', err); onError && onError(err)
-})
-
-
-return () => {
-connection.stop().catch(()=>{})
-}
-}, [token])
-
-
-const joinLobby = async (lobbyId) => {
-if (!connRef.current) throw new Error('not connected')
-return connRef.current.invoke('JoinLobby', lobbyId)
-}
-const leaveLobby = async (lobbyId) => {
-if (!connRef.current) throw new Error('not connected')
-return connRef.current.invoke('LeaveLobby', lobbyId)
-}
-const sendPing = async () => {
-if (!connRef.current) return null
-const start = Date.now()
-// This requires server to IMPLEMENT a Ping method returning server timestamp
-try {
-const serverTs = await connRef.current.invoke('Ping')
-const rtt = Date.now() - start
-return { serverTs, rtt }
-} catch (e) { return null }
-}
-
-
-return { joinLobby, leaveLobby, sendPing, connected }
+  return connection;
 }

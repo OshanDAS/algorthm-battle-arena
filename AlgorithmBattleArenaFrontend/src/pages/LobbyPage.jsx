@@ -1,92 +1,132 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
+import * as signalR from "@microsoft/signalr";
 
+export default function LobbyPage() {
+  const [connection, setConnection] = useState(null);
+  const [connectionState, setConnectionState] = useState("disconnected");
+  const [lobbies, setLobbies] = useState([]);
+  const [events, setEvents] = useState([]);
 
-// Example static lobbies; replace with API call if needed
-const DEMO_LOBBIES = [ { id: 'arena-1', name: 'Arena 1' }, { id: 'arena-2', name: 'Arena 2' } ]
+  // Get JWT from localStorage
+  const token = localStorage.getItem("jwt");
 
+  // Append events to log
+  const logEvent = (message) => {
+    setEvents((prev) => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
+  };
 
-export default function LobbyPage(){
-const { logout } = useAuth()
-const nav = useNavigate()
-const [selected, setSelected] = useState(null)
-const [messages, setMessages] = useState([])
-const [latency, setLatency] = useState(null)
+  // Fetch lobbies with Authorization header
+  async function fetchLobbies() {
+    try {
+      const response = await fetch("http://localhost:5000/api/lobbies", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
 
+      if (!response.ok) {
+        throw new Error("Failed to fetch lobbies");
+      }
 
-const onMatchStarted = (payload) => {
-// payload: { matchId, problemId, startAt, durationSec }
-// navigate to /match with payload
-nav('/match', { state: { match: payload } })
-}
+      const data = await response.json();
+      setLobbies(data);
+      logEvent("Fetched lobbies successfully");
+    } catch (err) {
+      console.error("Fetch lobbies failed:", err.message);
+      logEvent(`Fetch lobbies failed: ${err.message}`);
+    }
+  }
 
+  // Setup SignalR connection
+  useEffect(() => {
+    if (!token) {
+      logEvent("No JWT token found. Redirect to login.");
+      return;
+    }
 
-const { joinLobby, leaveLobby, sendPing, connected } = useMatchHub({ onMatchStarted, onError: e=>setMessages(m=>[...m, String(e)]) })
+    const newConnection = new signalR.HubConnectionBuilder()
+      .withUrl("http://localhost:5000/lobbyHub", {
+        accessTokenFactory: () => token
+      })
+      .withAutomaticReconnect()
+      .build();
 
+    setConnection(newConnection);
+  }, [token]);
 
-useEffect(()=>{
-let t
-if (connected) {
-// measure latency repeatedly to get rough RTT
-t = setInterval(async ()=>{
-const res = await sendPing()
-if (res) setLatency(res.rtt)
-}, 5000)
-}
-return ()=>clearInterval(t)
-}, [connected])
+  // Start connection and set up handlers
+  useEffect(() => {
+    if (!connection) return;
 
+    async function startConnection() {
+      try {
+        await connection.start();
+        setConnectionState("connected");
+        logEvent("SignalR: connected");
 
-const handleJoin = async (lobby) => {
-try {
-await joinLobby(lobby.id)
-setSelected(lobby.id)
-setMessages(m=>[...m, `Joined ${lobby.name}`])
-} catch (e) { setMessages(m=>[...m, 'Join failed: '+e.message]) }
-}
-const handleLeave = async (lobby) => {
-try {
-await leaveLobby(lobby.id)
-setSelected(null)
-setMessages(m=>[...m, `Left ${lobby.name}`])
-} catch (e) { setMessages(m=>[...m, 'Leave failed: '+e.message]) }
-}
+        // Example: handle lobby updates from backend
+        connection.on("LobbyUpdated", (lobby) => {
+          logEvent(`Lobby updated: ${JSON.stringify(lobby)}`);
+        });
 
+        // Fetch initial lobby list after connection
+        fetchLobbies();
+      } catch (err) {
+        console.error("SignalR connection failed:", err);
+        logEvent(`SignalR connection failed: ${err.message}`);
+      }
+    }
 
-return (
-<div className="app-container">
-<div className="header">
-<h2>Lobby</h2>
-<div>
-<button className="button" onClick={()=>logout()}>Logout</button>
-</div>
-</div>
+    startConnection();
 
+    connection.onclose(() => {
+      setConnectionState("disconnected");
+      logEvent("SignalR: disconnected");
+    });
+  }, [connection]);
 
-<div style={{marginBottom:12}}>SignalR: {connected ? 'connected' : 'disconnected'} {latency && `• RTT ${latency}ms`}</div>
+  const handleLogout = () => {
+    localStorage.removeItem("jwt");
+    window.location.href = "/login";
+  };
 
+  return (
+    <div className="p-4">
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl font-bold">Lobby</h1>
+        <button
+          className="bg-red-500 text-white px-4 py-2 rounded"
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
+      </div>
 
-<div className="lobby-list">
-{DEMO_LOBBIES.map(l=> (
-<div key={l.id} className="lobby-card">
-<h4>{l.name}</h4>
-<p>ID: {l.id}</p>
-{selected===l.id ? (
-<button className="button" onClick={()=>handleLeave(l)}>Leave</button>
-) : (
-<button className="button" onClick={()=>handleJoin(l)}>Join</button>
-)}
-</div>
-))}
-</div>
+      <div className="mt-4">
+        <h2 className="font-semibold">Connection: {connectionState}</h2>
+      </div>
 
+      <div className="mt-4">
+        <h2 className="font-semibold">Lobbies</h2>
+        {lobbies.length === 0 ? (
+          <p>No lobbies available</p>
+        ) : (
+          <ul className="list-disc pl-6">
+            {lobbies.map((lobby, idx) => (
+              <li key={idx}>{lobby.name || `Lobby ${idx + 1}`}</li>
+            ))}
+          </ul>
+        )}
+      </div>
 
-<div style={{marginTop:20}}>
-<h3>Events</h3>
-<div style={{display:'grid',gap:6}}>
-{messages.length===0 && <div style={{color:'#666'}}>No events</div>}
-{messages.map((m,i)=>(<div key={i} style={{fontSize:13}}>{m}</div>))}
-</div>
-</div>
-</div>
-)
+      <div className="mt-4">
+        <h2 className="font-semibold">Events</h2>
+        <div className="bg-gray-100 p-2 rounded h-48 overflow-y-auto text-sm">
+          {events.map((e, idx) => (
+            <div key={idx}>{e}</div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }

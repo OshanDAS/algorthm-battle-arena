@@ -1,6 +1,7 @@
-using AlgorithmBattleArena.Hubs;
-using AlgorithmBattleArena.Models;
-using AlgorithmBattleArena.Services;
+using AlgorithmBattleArina.Hubs;
+using AlgorithmBattleArina.Models;
+using AlgorithmBattleArina.Repositories;
+using AlgorithmBattleArina.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -8,7 +9,8 @@ using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace AlgorithmBattleArena.Controllers
+
+namespace AlgorithmBattleArina.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -16,12 +18,12 @@ namespace AlgorithmBattleArena.Controllers
     public class MatchesController : ControllerBase
     {
         private readonly IHubContext<MatchHub> _hubContext;
-        private readonly ILobbyService _lobbyService;
+        private readonly ILobbyRepository _lobbyRepository;
 
-        public MatchesController(IHubContext<MatchHub> hubContext, ILobbyService lobbyService)
+        public MatchesController(IHubContext<MatchHub> hubContext, ILobbyRepository lobbyRepository)
         {
             _hubContext = hubContext;
-            _lobbyService = lobbyService;
+            _lobbyRepository = lobbyRepository;
         }
 
         /// <summary>
@@ -37,7 +39,7 @@ namespace AlgorithmBattleArena.Controllers
                 return Unauthorized();
 
             // Ensure caller is host of the lobby
-            if (!_lobbyService.IsHost(lobbyId, userId))
+            if (!_lobbyRepository.IsHost(lobbyId, userId))
                 return Forbid();
 
             // Compute a single StartAtUtc for all participants.
