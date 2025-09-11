@@ -29,8 +29,14 @@ jobs:
       - name: Build with dotnet
         run: dotnet build --configuration Release --no-restore  # ✅ New: skip restore here since already done
 
-      - name: Run unit tests   # ✅ New: runs all test projects and generates test result files
-        run: dotnet test --configuration Release --no-build --logger "trx;LogFileName=test_results.trx" --results-directory ./TestResults
+      - name: Run unit tests from separate test project   # ✅ New: explicitly runs AlgorithmBattleArena.Tests
+        run: |
+          mkdir -p ./TestResults  # ensure the folder exists
+          dotnet test AlgorithmBattleArena.Tests/AlgorithmBattleArena.Tests.csproj \
+            --configuration Release \
+            --logger "trx;LogFileName=test_results.trx" \
+            --results-directory ./TestResults \
+            -v minimal
 
       - name: Upload test results   # ✅ New: saves test results so you can download/view in GitHub Actions UI
         uses: actions/upload-artifact@v4
