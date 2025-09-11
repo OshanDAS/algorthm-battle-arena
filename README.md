@@ -1,21 +1,21 @@
-# Algorithm Battle Arena 🏆  
+# Algorithm Battle Arena  
 
 A **real-time competitive coding platform** built with modern .NET and web technologies.  
 Players face off head-to-head, solving algorithm problems while **live leaderboards** update in real-time.  
 
 ---
 
-## 🚀 Features  
+## Features  
 
-- 👥 **User Authentication & Profiles** – secure login and player stats  
-- 🧩 **Problem Library (CRUD)** – manage algorithm challenges  
-- ⚡ **Real-Time Matchmaking & Contests** – powered by SignalR  
-- 📊 **Live Leaderboards** – optimized with Dapper queries  
-- 📈 **Admin Dashboard** – analytics and system insights  
+-  **User Authentication & Profiles** – secure login and player stats  
+-  **Problem Library (CRUD)** – manage algorithm challenges  
+-  **Real-Time Matchmaking & Contests** – powered by SignalR  
+-  **Live Leaderboards** – optimized with Dapper queries  
+-  **Admin Dashboard** – analytics and system insights  
 
 ---
 
-## 🛠️ Tech Stack  
+##  Tech Stack  
 
 **Backend:**  
 - ASP.NET Core 8 (Web API + SignalR)  
@@ -38,7 +38,7 @@ Players face off head-to-head, solving algorithm problems while **live leaderboa
 
 ---
 
-## 📦 Getting Started  
+##  Getting Started  
 
 ### Prerequisites  
 - [.NET 8 SDK](https://dotnet.microsoft.com/)  
