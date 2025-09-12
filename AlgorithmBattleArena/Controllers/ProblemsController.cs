@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using AlgorithmBattleArina.Data;
 using AlgorithmBattleArina.Dtos;
 using AlgorithmBattleArina.Models;
@@ -6,6 +7,7 @@ using AlgorithmBattleArina.Helpers;
 
 namespace AlgorithmBattleArina.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ProblemsController : ControllerBase

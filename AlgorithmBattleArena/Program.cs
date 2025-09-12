@@ -1,10 +1,13 @@
 using AlgorithmBattleArina.Data;
 using AlgorithmBattleArina.Repositories;
 using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArina.Hubs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
 
 // Register DbContexts, repositories, and helpers
 builder.Services.AddDbContext<DataContextEF>(options =>
@@ -19,9 +23,9 @@ builder.Services.AddDbContext<DataContextEF>(options =>
 );
 
 builder.Services.AddScoped<IDataContextDapper, DataContextDapper>();
+builder.Services.AddScoped<ILobbyRepository, InMemoryLobbyRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<AuthHelper>();
-
 
 // JWT Authentication configuration
 var tokenKey = builder.Configuration.GetValue<string>("AppSettings:TokenKey");
@@ -41,6 +45,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
             ClockSkew = TimeSpan.Zero
         };
+
+        // Allow SignalR to receive token via "access_token" query param for negotiate
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"].ToString();
+                var path = context.HttpContext.Request.Path;
+                // adjust the path segment to match your hub mappings
+                if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/lobbyHub") || path.StartsWithSegments("/matchhub")))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 // CORS configuration
@@ -48,7 +68,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevCors", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "http://localhost:3000", "http://localhost:8000")
+
+        policy.WithOrigins("http://localhost:5173","http://localhost:4200", "http://localhost:3000", "http://localhost:8000")
+
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -82,6 +104,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Map hub to both paths to be tolerant of client expectations.
+app.MapHub<MatchHub>("/matchhub");
+app.MapHub<MatchHub>("/lobbyHub");
 
 app.Run();
 
