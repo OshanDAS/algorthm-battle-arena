@@ -6,7 +6,8 @@ namespace AlgorithmBattleArina.Repositories
     {
         void AddConnection(string lobbyId, string userId, string connectionId);
         void RemoveConnection(string lobbyId, string connectionId);
-        void RemoveConnectionFromAllLobbies(string connectionId);
+        // change in ILobbyRepository:
+        IEnumerable<string> RemoveConnectionFromAllLobbies(string connectionId);
         IEnumerable<string> GetConnections(string lobbyId);
 
         bool IsMember(string lobbyId, string userId);

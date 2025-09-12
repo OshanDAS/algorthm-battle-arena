@@ -56,9 +56,9 @@ export default function LoginPage() {
                 <BookOpen className="w-12 h-12 text-white" />
               </div>
 
-              <h1 className="text-4xl xl:text-5xl font-bold text-gray-900 mb-6 leading-tight">Welcome back</h1>
+              <h1 className="text-4xl xl:text-5xl font-bold text-gray-900 mb-6 leading-tight">Welcome back, Warrior!</h1>
               <p className="text-gray-600 text-lg xl:text-xl leading-relaxed mb-8">
-                Log in to continue your learning journey and access your courses, progress, and community.
+                Log in to return to the arena and access your battles, rankings, and coding community.
               </p>
 
               <div className="space-y-4 xl:space-y-6">
@@ -67,8 +67,8 @@ export default function LoginPage() {
                     <Shield className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Secure Login</h3>
-                    <p className="text-gray-600 text-sm">We keep your account safe</p>
+                    <h3 className="font-semibold text-gray-900">Secure Access</h3>
+                    <p className="text-gray-600 text-sm">Your warrior account is fortified and protected</p>
                   </div>
                 </div>
 
@@ -77,8 +77,8 @@ export default function LoginPage() {
                     <Shield className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Fast Access</h3>
-                    <p className="text-gray-600 text-sm">Jump back into your courses quickly</p>
+                    <h3 className="font-semibold text-gray-900">Lightning Fast Entry</h3>
+                    <p className="text-gray-600 text-sm">Jump straight back into the coding battlefield</p>
                   </div>
                 </div>
               </div>

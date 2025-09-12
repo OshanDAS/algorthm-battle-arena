@@ -2,6 +2,7 @@ using AlgorithmBattleArina.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System;
+using System.Linq;                 // <-- added
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -33,7 +34,6 @@ namespace AlgorithmBattleArina.Hubs
             return Task.FromResult("pong");
         }
 
-
         public override Task OnConnectedAsync()
         {
             // Optionally: log connection established
@@ -41,11 +41,23 @@ namespace AlgorithmBattleArina.Hubs
             return base.OnConnectedAsync();
         }
 
-        public override Task OnDisconnectedAsync(Exception? exception)
+        public override async Task OnDisconnectedAsync(Exception? exception)
         {
             // Remove connection from all lobbies to keep the in-memory store tidy.
-            _lobbyRepository.RemoveConnectionFromAllLobbies(Context.ConnectionId);
-            return base.OnDisconnectedAsync(exception);
+            // Capture the list of lobbies affected so we can broadcast updated counts
+            var affectedLobbyIds = _lobbyRepository.RemoveConnectionFromAllLobbies(Context.ConnectionId);
+
+            // If repository returns affectedLobbyIds (adjust repo signature to return IEnumerable<string>), broadcast updates
+            if (affectedLobbyIds != null)
+            {
+                foreach (var lobbyId in affectedLobbyIds)
+                {
+                    var lobbyInfo = BuildLobbyInfo(lobbyId);
+                    await Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyInfo);
+                }
+            }
+
+            await base.OnDisconnectedAsync(exception);
         }
 
         /// <summary>
@@ -64,7 +76,11 @@ namespace AlgorithmBattleArina.Hubs
             await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId);
             _lobbyRepository.AddConnection(lobbyId, userId, Context.ConnectionId);
 
-            // Notify other members (optional)
+            // Broadcast updated lobby info (authoritative member count) to the group
+            var lobbyInfo = BuildLobbyInfo(lobbyId);
+            await Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyInfo);
+
+            // Optional: also send an event about who joined (useful for ephemeral UI/notifications)
             await Clients.Group(lobbyId).SendAsync("LobbyMemberJoined", new { UserId = userId, LobbyId = lobbyId });
         }
 
@@ -76,7 +92,58 @@ namespace AlgorithmBattleArina.Hubs
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, lobbyId);
             _lobbyRepository.RemoveConnection(lobbyId, Context.ConnectionId);
 
+            // Broadcast updated lobby info (authoritative member count)
+            var lobbyInfo = BuildLobbyInfo(lobbyId);
+            await Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyInfo);
+
             await Clients.Group(lobbyId).SendAsync("LobbyMemberLeft", new { UserId = userId, LobbyId = lobbyId });
+        }
+
+        /// <summary>
+        /// Host-only: start a match for the lobby. Broadcasts MatchStarted to all members in the group.
+        /// </summary>
+        public async Task StartMatch(string lobbyId, string matchId, string problemId, DateTime startAt, int durationSec)
+        {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId))
+                throw new HubException("User not authenticated");
+
+            if (!_lobbyRepository.IsHost(lobbyId, userId))
+                throw new HubException("Only the host can start the match");
+
+            var payload = new
+            {
+                matchId,
+                problemId,
+                startAt = startAt.ToUniversalTime(), // ensure UTC
+                durationSec
+            };
+
+            await Clients.Group(lobbyId).SendAsync("MatchStarted", payload);
+        }
+
+        /// <summary>
+        /// Helper: build reliable LobbyInfo object with current member count.
+        /// </summary>
+        private LobbyInfo BuildLobbyInfo(string lobbyId)
+        {
+            // find lobby base info from the repository list
+            var lobby = _lobbyRepository.GetLobbies().FirstOrDefault(l => l.Id == lobbyId);
+            var memberCount = _lobbyRepository.GetConnections(lobbyId)?.Count() ?? 0;
+
+            if (lobby == null)
+            {
+                return new LobbyInfo
+                {
+                    Id = lobbyId,
+                    Name = lobbyId,
+                    MemberCount = memberCount,
+                    IsActive = false
+                };
+            }
+
+            lobby.MemberCount = memberCount;
+            return lobby;
         }
     }
 }

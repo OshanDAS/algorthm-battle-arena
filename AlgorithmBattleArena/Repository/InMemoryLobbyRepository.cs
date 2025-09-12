@@ -1,4 +1,3 @@
-// InMemoryLobbyRepository.cs
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -48,6 +47,13 @@ namespace AlgorithmBattleArina.Repositories
                     info.UserToConnections[userId] = set;
                 }
                 set.Add(connectionId);
+
+                // OPTIONAL: if this is the first member and there's no host, assign host to the first connector.
+                // Remove or change this if you manage hosts elsewhere.
+                if (info.HostUserId == null)
+                {
+                    info.HostUserId = userId;
+                }
             }
         }
 
@@ -56,32 +62,62 @@ namespace AlgorithmBattleArina.Repositories
             if (!_lobbies.TryGetValue(lobbyId, out var info)) return;
             lock (info.Lock)
             {
-                var usersToRemove = new List<string>();
+                string? removedUser = null;
                 foreach (var kv in info.UserToConnections)
                 {
+                    var user = kv.Key;
                     var set = kv.Value;
                     if (set.Remove(connectionId))
                     {
-                        if (set.Count == 0) usersToRemove.Add(kv.Key);
+                        if (set.Count == 0) removedUser = user;
                         break;
                     }
                 }
 
-                foreach (var u in usersToRemove)
-                    info.UserToConnections.Remove(u);
+                if (removedUser != null)
+                {
+                    info.UserToConnections.Remove(removedUser);
+
+                    // if the removed user was the host, clear host (or choose a new host)
+                    if (info.HostUserId == removedUser)
+                    {
+                        info.HostUserId = info.UserToConnections.Keys.FirstOrDefault(); // promote another member or null
+                    }
+                }
 
                 if (info.UserToConnections.Count == 0 && info.HostUserId == null)
                     _lobbies.TryRemove(lobbyId, out _);
             }
         }
 
-        public void RemoveConnectionFromAllLobbies(string connectionId)
+        // Changed: return affected lobby ids so caller (hub) can broadcast updates for those lobbies.
+        public IEnumerable<string> RemoveConnectionFromAllLobbies(string connectionId)
         {
-            foreach (var kv in _lobbies)
+            var affected = new List<string>();
+
+            foreach (var kv in _lobbies.ToArray())
             {
                 var lobbyId = kv.Key;
+                var beforeCount = kv.Value.UserToConnections.Count;
+
                 RemoveConnection(lobbyId, connectionId);
+
+                // If the lobby existed before and now either changed or was removed, add to affected list.
+                // We'll determine change by comparing counts again.
+                if (_lobbies.TryGetValue(lobbyId, out var infoAfter))
+                {
+                    var afterCount = infoAfter.UserToConnections.Count;
+                    if (afterCount != beforeCount)
+                        affected.Add(lobbyId);
+                }
+                else
+                {
+                    // lobby removed entirely
+                    affected.Add(lobbyId);
+                }
             }
+
+            return affected;
         }
 
         public IEnumerable<string> GetConnections(string lobbyId)
@@ -93,9 +129,11 @@ namespace AlgorithmBattleArina.Repositories
             }
         }
 
+        // Fixed: If lobby not found, return false (do not implicitly allow unknown lobbies).
+        // If your design expects open lobbies (anyone can join a non-existent lobby), change to return true instead.
         public bool IsMember(string lobbyId, string userId)
         {
-            if (!_lobbies.TryGetValue(lobbyId, out var info)) return true;
+            if (!_lobbies.TryGetValue(lobbyId, out var info)) return false;
             lock (info.Lock)
             {
                 return info.UserToConnections.ContainsKey(userId);
@@ -120,7 +158,7 @@ namespace AlgorithmBattleArina.Repositories
             }
         }
 
-        // --- IMPLEMENTED: map internal to public LobbyInfo DTO ---
+        // --- map internal to public LobbyInfo DTO ---
         public IEnumerable<LobbyInfo> GetLobbies()
         {
             // Debug log so you can confirm at runtime this method is running
