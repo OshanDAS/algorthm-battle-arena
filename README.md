@@ -64,6 +64,10 @@ npm install
 npm start
 ```
 
+### APIs
+See Docs/api.md for the current list of API endpoints.
+
+
 ### Deployment
 We use Github Actions and Azure for CI/CD
 - On push to dev, tests + builds run automatically.
