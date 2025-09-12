@@ -62,3 +62,17 @@ dotnet run
 cd AlgorithmBattleArenaFrontend
 npm install
 npm start
+```
+
+### Deployment
+We use Github Actions and Azure for CI/CD
+- On push to dev, tests + builds run automatically.
+- On merge to main, tests and build the project and deploys to Azure Web App.
+
+### Contributing
+  1) Fork the repo
+  2) Create a feature branch (git checkout -b feature/awesome)
+  3) Stage your changes (git add .)
+  4) Commit your changes (git commit -m 'Add awesome feature')
+  5) Push to branch (git push origin feature/awesome)
+  6) Create a PR
