@@ -55,7 +55,7 @@ export default function LobbyPage() {
     setStatusMessage("Fetching lobbies...")
 
     try {
-      const res = await fetch("http://localhost:5000/api/lobbies", {
+      const res = await fetch("http://localhost:5000/api/Lobbies", {
         headers: {
           Authorization: `Bearer ${currentToken}`,
           "Content-Type": "application/json",

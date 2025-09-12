@@ -1,33 +1,45 @@
+// InMemoryLobbyRepository.cs
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using AlgorithmBattleArina.Repositories;
 
 namespace AlgorithmBattleArina.Repositories
 {
     /// <summary>
     /// Thread-safe in-memory lobby store.
-    /// Structure:
-    ///  - lobbyId => LobbyInfo
-    /// LobbyInfo holds a map userId => set(connectionId).
-    /// Note: uses locking per-lobby to simplify correctness.
     /// </summary>
     public class InMemoryLobbyRepository : ILobbyRepository
     {
-        private class LobbyInfo
+        private class InternalLobbyInfo
         {
             public readonly Dictionary<string, HashSet<string>> UserToConnections = new();
             public readonly object Lock = new();
             public string? HostUserId;
         }
 
-        // lobbyId -> LobbyInfo
-        private readonly ConcurrentDictionary<string, LobbyInfo> _lobbies = new();
+        private readonly ConcurrentDictionary<string, InternalLobbyInfo> _lobbies = new();
+
+        public InMemoryLobbyRepository()
+        {
+            // Seed sample lobbies for UI/testing
+            var id1 = "arena-1";
+            var info1 = new InternalLobbyInfo();
+            info1.UserToConnections["user_a"] = new HashSet<string> { "conn-a1" };
+            info1.UserToConnections["user_b"] = new HashSet<string> { "conn-b1" };
+            info1.HostUserId = "user_a";
+            _lobbies[id1] = info1;
+
+            var id2 = "arena-2";
+            var info2 = new InternalLobbyInfo();
+            info2.UserToConnections["spectator1"] = new HashSet<string> { "conn-s1" };
+            info2.HostUserId = null;
+            _lobbies[id2] = info2;
+        }
 
         public void AddConnection(string lobbyId, string userId, string connectionId)
         {
-            var info = _lobbies.GetOrAdd(lobbyId, _ => new LobbyInfo());
+            var info = _lobbies.GetOrAdd(lobbyId, _ => new InternalLobbyInfo());
             lock (info.Lock)
             {
                 if (!info.UserToConnections.TryGetValue(userId, out var set))
@@ -47,11 +59,10 @@ namespace AlgorithmBattleArina.Repositories
                 var usersToRemove = new List<string>();
                 foreach (var kv in info.UserToConnections)
                 {
-                    var userId = kv.Key;
                     var set = kv.Value;
                     if (set.Remove(connectionId))
                     {
-                        if (set.Count == 0) usersToRemove.Add(userId);
+                        if (set.Count == 0) usersToRemove.Add(kv.Key);
                         break;
                     }
                 }
@@ -59,7 +70,6 @@ namespace AlgorithmBattleArina.Repositories
                 foreach (var u in usersToRemove)
                     info.UserToConnections.Remove(u);
 
-                // If lobby empty and no host, remove lobby entry to free memory
                 if (info.UserToConnections.Count == 0 && info.HostUserId == null)
                     _lobbies.TryRemove(lobbyId, out _);
             }
@@ -85,7 +95,7 @@ namespace AlgorithmBattleArina.Repositories
 
         public bool IsMember(string lobbyId, string userId)
         {
-            if (!_lobbies.TryGetValue(lobbyId, out var info)) return true; // permissive: allow join if lobby not tracked
+            if (!_lobbies.TryGetValue(lobbyId, out var info)) return true;
             lock (info.Lock)
             {
                 return info.UserToConnections.ContainsKey(userId);
@@ -103,16 +113,48 @@ namespace AlgorithmBattleArina.Repositories
 
         public void SetHost(string lobbyId, string userId)
         {
-            var info = _lobbies.GetOrAdd(lobbyId, _ => new LobbyInfo());
+            var info = _lobbies.GetOrAdd(lobbyId, _ => new InternalLobbyInfo());
             lock (info.Lock)
             {
                 info.HostUserId = userId;
             }
         }
 
-        public IEnumerable<Repositories.LobbyInfo> GetLobbies()
+        // --- IMPLEMENTED: map internal to public LobbyInfo DTO ---
+        public IEnumerable<LobbyInfo> GetLobbies()
         {
-            throw new NotImplementedException();
+            // Debug log so you can confirm at runtime this method is running
+            Console.WriteLine("[InMemoryLobbyRepository] GetLobbies called - returning snapshot");
+
+            var snapshot = _lobbies.ToArray();
+            var result = new List<LobbyInfo>(snapshot.Length);
+
+            foreach (var kv in snapshot)
+            {
+                var lobbyId = kv.Key;
+                var info = kv.Value;
+
+                int memberCount;
+                int connectionCount;
+                string? host;
+
+                lock (info.Lock)
+                {
+                    memberCount = info.UserToConnections.Count;
+                    connectionCount = info.UserToConnections.Values.Sum(s => s.Count);
+                    host = info.HostUserId;
+                }
+
+                result.Add(new LobbyInfo
+                {
+                    Id = lobbyId,
+                    Name = $"Lobby {lobbyId}",
+                    MemberCount = memberCount,
+                    IsActive = memberCount > 0 || host != null
+                });
+            }
+
+            return result;
         }
     }
 }

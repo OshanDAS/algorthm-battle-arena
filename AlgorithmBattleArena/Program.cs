@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +27,6 @@ builder.Services.AddScoped<ILobbyRepository, InMemoryLobbyRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<AuthHelper>();
 
-
 // JWT Authentication configuration
 var tokenKey = builder.Configuration.GetValue<string>("AppSettings:TokenKey");
 if (string.IsNullOrEmpty(tokenKey))
@@ -43,6 +44,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuer = false,
             ValidateAudience = false,
             ClockSkew = TimeSpan.Zero
+        };
+
+        // Allow SignalR to receive token via "access_token" query param for negotiate
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"].ToString();
+                var path = context.HttpContext.Request.Path;
+                // adjust the path segment to match your hub mappings
+                if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/lobbyHub") || path.StartsWithSegments("/matchhub")))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -85,8 +102,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<MatchHub>("/matchhub");
 
+// Map hub to both paths to be tolerant of client expectations.
+app.MapHub<MatchHub>("/matchhub");
+app.MapHub<MatchHub>("/lobbyHub");
 
 app.Run();
 
