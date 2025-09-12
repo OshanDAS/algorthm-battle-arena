@@ -1,36 +1,35 @@
+// src/services/auth.jsx  (update imports & initial state)
 import React, { createContext, useContext, useState, useEffect } from "react";
 import jwtDecode from "jwt-decode";
+import { getToken, setToken as saveToken, clearToken } from "./tokenStorage";
 
 const API = import.meta.env.VITE_API_BASE || "";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem("access_token"));
+  const [token, setTokenState] = useState(() => getToken());
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("access_token");
+    const saved = getToken();
     return saved ? jwtDecode(saved) : null;
   });
 
-  // --- Auto logout if token expired ---
+  // Sync when token changes via our helper (also pick up manual localStorage changes)
   useEffect(() => {
-    if (!token) return;
+    const onTokenChanged = () => {
+      const t = getToken();
+      setTokenState(t);
+      setUser(t ? jwtDecode(t) : null);
+    };
 
-    try {
-      const { exp } = jwtDecode(token);
-      if (Date.now() >= exp * 1000) {
-        logout();
-      } else {
-        // Optional: schedule logout exactly when token expires
-        const timeout = setTimeout(() => logout(), exp * 1000 - Date.now());
-        return () => clearTimeout(timeout);
-      }
-    } catch (err) {
-      console.error("Failed to decode token", err);
-      logout();
-    }
-  }, [token]);
+    window.addEventListener("token-changed", onTokenChanged);
+    window.addEventListener("storage", onTokenChanged); // cross-tab updates
+    return () => {
+      window.removeEventListener("token-changed", onTokenChanged);
+      window.removeEventListener("storage", onTokenChanged);
+    };
+  }, []);
 
-  // --- Login ---
+  // --- Login: use same API as before but persist via helper ---
   const login = async (email, password) => {
     try {
       const res = await fetch(`${API}/api/auth/login`, {
@@ -42,11 +41,12 @@ export function AuthProvider({ children }) {
       if (!res.ok) throw new Error("Login failed");
 
       const data = await res.json();
-      const t = data.accessToken || data.token;
+      const t = data.accessToken || data.token || data.jwt || data.access_token;
       if (!t) throw new Error("No token returned from server");
 
-      localStorage.setItem("access_token", t);
-      setToken(t);
+      // Persist via helper (writes canonical key and legacy key)
+      saveToken(t);
+      setTokenState(t);
       setUser(jwtDecode(t));
     } catch (err) {
       console.error("Login error:", err);
@@ -54,10 +54,9 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // --- Logout ---
   const logout = () => {
-    localStorage.removeItem("access_token");
-    setToken(null);
+    clearToken();
+    setTokenState(null);
     setUser(null);
   };
 

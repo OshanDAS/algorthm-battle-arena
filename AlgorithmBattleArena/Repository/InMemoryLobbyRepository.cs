@@ -109,5 +109,10 @@ namespace AlgorithmBattleArina.Repositories
                 info.HostUserId = userId;
             }
         }
+
+        public IEnumerable<Repositories.LobbyInfo> GetLobbies()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
