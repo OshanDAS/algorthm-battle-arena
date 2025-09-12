@@ -164,9 +164,9 @@ export default function RegisterPage() {
                 <BookOpen className="w-12 h-12 text-white" />
               </div>
 
-              <h1 className="text-4xl xl:text-5xl font-bold text-gray-900 mb-6 leading-tight">Join Our Learning Community</h1>
+              <h1 className="text-4xl xl:text-5xl font-bold text-gray-900 mb-6 leading-tight">Join the Algorithm Battle Arena</h1>
               <p className="text-gray-600 text-lg xl:text-xl leading-relaxed mb-8">
-                Create your account to get started on your educational journey and unlock access to world-class learning resources.
+                Create your account to enter the coding arena and unlock access to competitive programming challenges.
               </p>
 
               <div className="space-y-4 xl:space-y-6">
@@ -175,8 +175,8 @@ export default function RegisterPage() {
                     <GraduationCap className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Expert-Led Courses</h3>
-                    <p className="text-gray-600 text-sm">Learn from industry professionals</p>
+                    <h3 className="font-semibold text-gray-900">Expert-Crafted Problems</h3>
+                    <p className="text-gray-600 text-sm">Battle through challenges designed by algorithm masters</p>
                   </div>
                 </div>
 
@@ -185,8 +185,8 @@ export default function RegisterPage() {
                     <Users className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Community Support</h3>
-                    <p className="text-gray-600 text-sm">Connect with fellow learners</p>
+                    <h3 className="font-semibold text-gray-900">Warrior Community</h3>
+                    <p className="text-gray-600 text-sm">Connect with fellow code warriors and competitors</p>
                   </div>
                 </div>
 
@@ -195,8 +195,8 @@ export default function RegisterPage() {
                     <Shield className="w-6 h-6 text-emerald-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Secure Platform</h3>
-                    <p className="text-gray-600 text-sm">Your data is safe with us</p>
+                    <h3 className="font-semibold text-gray-900">Secure Battleground</h3>
+                    <p className="text-gray-600 text-sm">Your solutions and progress are protected</p>
                   </div>
                 </div>
               </div>

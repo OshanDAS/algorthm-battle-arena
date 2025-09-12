@@ -54,10 +54,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 var accessToken = context.Request.Query["access_token"].ToString();
                 var path = context.HttpContext.Request.Path;
                 // adjust the path segment to match your hub mappings
-                if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/lobbyHub") || path.StartsWithSegments("/matchhub")))
-                {
-                    context.Token = accessToken;
-                }
+              if (!string.IsNullOrEmpty(accessToken) &&
+    (path.StartsWithSegments("/lobbyHub", StringComparison.OrdinalIgnoreCase) ||
+     path.StartsWithSegments("/matchhub", StringComparison.OrdinalIgnoreCase)))
+{
+    context.Token = accessToken;
+}
+
                 return Task.CompletedTask;
             }
         };
