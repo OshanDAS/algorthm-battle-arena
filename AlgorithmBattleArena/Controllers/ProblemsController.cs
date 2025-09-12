@@ -8,6 +8,7 @@ namespace AlgorithmBattleArina.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ProblemsController : ControllerBase
     {
         private readonly IDataContextDapper _dapper;
