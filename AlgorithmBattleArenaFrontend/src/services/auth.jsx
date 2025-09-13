@@ -2,8 +2,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import jwtDecode from "jwt-decode";
 import { getToken, setToken as saveToken, clearToken } from "./tokenStorage";
+import apiService from "./api";
 
-const API = import.meta.env.VITE_API_BASE || "";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
@@ -13,41 +13,36 @@ export function AuthProvider({ children }) {
     return saved ? jwtDecode(saved) : null;
   });
 
-  // Sync when token changes via our helper (also pick up manual localStorage changes)
   useEffect(() => {
     const onTokenChanged = () => {
       const t = getToken();
       setTokenState(t);
       setUser(t ? jwtDecode(t) : null);
+      apiService.setAuthToken(t);
     };
 
     window.addEventListener("token-changed", onTokenChanged);
-    window.addEventListener("storage", onTokenChanged); // cross-tab updates
+    window.addEventListener("storage", onTokenChanged);
     return () => {
       window.removeEventListener("token-changed", onTokenChanged);
       window.removeEventListener("storage", onTokenChanged);
     };
   }, []);
 
-  // --- Login: use same API as before but persist via helper ---
   const login = async (email, password) => {
     try {
-      const res = await fetch(`${API}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) throw new Error("Login failed");
-
-      const data = await res.json();
-      const t = data.accessToken || data.token || data.jwt || data.access_token;
+      const response = await apiService.auth.login(email, password);
+      const { token: t, role } = response.data;
+      
       if (!t) throw new Error("No token returned from server");
 
-      // Persist via helper (writes canonical key and legacy key)
       saveToken(t);
       setTokenState(t);
-      setUser(jwtDecode(t));
+      const decoded = jwtDecode(t);
+      setUser({ ...decoded, role });
+      apiService.setAuthToken(t);
+      
+      return { role };
     } catch (err) {
       console.error("Login error:", err);
       throw err;
@@ -58,6 +53,7 @@ export function AuthProvider({ children }) {
     clearToken();
     setTokenState(null);
     setUser(null);
+    apiService.setAuthToken(null);
   };
 
   return (

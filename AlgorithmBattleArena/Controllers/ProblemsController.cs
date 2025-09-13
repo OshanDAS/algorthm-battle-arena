@@ -4,6 +4,7 @@ using AlgorithmBattleArina.Data;
 using AlgorithmBattleArina.Dtos;
 using AlgorithmBattleArina.Models;
 using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArina.Attributes;
 
 namespace AlgorithmBattleArina.Controllers
 {
@@ -21,6 +22,7 @@ namespace AlgorithmBattleArina.Controllers
             _logger = logger;
         }
 
+        [AdminOnly]
         [HttpPost("UpsertProblem")]
         public IActionResult UpsertProblem([FromBody] ProblemUpsertDto dto)
         {
@@ -56,6 +58,7 @@ namespace AlgorithmBattleArina.Controllers
             }
         }
 
+        [StudentOrAdmin]
         [HttpGet]
         public IActionResult GetProblems([FromQuery] ProblemFilterDto filter)
         {
@@ -114,6 +117,7 @@ namespace AlgorithmBattleArina.Controllers
             }
         }
 
+        [StudentOrAdmin]
         [HttpGet("{id:int}")]
         public IActionResult GetProblem(int id)
         {
@@ -160,6 +164,7 @@ namespace AlgorithmBattleArina.Controllers
             }
         }
 
+        [AdminOnly]
         [HttpDelete("{id:int}")]
         public IActionResult DeleteProblem(int id)
         {
@@ -192,6 +197,7 @@ namespace AlgorithmBattleArina.Controllers
             }
         }
 
+        [StudentOrAdmin]
         [HttpGet("categories")]
         public IActionResult GetCategories() =>
             ControllerHelper.SafeExecute(() =>
@@ -199,6 +205,7 @@ namespace AlgorithmBattleArina.Controllers
                     "SELECT DISTINCT Category FROM AlgorithmBattleArinaSchema.Problems ORDER BY Category")),
                 "Error retrieving categories", _logger);
 
+        [StudentOrAdmin]
         [HttpGet("difficulty-levels")]
         public IActionResult GetDifficultyLevels() =>
             ControllerHelper.SafeExecute(() =>
