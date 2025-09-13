@@ -23,7 +23,7 @@ builder.Services.AddDbContext<DataContextEF>(options =>
 );
 
 builder.Services.AddScoped<IDataContextDapper, DataContextDapper>();
-builder.Services.AddScoped<ILobbyRepository, InMemoryLobbyRepository>();
+builder.Services.AddSingleton<ILobbyRepository, InMemoryLobbyRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<AuthHelper>();
 

@@ -266,29 +266,41 @@ export default function LobbyPage() {
     if (e && e.preventDefault) e.preventDefault()
     setStatusMessage("")
     if (!validateForm()) return
-    if (!connectionRef.current) {
-      setStatusMessage("Not connected to lobby hub")
-      logEvent("Cannot join: no hub connection")
+    
+    const currentToken = getToken()
+    if (!currentToken) {
+      setStatusMessage("Not authenticated")
       return
     }
 
     setIsLoading(true)
     setStatusMessage("Creating battle lobby...")
 
-    const battleData = {
-      playerName: formData.playerName,
-      preferredLanguage: formData.preferredLanguage,
-      battleMode: formData.battleMode,
-      difficulty: formData.difficulty,
-      timeLimit: Number.parseInt(formData.timeLimit),
+    const lobbyData = {
+      name: `${formData.playerName}'s ${formData.battleMode} Battle`,
+      maxPlayers: formData.battleMode === "Solo" ? 1 : 10
     }
 
     try {
-      await connectionRef.current.invoke("CreateLobby", battleData)
-      setStatusMessage("Lobby created successfully! Preparing arena...")
-      setSuccess(true)
+      const res = await fetch("http://localhost:5000/api/Lobbies", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${currentToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(lobbyData)
+      })
+
+      if (!res.ok) {
+        const errorText = await res.text()
+        throw new Error(`HTTP ${res.status}: ${errorText}`)
+      }
+
+      const createdLobby = await res.json()
+      setStatusMessage("Lobby created successfully!")
+      logEvent(`Lobby created: ${createdLobby.id || 'Unknown ID'}`)
+      fetchLobbies() // Refresh lobby list
       setIsLoading(false)
-      logEvent("Lobby created successfully")
     } catch (err) {
       console.error("CreateLobby error:", err)
       setStatusMessage("Failed to create lobby: " + (err?.message || err))
@@ -299,9 +311,9 @@ export default function LobbyPage() {
 
   // Join lobby
   const handleJoinLobby = async (lobbyId) => {
-    if (!connectionRef.current) {
-      logEvent("No hub connection to join lobby")
-      setStatusMessage("Not connected to lobby hub")
+    const currentToken = getToken()
+    if (!currentToken) {
+      setStatusMessage("Not authenticated")
       return
     }
 
@@ -309,12 +321,24 @@ export default function LobbyPage() {
     setStatusMessage("Joining lobby...")
 
     try {
-      await connectionRef.current.invoke("JoinLobby", lobbyId)
+      const res = await fetch(`http://localhost:5000/api/Lobbies/${lobbyId}/join`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${currentToken}`,
+          "Content-Type": "application/json"
+        }
+      })
 
-      setStatusMessage("Lobby joined successfully! Preparing arena...")
+      if (!res.ok) {
+        const errorText = await res.text()
+        throw new Error(`HTTP ${res.status}: ${errorText}`)
+      }
+
+      setStatusMessage("Lobby joined successfully!")
       setSuccess(true)
       setIsLoading(false)
       logEvent(`Joined lobby ${lobbyId}`)
+      fetchLobbies() // Refresh lobby list
     } catch (err) {
       console.error("JoinLobby error:", err)
       setStatusMessage("Failed to join lobby: " + (err?.message || err))
@@ -670,26 +694,30 @@ export default function LobbyPage() {
                   <div className="text-sm text-gray-400">No lobbies available</div>
                 ) : (
                   <ul className="divide-y divide-white/20 border border-white/20 rounded-lg overflow-hidden">
-                    {lobbies.map((l, idx) => (
-                      <li key={l.id ?? idx} className="px-4 py-3 flex items-center justify-between bg-white/5">
-                        <div>
-                          <div className="font-medium text-white">{l.name || `Lobby ${idx + 1}`}</div>
-                          <div className="text-xs text-gray-400">
-                            {l.playerCount ?? "0"} players | {l.difficulty || "Unknown"} | {l.timeLimit || "N/A"} min
+                    {lobbies.map((lobby, idx) => (
+                      <li key={lobby.id || idx} className="px-4 py-3 bg-white/5 border-b border-white/10 last:border-b-0">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="font-medium text-white">{lobby.name || `Lobby ${idx + 1}`}</div>
+                            <div className="text-xs text-gray-400 mt-1">
+                              <span className="inline-block mr-3">ID: {lobby.id || 'N/A'}</span>
+                              <span className="inline-block mr-3">Max Players: {lobby.maxPlayers || 'N/A'}</span>
+                              <span className="inline-block">Current: {lobby.currentPlayers || 0}/{lobby.maxPlayers || 'N/A'}</span>
+                            </div>
                           </div>
+                          <button
+                            type="button"
+                            className={`px-3 py-1 rounded-md text-sm font-semibold transition-all ml-4 ${
+                              !getToken() || isLoading
+                                ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                                : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:scale-105"
+                            }`}
+                            onClick={() => handleJoinLobby(lobby.id)}
+                            disabled={!getToken() || isLoading || !lobby.id}
+                          >
+                            Join
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          className={`px-3 py-1 rounded-md text-sm font-semibold transition-all ${
-                            !getToken() || isLoading
-                              ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-                              : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:scale-105"
-                          }`}
-                          onClick={() => handleJoinLobby(l.id ?? idx)}
-                          disabled={!getToken() || isLoading}
-                        >
-                          Join
-                        </button>
                       </li>
                     ))}
                   </ul>

@@ -159,5 +159,16 @@ namespace AlgorithmBattleArina.Helpers
             };
             return int.TryParse(claimValue, out int id) ? id : null;
         }
+
+        public bool ValidateAdminCredentials(string email, string password)
+        {
+            string? adminEmail = _config.GetSection("AppSettings:AdminEmail").Value;
+            string? adminPassword = _config.GetSection("AppSettings:AdminPassword").Value;
+            
+            return !string.IsNullOrEmpty(adminEmail) && 
+                   !string.IsNullOrEmpty(adminPassword) &&
+                   email == adminEmail && 
+                   password == adminPassword;
+        }
     }
 }
