@@ -8,8 +8,15 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using DotNetEnv;
+
+// Load environment variables from .env file
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add environment variables to configuration
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -18,8 +25,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 
 // Register DbContexts, repositories, and helpers
+var connectionString = Environment.GetEnvironmentVariable("DefaultConnection") ?? 
+                      builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DataContextEF>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseSqlServer(connectionString)
 );
 
 builder.Services.AddScoped<IDataContextDapper, DataContextDapper>();
@@ -28,7 +37,8 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<AuthHelper>();
 
 // JWT Authentication configuration
-var tokenKey = builder.Configuration.GetValue<string>("AppSettings:TokenKey");
+var tokenKey = Environment.GetEnvironmentVariable("TokenKey") ?? 
+               builder.Configuration.GetValue<string>("AppSettings:TokenKey");
 if (string.IsNullOrEmpty(tokenKey))
 {
     throw new Exception("JWT TokenKey is missing in configuration!");
