@@ -1,60 +1,69 @@
-## User Story ABA - 3: Basic React Pages - Auth + Problems List
+## User Story ABA-3: Responsive Auth & Problems List
 
-**Story Definition:**
+**Story Definition:**  
 As a player, I want responsive login/register pages and a public problems list so I can authenticate and browse problems.
 
-**Development Summary:**
+**Technical Implementation:**
 
-* React pages implemented: `Login`, `Register`, `ProblemsList` (with pagination).
-* Integrated with API authentication endpoints and `localStorage` for JWT token management.
-* Problems list displays:
+- **Frontend:**
+  - React pages: `LoginPage`, `RegisterPage`, and `LobbyPage` (problems list with pagination).
+  - API integration via `/api/Auth/login`, `/api/Auth/register/student`, `/api/Auth/register/teacher`.
+  - JWT token managed in `localStorage` and provided via context (`AuthProvider`).
+  - Problems list displays title, difficulty, tags, and links to detail pages.
+  - Pagination and filtering handled via API and frontend state.
 
-  * Problem title
-  * Difficulty
-  * Tags
-  * Link to problem detail page
+- **Backend:**
+  - Auth endpoints implemented in `AuthController`.
+  - Problems endpoints in `ProblemsController`:
+    - `GET /api/problems` for list (supports pagination/filtering).
+    - `GET /api/problems/{id}` for details.
+  - DTOs for problem data and filtering.
 
-**Testing Summary:**
+**Testing Approach:**
 
-* Unit tests for React components using **Jest** and **React Testing Library (RTL)**.
-* End-to-end (E2E) smoke test: login → redirect → problems list.
-* Accessibility checks: keyboard navigation, color contrast compliance.
+- **Frontend:**
+  - Unit tests for React components using Jest and React Testing Library.
+  - E2E smoke test: login → redirect → problems list.
+  - Accessibility checks for keyboard navigation and color contrast.
+
+- **Backend:**
+  - Controller unit tests for authentication and problems endpoints.
 
 **Acceptance Criteria:**
 
-* Login/Register pages authenticate via backend and redirect to the problems list.
-* Problems list renders ≥10 items and supports pagination.
-* Client-side validation errors shown for invalid input.
+- Login/Register UI authenticates via backend and redirects to problems list.
+- Problems list renders at least 10 items and supports pagination.
+- Invalid input triggers client-side validation errors.
 
 ---
 
-## User Story ABA - 9: SignalR Hub - Lobby & MatchStarted Event
+## User Story ABA-9: Real-Time Lobby & Match Start Broadcasts
 
-**Story Definition:**
+**Story Definition:**  
 As a player, I want real-time lobby behavior and match start broadcasts so all participants begin the match in sync.
 
-**Development Summary:**
+**Technical Implementation:**
 
-* Implemented **SignalR hub** `/hubs/match` with methods:
+- **Backend:**
+  - SignalR hub `/hubs/match` implemented in `MatchHub`:
+    - Methods: `JoinLobby`, `LeaveLobby`, and server broadcast of `MatchStarted`.
+    - Payload includes: `matchId`, `problemId`, `startAt` (UTC), `durationSec`.
+    - JWT authentication required for hub access.
+    - Lobby membership and authorization enforced.
+  - REST endpoint `/api/matches/{lobbyId}/start` triggers match start and broadcasts to lobby.
 
-  * `JoinLobby`
-  * `LeaveLobby`
-  * `MatchStarted` event broadcast
-* Hub payload includes:
+- **Frontend:**
+  - SignalR client connects to `/hubs/match` and listens for `MatchStarted`.
+  - Lobby UI updates in real-time on member join/leave and match start.
 
-  * `matchId`
-  * `problemId`
-  * `startAt` timestamp
-  * `durationSec`
-* Hub requires **JWT authentication** and lobby authorization.
+**Testing Approach:**
 
-**Testing Summary:**
-
-* Integration tests for hub methods using SignalR test client.
-* E2E test: multiple clients join lobby → verify `MatchStarted` received.
-* Measured broadcast latency in staging environment.
+- Integration tests for hub methods using SignalR test client.
+- E2E: multiple clients join lobby and receive `MatchStarted` event.
+- Broadcast latency measured in staging.
+- Authorization checks for hub operations.
 
 **Acceptance Criteria:**
 
-* Clients in lobby receive `MatchStarted` with identical `startAt`.
-* Unauthorized clients are rejected from hub operations.
+- All clients in a lobby receive `MatchStarted` with identical `startAt`.
+- Unauthorized clients are rejected
