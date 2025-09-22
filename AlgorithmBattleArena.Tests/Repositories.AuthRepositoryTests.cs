@@ -10,8 +10,24 @@ using AlgorithmBattleArina.Models;
 
 namespace AlgorithmBattleArena.Tests;
 
-public class AuthRepositoryTests
+public class AuthRepositoryTests : IDisposable
 {
+    private readonly List<string> _envVarsToCleanup = new();
+
+    private void SetEnvironmentVariable(string key, string value)
+    {
+        Environment.SetEnvironmentVariable(key, value);
+        _envVarsToCleanup.Add(key);
+    }
+
+    public void Dispose()
+    {
+        foreach (var key in _envVarsToCleanup)
+        {
+            Environment.SetEnvironmentVariable(key, null);
+        }
+    }
+
     private static AuthHelper CreateAuthHelper()
     {
         var config = new ConfigurationBuilder()
@@ -88,5 +104,20 @@ public class AuthRepositoryTests
         var role = repo.GetUserRole("e@e.com");
 
         Assert.Equal("Student", role);
+    }
+
+    [Fact]
+    public void RegisterStudent_WithEnvironmentVariables_ShouldWork()
+    {
+        SetEnvironmentVariable("PasswordKey", "env-password-key");
+        
+        var dapper = new Mock<IDataContextDapper>();
+        dapper.Setup(d => d.ExecuteTransaction(It.IsAny<List<(string sql, object? parameters)>>())).Returns(true);
+        var repo = new AuthRepository(dapper.Object, CreateAuthHelper());
+
+        var ok = repo.RegisterStudent(new StudentForRegistrationDto { Email = "e@e.com", FirstName="A", LastName="B", Password = "x", PasswordConfirm = "x", TeacherId = 2 });
+
+        Assert.True(ok);
+        dapper.Verify(d => d.ExecuteTransaction(It.Is<List<(string sql, object? parameters)>>(l => l.Count == 2)), Times.Once);
     }
 }

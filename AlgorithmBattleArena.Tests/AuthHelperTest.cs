@@ -6,11 +6,27 @@ using AlgorithmBattleArina.Helpers;
 
 namespace AlgorithmBattleArena.Tests;
 
-public class AuthHelperTest
+public class AuthHelperTest : IDisposable
 {
-     private IConfiguration CreateMockConfiguration(string passwordKey = "test-password-key", string tokenKey = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#")
+    private readonly List<string> _envVarsToCleanup = new();
+
+    private void SetEnvironmentVariable(string key, string value)
     {
-        var inMemorySettings = new Dictionary<string, string> {
+        Environment.SetEnvironmentVariable(key, value);
+        _envVarsToCleanup.Add(key);
+    }
+
+    public void Dispose()
+    {
+        foreach (var key in _envVarsToCleanup)
+        {
+            Environment.SetEnvironmentVariable(key, null);
+        }
+    }
+
+    private IConfiguration CreateMockConfiguration(string passwordKey = "test-password-key", string tokenKey = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#")
+    {
+        var inMemorySettings = new Dictionary<string, string?> {
             {"AppSettings:PasswordKey", passwordKey},
             {"AppSettings:TokenKey", tokenKey},
         };
@@ -137,6 +153,41 @@ public class AuthHelperTest
         Assert.Equal(1, userId);
     }
 
+    [Fact]
+    public void GetPasswordHash_WithEnvironmentVariable_ShouldUseEnvVar()
+    {
+        SetEnvironmentVariable("PasswordKey", "env-password-key");
+        var auth = new AuthHelper(CreateMockConfiguration("config-password-key"));
+        var salt = auth.GetPasswordSalt();
+        
+        var hash = auth.GetPasswordHash("password123", salt);
+        
+        Assert.NotNull(hash);
+        Assert.Equal(32, hash.Length);
+    }
 
+    [Fact]
+    public void CreateToken_WithEnvironmentVariable_ShouldUseEnvVar()
+    {
+        SetEnvironmentVariable("TokenKey", "env-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#");
+        var auth = new AuthHelper(CreateMockConfiguration(tokenKey: "config-token-key"));
+        
+        var token = auth.CreateToken("test@test.com", "Student", 1);
+        
+        Assert.NotNull(token);
+        var principal = auth.ValidateToken(token);
+        Assert.NotNull(principal);
+    }
 
+    [Fact]
+    public void ValidateAdminCredentials_WithEnvironmentVariables_ShouldUseEnvVars()
+    {
+        SetEnvironmentVariable("AdminEmail", "env-admin@test.com");
+        SetEnvironmentVariable("AdminPassword", "env-admin-pass");
+        var auth = new AuthHelper(CreateMockConfiguration());
+        
+        var result = auth.ValidateAdminCredentials("env-admin@test.com", "env-admin-pass");
+        
+        Assert.True(result);
+    }
 }

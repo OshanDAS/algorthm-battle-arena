@@ -18,7 +18,9 @@ namespace AlgorithmBattleArina.Data
 
         private IDbConnection CreateConnection()
         {
-            return new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            var connectionString = Environment.GetEnvironmentVariable("DefaultConnection") ?? 
+                                  _config.GetConnectionString("DefaultConnection");
+            return new SqlConnection(connectionString);
         }
 
         // Load multiple rows
