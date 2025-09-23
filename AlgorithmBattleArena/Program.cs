@@ -81,9 +81,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevCors", policy =>
     {
-
         policy.WithOrigins("http://localhost:5173","http://localhost:4200", "http://localhost:3000", "http://localhost:8000")
-
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -91,7 +89,7 @@ builder.Services.AddCors(options =>
 
     options.AddPolicy("ProdCors", policy =>
     {
-        policy.WithOrigins("https://myProductionSite.com")
+        policy.WithOrigins("https://lemon-mud-0cd08c100.2.azurestaticapps.net")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();

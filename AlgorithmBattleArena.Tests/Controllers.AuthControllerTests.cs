@@ -159,6 +159,10 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_ValidCredentials_ReturnsToken()
     {
+        // Clear any environment variables that might interfere
+        SetEnvironmentVariable("PASSWORD_KEY", null!);
+        SetEnvironmentVariable("TOKEN_KEY", null!);
+        
         var helper = CreateAuthHelper();
         var salt = helper.GetPasswordSalt();
         var hash = helper.GetPasswordHash("P@ssw0rd", salt);
@@ -187,6 +191,9 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_UnknownRole_ReturnsUnauthorized()
     {
+        SetEnvironmentVariable("PASSWORD_KEY", null!);
+        SetEnvironmentVariable("TOKEN_KEY", null!);
+        
         var helper = CreateAuthHelper();
         var salt = helper.GetPasswordSalt();
         var hash = helper.GetPasswordHash("P@ssw0rd", salt);
@@ -203,6 +210,9 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_ProfileMissing_ReturnsUnauthorized()
     {
+        SetEnvironmentVariable("PASSWORD_KEY", null!);
+        SetEnvironmentVariable("TOKEN_KEY", null!);
+        
         var helper = CreateAuthHelper();
         var salt = helper.GetPasswordSalt();
         var hash = helper.GetPasswordHash("P@ssw0rd", salt);

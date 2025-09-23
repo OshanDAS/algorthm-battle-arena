@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5000';
+// Automatically detect environment and use appropriate API URL
+const BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000'  // Local development
+  : 'https://algorithmbattlearena-dwdmb7a6c0a7hqdc.southindia-01.azurewebsites.net'; // Production
 
 class ApiService {
   constructor() {
