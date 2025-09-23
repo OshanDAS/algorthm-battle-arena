@@ -50,6 +50,9 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void GetPasswordHash_WithValidConfig_ShouldGenerateHash()
     {
+        // Clear environment variables that could interfere with test
+        SetEnvironmentVariable("PasswordKey", null);
+        
         var auth = new AuthHelper(CreateMockConfiguration());
         var salt = auth.GetPasswordSalt();
         var hash = auth.GetPasswordHash("password123", salt);
@@ -61,6 +64,9 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void VerifyPasswordHash_WithMatchingPasswords_ShouldReturnTrue()
     {
+        // Clear environment variables that could interfere with test
+        SetEnvironmentVariable("PasswordKey", null);
+        
         var auth = new AuthHelper(CreateMockConfiguration());
         var salt = auth.GetPasswordSalt();
         var hash = auth.GetPasswordHash("password123", salt);
@@ -73,6 +79,9 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void VerifyPasswordHash_WithNonMatchingPasswords_ShouldReturnFalse()
     {
+        // Clear environment variables that could interfere with test
+        SetEnvironmentVariable("PasswordKey", null);
+        
         var auth = new AuthHelper(CreateMockConfiguration());
         var salt = auth.GetPasswordSalt();
         var hash = auth.GetPasswordHash("password123", salt);

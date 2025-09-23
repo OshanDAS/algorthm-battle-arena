@@ -375,7 +375,16 @@ public class AuthControllerTests : IDisposable
         SetEnvironmentVariable("PasswordKey", "env-password-key");
         SetEnvironmentVariable("TokenKey", "env-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#");
         
-        var helper = CreateAuthHelper();
+        // Create helper that will use environment variables
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string,string?>
+            {
+                ["AppSettings:PasswordKey"] = "config-password-key", // This will be overridden by env var
+                ["AppSettings:TokenKey"] = "config-token-key" // This will be overridden by env var
+            })
+            .Build();
+        var helper = new AuthHelper(config);
+        
         var salt = helper.GetPasswordSalt();
         var hash = helper.GetPasswordHash("P@ssw0rd", salt);
 
