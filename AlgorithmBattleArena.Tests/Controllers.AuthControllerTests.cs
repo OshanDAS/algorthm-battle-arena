@@ -33,6 +33,10 @@ public class AuthControllerTests : IDisposable
 
     private static AuthHelper CreateAuthHelper()
     {
+        // Clear environment variables to ensure test isolation
+        Environment.SetEnvironmentVariable("PASSWORD_KEY", null);
+        Environment.SetEnvironmentVariable("TOKEN_KEY", null);
+        
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string,string?>
             {
@@ -388,12 +392,14 @@ public class AuthControllerTests : IDisposable
         SetEnvironmentVariable("PASSWORD_KEY", envPasswordKey);
         SetEnvironmentVariable("TOKEN_KEY", envTokenKey);
         
-        // Verify environment variables are actually set
-        Assert.Equal(envPasswordKey, Environment.GetEnvironmentVariable("PASSWORD_KEY"));
-        Assert.Equal(envTokenKey, Environment.GetEnvironmentVariable("TOKEN_KEY"));
-        
-        // Create helper with empty config since it will use environment variables
-        var config = new ConfigurationBuilder().Build();
+        // Create helper with fallback config (mimics backend behavior)
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string,string?>
+            {
+                ["AppSettings:PasswordKey"] = "fallback-password-key",
+                ["AppSettings:TokenKey"] = "fallback-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#"
+            })
+            .Build();
         var helper = new AuthHelper(config);
         
         var salt = helper.GetPasswordSalt();
