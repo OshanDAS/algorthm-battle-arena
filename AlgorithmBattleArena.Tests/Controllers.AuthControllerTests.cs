@@ -191,9 +191,6 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_UnknownRole_ReturnsUnauthorized()
     {
-        SetEnvironmentVariable("PASSWORD_KEY", null!);
-        SetEnvironmentVariable("TOKEN_KEY", null!);
-        
         var helper = CreateAuthHelper();
         var salt = helper.GetPasswordSalt();
         var hash = helper.GetPasswordHash("P@ssw0rd", salt);
@@ -210,9 +207,6 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_ProfileMissing_ReturnsUnauthorized()
     {
-        SetEnvironmentVariable("PASSWORD_KEY", null!);
-        SetEnvironmentVariable("TOKEN_KEY", null!);
-        
         var helper = CreateAuthHelper();
         var salt = helper.GetPasswordSalt();
         var hash = helper.GetPasswordHash("P@ssw0rd", salt);
@@ -382,13 +376,9 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_WithEnvironmentVariables_ShouldWork()
     {
-        // Set environment variables first
-        var envPasswordKey = "env-password-key";
-        var envTokenKey = "this-is-a-very-long-token-key-for-jwt-signing-that-should-be-at-least-64-characters-long-to-work-properly-with-hmacsha512";
-        SetEnvironmentVariable("PASSWORD_KEY", envPasswordKey);
-        SetEnvironmentVariable("TOKEN_KEY", envTokenKey);
+        SetEnvironmentVariable("PASSWORD_KEY", "env-password-key");
+        SetEnvironmentVariable("TOKEN_KEY", "this-is-a-very-long-token-key-for-jwt-signing-that-should-be-at-least-64-characters-long-to-work-properly-with-hmacsha512");
         
-        // Create helper with fallback config (mimics backend behavior)
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string,string?>
             {
@@ -411,12 +401,6 @@ public class AuthControllerTests : IDisposable
         var controller = new AuthController(repo.Object, helper);
 
         var result = controller.Login(new UserForLoginDto { Email="e@e.com", Password="P@ssw0rd" });
-
-        // Debug: Check what type we actually got
-        if (result is ObjectResult objResult && objResult.StatusCode == 500)
-        {
-            throw new Exception($"Login failed with 500 error: {objResult.Value}");
-        }
         
         var ok = Assert.IsType<OkObjectResult>(result);
         Assert.NotNull(ok.Value);
