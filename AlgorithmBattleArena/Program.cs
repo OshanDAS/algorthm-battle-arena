@@ -25,7 +25,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 
 // Register DbContexts, repositories, and helpers
-var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION") ?? 
+var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION") ??
                       builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DataContextEF>(options =>
     options.UseSqlServer(connectionString)
@@ -37,7 +37,7 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<AuthHelper>();
 
 // JWT Authentication configuration
-var tokenKey = Environment.GetEnvironmentVariable("TOKEN_KEY") ?? 
+var tokenKey = Environment.GetEnvironmentVariable("TOKEN_KEY") ??
                builder.Configuration.GetValue<string>("AppSettings:TokenKey");
 if (string.IsNullOrEmpty(tokenKey))
 {
@@ -63,13 +63,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             {
                 var accessToken = context.Request.Query["access_token"].ToString();
                 var path = context.HttpContext.Request.Path;
-                // adjust the path segment to match your hub mappings
-              if (!string.IsNullOrEmpty(accessToken) &&
-    (path.StartsWithSegments("/lobbyHub", StringComparison.OrdinalIgnoreCase) ||
-     path.StartsWithSegments("/matchhub", StringComparison.OrdinalIgnoreCase)))
-{
-    context.Token = accessToken;
-}
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    (path.StartsWithSegments("/lobbyHub", StringComparison.OrdinalIgnoreCase) ||
+                     path.StartsWithSegments("/matchhub", StringComparison.OrdinalIgnoreCase)))
+                {
+                    context.Token = accessToken;
+                }
 
                 return Task.CompletedTask;
             }
@@ -81,9 +80,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevCors", policy =>
     {
-
         policy.WithOrigins("http://localhost:5173")
-
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -100,25 +97,25 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure middleware
+// ----------------- Middleware order matters -----------------
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors("DevCors");
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-else
-{
-    app.UseCors("ProdCors");
-    app.UseHttpsRedirection();
-}
+
+// Use CORS before authentication/authorization
+app.UseCors(app.Environment.IsDevelopment() ? "DevCors" : "ProdCors");
+
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-// Map hub to both paths to be tolerant of client expectations.
+// Map hubs
 app.MapHub<MatchHub>("/matchhub");
 app.MapHub<MatchHub>("/lobbyHub");
 
