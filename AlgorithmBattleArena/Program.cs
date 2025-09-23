@@ -25,8 +25,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 
 // Register DbContexts, repositories, and helpers
-var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION") ?? 
-                      builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION") ??
+                       builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<DataContextEF>(options =>
     options.UseSqlServer(connectionString)
 );
@@ -37,8 +38,9 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<AuthHelper>();
 
 // JWT Authentication configuration
-var tokenKey = Environment.GetEnvironmentVariable("TOKEN_KEY") ?? 
+var tokenKey = Environment.GetEnvironmentVariable("TOKEN_KEY") ??
                builder.Configuration.GetValue<string>("AppSettings:TokenKey");
+
 if (string.IsNullOrEmpty(tokenKey))
 {
     throw new Exception("JWT TokenKey is missing in configuration!");
@@ -56,20 +58,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ClockSkew = TimeSpan.Zero
         };
 
-        // Allow SignalR to receive token via "access_token" query param for negotiate
+        // Allow SignalR to receive token via "access_token" query param
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
                 var accessToken = context.Request.Query["access_token"].ToString();
                 var path = context.HttpContext.Request.Path;
-                // adjust the path segment to match your hub mappings
-              if (!string.IsNullOrEmpty(accessToken) &&
-    (path.StartsWithSegments("/lobbyHub", StringComparison.OrdinalIgnoreCase) ||
-     path.StartsWithSegments("/matchhub", StringComparison.OrdinalIgnoreCase)))
-{
-    context.Token = accessToken;
-}
+
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    (path.StartsWithSegments("/lobbyHub", StringComparison.OrdinalIgnoreCase) ||
+                     path.StartsWithSegments("/matchhub", StringComparison.OrdinalIgnoreCase)))
+                {
+                    context.Token = accessToken;
+                }
 
                 return Task.CompletedTask;
             }
@@ -81,10 +83,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevCors", policy =>
     {
-        policy.WithOrigins("http://localhost:5173","http://localhost:4200", "http://localhost:3000", "http://localhost:8000")
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+        policy.WithOrigins(
+                "http://localhost:5173",
+                "http://localhost:4200",
+                "http://localhost:3000",
+                "http://localhost:8000"
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 
     options.AddPolicy("ProdCors", policy =>
@@ -99,7 +106,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure middleware
+// Middleware pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseCors("DevCors");
@@ -108,8 +115,8 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.UseCors("ProdCors");
     app.UseHttpsRedirection();
+    app.UseCors("ProdCors"); // CORS must run before auth
 }
 
 app.UseAuthentication();
@@ -117,7 +124,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Map hub to both paths to be tolerant of client expectations.
+// SignalR hubs
 app.MapHub<MatchHub>("/matchhub");
 app.MapHub<MatchHub>("/lobbyHub");
 
