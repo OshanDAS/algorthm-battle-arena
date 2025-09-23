@@ -372,17 +372,12 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_WithEnvironmentVariables_ShouldWork()
     {
+        // Set environment variables first
         SetEnvironmentVariable("PASSWORD_KEY", "env-password-key");
-        SetEnvironmentVariable("TOKEN_KEY", "env-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#");
+        SetEnvironmentVariable("TOKEN_KEY", "this-is-a-very-long-token-key-for-jwt-signing-that-should-be-at-least-64-characters-long-to-work-properly-with-hmacsha512");
         
-        // Create helper that will use environment variables
-        var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string,string?>
-            {
-                ["AppSettings:PasswordKey"] = "config-password-key", // This will be overridden by env var
-                ["AppSettings:TokenKey"] = "config-token-key" // This will be overridden by env var
-            })
-            .Build();
+        // Create helper with empty config since it will use environment variables
+        var config = new ConfigurationBuilder().Build();
         var helper = new AuthHelper(config);
         
         var salt = helper.GetPasswordSalt();
@@ -399,6 +394,12 @@ public class AuthControllerTests : IDisposable
 
         var result = controller.Login(new UserForLoginDto { Email="e@e.com", Password="P@ssw0rd" });
 
+        // Debug: Check what type we actually got
+        if (result is ObjectResult objResult && objResult.StatusCode == 500)
+        {
+            throw new Exception($"Login failed with 500 error: {objResult.Value}");
+        }
+        
         var ok = Assert.IsType<OkObjectResult>(result);
         Assert.NotNull(ok.Value);
     }
