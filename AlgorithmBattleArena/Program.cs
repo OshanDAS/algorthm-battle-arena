@@ -92,7 +92,8 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("https://lemon-mud-0cd08c100.2.azurestaticapps.net")
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowCredentials()
+              .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
     });
 });
 
