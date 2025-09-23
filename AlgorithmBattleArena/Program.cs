@@ -78,7 +78,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// CORS configuration
+// CORS configuration - Fixed version
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevCors", policy =>
@@ -102,23 +102,33 @@ builder.Services.AddCors(options =>
               .AllowCredentials()
               .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
     });
+
+    // Add a permissive policy for debugging (remove in production)
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
 });
 
 var app = builder.Build();
 
-// Middleware pipeline
+// Fixed middleware pipeline - CORS must be one of the first middlewares
+app.UseCors(app.Environment.IsDevelopment() ? "DevCors" : "ProdCors");
+
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors("DevCors");
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 else
 {
     app.UseHttpsRedirection();
-    app.UseCors("ProdCors"); // CORS must run before auth
 }
 
+// Authentication and Authorization come after CORS
 app.UseAuthentication();
 app.UseAuthorization();
 
