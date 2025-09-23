@@ -53,7 +53,8 @@ namespace AlgorithmBattleArina.Hubs
                 foreach (var lobbyId in affectedLobbyIds)
                 {
                     var lobbyInfo = BuildLobbyInfo(lobbyId);
-                    await Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyInfo);
+                    if (lobbyInfo != null)
+                        await Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyInfo);
                 }
             }
 
@@ -78,7 +79,8 @@ namespace AlgorithmBattleArina.Hubs
 
             // Broadcast updated lobby info (authoritative member count) to the group
             var lobbyInfo = BuildLobbyInfo(lobbyId);
-            await Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyInfo);
+            if (lobbyInfo != null)
+                await Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyInfo);
 
             // Optional: also send an event about who joined (useful for ephemeral UI/notifications)
             await Clients.Group(lobbyId).SendAsync("LobbyMemberJoined", new { UserId = userId, LobbyId = lobbyId });
@@ -94,7 +96,8 @@ namespace AlgorithmBattleArina.Hubs
 
             // Broadcast updated lobby info (authoritative member count)
             var lobbyInfo = BuildLobbyInfo(lobbyId);
-            await Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyInfo);
+            if (lobbyInfo != null)
+                await Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyInfo);
 
             await Clients.Group(lobbyId).SendAsync("LobbyMemberLeft", new { UserId = userId, LobbyId = lobbyId });
         }
@@ -125,25 +128,9 @@ namespace AlgorithmBattleArina.Hubs
         /// <summary>
         /// Helper: build reliable LobbyInfo object with current member count.
         /// </summary>
-        private LobbyInfo BuildLobbyInfo(string lobbyId)
+        private LobbyInfo? BuildLobbyInfo(string lobbyId)
         {
-            // find lobby base info from the repository list
-            var lobby = _lobbyRepository.GetLobbies().FirstOrDefault(l => l.Id == lobbyId);
-            var memberCount = _lobbyRepository.GetConnections(lobbyId)?.Count() ?? 0;
-
-            if (lobby == null)
-            {
-                return new LobbyInfo
-                {
-                    Id = lobbyId,
-                    Name = lobbyId,
-                    MemberCount = memberCount,
-                    IsActive = false
-                };
-            }
-
-            lobby.MemberCount = memberCount;
-            return lobby;
+            return _lobbyRepository.GetLobby(lobbyId);
         }
     }
 }

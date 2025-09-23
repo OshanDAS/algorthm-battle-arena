@@ -1,198 +1,209 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace AlgorithmBattleArina.Repositories
 {
-    /// <summary>
-    /// Thread-safe in-memory lobby store.
-    /// </summary>
     public class InMemoryLobbyRepository : ILobbyRepository
     {
-        private class InternalLobbyInfo
+        private readonly ConcurrentDictionary<string, Lobby> _lobbies = new();
+
+        private class Lobby
         {
-            public readonly Dictionary<string, HashSet<string>> UserToConnections = new();
+            public string Id { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+            public string HostUserId { get; set; } = string.Empty;
+            public int MaxPlayers { get; set; } = 10;
+            public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+            public HashSet<string> Members { get; set; } = new();
+            public Dictionary<string, HashSet<string>> UserConnections { get; set; } = new();
             public readonly object Lock = new();
-            public string? HostUserId;
         }
 
-        private readonly ConcurrentDictionary<string, InternalLobbyInfo> _lobbies = new();
-
-        public InMemoryLobbyRepository()
+        public string CreateLobby(string hostUserId, string lobbyName, int maxPlayers = 10)
         {
-            // Seed sample lobbies for UI/testing
-            var id1 = "arena-1";
-            var info1 = new InternalLobbyInfo();
-            info1.UserToConnections["user_a"] = new HashSet<string> { "conn-a1" };
-            info1.UserToConnections["user_b"] = new HashSet<string> { "conn-b1" };
-            info1.HostUserId = "user_a";
-            _lobbies[id1] = info1;
+            var lobbyId = Guid.NewGuid().ToString("N")[..8];
+            var lobby = new Lobby
+            {
+                Id = lobbyId,
+                Name = lobbyName,
+                HostUserId = hostUserId,
+                MaxPlayers = maxPlayers,
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            lobby.Members.Add(hostUserId);
+            _lobbies[lobbyId] = lobby;
+            return lobbyId;
+        }
 
-            var id2 = "arena-2";
-            var info2 = new InternalLobbyInfo();
-            info2.UserToConnections["spectator1"] = new HashSet<string> { "conn-s1" };
-            info2.HostUserId = null;
-            _lobbies[id2] = info2;
+        public bool JoinLobby(string lobbyId, string userId)
+        {
+            if (!_lobbies.TryGetValue(lobbyId, out var lobby)) return false;
+            
+            lock (lobby.Lock)
+            {
+                if (lobby.Members.Count >= lobby.MaxPlayers) return false;
+                return lobby.Members.Add(userId);
+            }
+        }
+
+        public bool LeaveLobby(string lobbyId, string userId)
+        {
+            if (!_lobbies.TryGetValue(lobbyId, out var lobby)) return false;
+            
+            lock (lobby.Lock)
+            {
+                lobby.Members.Remove(userId);
+                lobby.UserConnections.Remove(userId);
+                
+                if (lobby.HostUserId == userId)
+                {
+                    lobby.HostUserId = lobby.Members.FirstOrDefault() ?? string.Empty;
+                }
+                
+                if (lobby.Members.Count == 0)
+                {
+                    _lobbies.TryRemove(lobbyId, out _);
+                }
+                
+                return true;
+            }
+        }
+
+        public bool DeleteLobby(string lobbyId, string hostUserId)
+        {
+            if (!_lobbies.TryGetValue(lobbyId, out var lobby)) return false;
+            if (lobby.HostUserId != hostUserId) return false;
+            
+            return _lobbies.TryRemove(lobbyId, out _);
         }
 
         public void AddConnection(string lobbyId, string userId, string connectionId)
         {
-            var info = _lobbies.GetOrAdd(lobbyId, _ => new InternalLobbyInfo());
-            lock (info.Lock)
+            if (!_lobbies.TryGetValue(lobbyId, out var lobby)) return;
+            
+            lock (lobby.Lock)
             {
-                if (!info.UserToConnections.TryGetValue(userId, out var set))
+                if (!lobby.UserConnections.TryGetValue(userId, out var connections))
                 {
-                    set = new HashSet<string>();
-                    info.UserToConnections[userId] = set;
+                    connections = new HashSet<string>();
+                    lobby.UserConnections[userId] = connections;
                 }
-                set.Add(connectionId);
-
-                // OPTIONAL: if this is the first member and there's no host, assign host to the first connector.
-                // Remove or change this if you manage hosts elsewhere.
-                if (info.HostUserId == null)
-                {
-                    info.HostUserId = userId;
-                }
+                connections.Add(connectionId);
             }
         }
 
         public void RemoveConnection(string lobbyId, string connectionId)
         {
-            if (!_lobbies.TryGetValue(lobbyId, out var info)) return;
-            lock (info.Lock)
+            if (!_lobbies.TryGetValue(lobbyId, out var lobby)) return;
+            
+            lock (lobby.Lock)
             {
-                string? removedUser = null;
-                foreach (var kv in info.UserToConnections)
+                foreach (var userConnections in lobby.UserConnections.Values)
                 {
-                    var user = kv.Key;
-                    var set = kv.Value;
-                    if (set.Remove(connectionId))
-                    {
-                        if (set.Count == 0) removedUser = user;
-                        break;
-                    }
+                    userConnections.Remove(connectionId);
                 }
-
-                if (removedUser != null)
-                {
-                    info.UserToConnections.Remove(removedUser);
-
-                    // if the removed user was the host, clear host (or choose a new host)
-                    if (info.HostUserId == removedUser)
-                    {
-                        info.HostUserId = info.UserToConnections.Keys.FirstOrDefault(); // promote another member or null
-                    }
-                }
-
-                if (info.UserToConnections.Count == 0 && info.HostUserId == null)
-                    _lobbies.TryRemove(lobbyId, out _);
             }
         }
 
-        // Changed: return affected lobby ids so caller (hub) can broadcast updates for those lobbies.
         public IEnumerable<string> RemoveConnectionFromAllLobbies(string connectionId)
         {
-            var affected = new List<string>();
-
-            foreach (var kv in _lobbies.ToArray())
+            var affectedLobbies = new List<string>();
+            
+            foreach (var kvp in _lobbies)
             {
-                var lobbyId = kv.Key;
-                var beforeCount = kv.Value.UserToConnections.Count;
-
-                RemoveConnection(lobbyId, connectionId);
-
-                // If the lobby existed before and now either changed or was removed, add to affected list.
-                // We'll determine change by comparing counts again.
-                if (_lobbies.TryGetValue(lobbyId, out var infoAfter))
+                var lobbyId = kvp.Key;
+                var lobby = kvp.Value;
+                
+                lock (lobby.Lock)
                 {
-                    var afterCount = infoAfter.UserToConnections.Count;
-                    if (afterCount != beforeCount)
-                        affected.Add(lobbyId);
-                }
-                else
-                {
-                    // lobby removed entirely
-                    affected.Add(lobbyId);
+                    bool removed = false;
+                    foreach (var userConnections in lobby.UserConnections.Values)
+                    {
+                        if (userConnections.Remove(connectionId))
+                        {
+                            removed = true;
+                        }
+                    }
+                    
+                    if (removed)
+                    {
+                        affectedLobbies.Add(lobbyId);
+                    }
                 }
             }
-
-            return affected;
+            
+            return affectedLobbies;
         }
 
-        public IEnumerable<string> GetConnections(string lobbyId)
+        public IEnumerable<LobbyInfo> GetLobbies()
         {
-            if (!_lobbies.TryGetValue(lobbyId, out var info)) return Enumerable.Empty<string>();
-            lock (info.Lock)
+            return _lobbies.Values.Select(lobby =>
             {
-                return info.UserToConnections.Values.SelectMany(s => s).ToList();
+                lock (lobby.Lock)
+                {
+                    return new LobbyInfo
+                    {
+                        Id = lobby.Id,
+                        Name = lobby.Name,
+                        HostUserId = lobby.HostUserId,
+                        MemberCount = lobby.Members.Count,
+                        MaxPlayers = lobby.MaxPlayers,
+                        IsActive = lobby.Members.Count > 0,
+                        CreatedAt = lobby.CreatedAt,
+                        Members = lobby.Members.ToList()
+                    };
+                }
+            }).ToList();
+        }
+
+        public LobbyInfo? GetLobby(string lobbyId)
+        {
+            if (!_lobbies.TryGetValue(lobbyId, out var lobby)) return null;
+            
+            lock (lobby.Lock)
+            {
+                return new LobbyInfo
+                {
+                    Id = lobby.Id,
+                    Name = lobby.Name,
+                    HostUserId = lobby.HostUserId,
+                    MemberCount = lobby.Members.Count,
+                    MaxPlayers = lobby.MaxPlayers,
+                    IsActive = lobby.Members.Count > 0,
+                    CreatedAt = lobby.CreatedAt,
+                    Members = lobby.Members.ToList()
+                };
             }
         }
 
-        // Fixed: If lobby not found, return false (do not implicitly allow unknown lobbies).
-        // If your design expects open lobbies (anyone can join a non-existent lobby), change to return true instead.
+        public IEnumerable<string> GetLobbyMembers(string lobbyId)
+        {
+            if (!_lobbies.TryGetValue(lobbyId, out var lobby)) return Enumerable.Empty<string>();
+            
+            lock (lobby.Lock)
+            {
+                return lobby.Members.ToList();
+            }
+        }
+
         public bool IsMember(string lobbyId, string userId)
         {
-            if (!_lobbies.TryGetValue(lobbyId, out var info)) return false;
-            lock (info.Lock)
+            if (!_lobbies.TryGetValue(lobbyId, out var lobby)) return false;
+            
+            lock (lobby.Lock)
             {
-                return info.UserToConnections.ContainsKey(userId);
+                return lobby.Members.Contains(userId);
             }
         }
 
         public bool IsHost(string lobbyId, string userId)
         {
-            if (!_lobbies.TryGetValue(lobbyId, out var info)) return false;
-            lock (info.Lock)
+            if (!_lobbies.TryGetValue(lobbyId, out var lobby)) return false;
+            
+            lock (lobby.Lock)
             {
-                return info.HostUserId != null && info.HostUserId == userId;
+                return lobby.HostUserId == userId;
             }
-        }
-
-        public void SetHost(string lobbyId, string userId)
-        {
-            var info = _lobbies.GetOrAdd(lobbyId, _ => new InternalLobbyInfo());
-            lock (info.Lock)
-            {
-                info.HostUserId = userId;
-            }
-        }
-
-        // --- map internal to public LobbyInfo DTO ---
-        public IEnumerable<LobbyInfo> GetLobbies()
-        {
-            // Debug log so you can confirm at runtime this method is running
-            Console.WriteLine("[InMemoryLobbyRepository] GetLobbies called - returning snapshot");
-
-            var snapshot = _lobbies.ToArray();
-            var result = new List<LobbyInfo>(snapshot.Length);
-
-            foreach (var kv in snapshot)
-            {
-                var lobbyId = kv.Key;
-                var info = kv.Value;
-
-                int memberCount;
-                int connectionCount;
-                string? host;
-
-                lock (info.Lock)
-                {
-                    memberCount = info.UserToConnections.Count;
-                    connectionCount = info.UserToConnections.Values.Sum(s => s.Count);
-                    host = info.HostUserId;
-                }
-
-                result.Add(new LobbyInfo
-                {
-                    Id = lobbyId,
-                    Name = $"Lobby {lobbyId}",
-                    MemberCount = memberCount,
-                    IsActive = memberCount > 0 || host != null
-                });
-            }
-
-            return result;
         }
     }
 }

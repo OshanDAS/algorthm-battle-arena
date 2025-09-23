@@ -13,8 +13,24 @@ using AlgorithmBattleArina.Models;
 
 namespace AlgorithmBattleArena.Tests;
 
-public class AuthControllerTests
+public class AuthControllerTests : IDisposable
 {
+    private readonly List<string> _envVarsToCleanup = new();
+
+    private void SetEnvironmentVariable(string key, string value)
+    {
+        Environment.SetEnvironmentVariable(key, value);
+        _envVarsToCleanup.Add(key);
+    }
+
+    public void Dispose()
+    {
+        foreach (var key in _envVarsToCleanup)
+        {
+            Environment.SetEnvironmentVariable(key, null);
+        }
+    }
+
     private static AuthHelper CreateAuthHelper()
     {
         var config = new ConfigurationBuilder()
@@ -351,5 +367,39 @@ public class AuthControllerTests
         var result = controller.GetProfile();
 
         Assert.IsType<NotFoundObjectResult>(result);
+    }
+
+    [Fact]
+    public void Login_WithEnvironmentVariables_ShouldWork()
+    {
+        SetEnvironmentVariable("PASSWORD_KEY", "env-password-key");
+        SetEnvironmentVariable("TOKEN_KEY", "env-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#");
+        
+        // Create helper that will use environment variables
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string,string?>
+            {
+                ["AppSettings:PasswordKey"] = "config-password-key", // This will be overridden by env var
+                ["AppSettings:TokenKey"] = "config-token-key" // This will be overridden by env var
+            })
+            .Build();
+        var helper = new AuthHelper(config);
+        
+        var salt = helper.GetPasswordSalt();
+        var hash = helper.GetPasswordHash("P@ssw0rd", salt);
+
+        var repo = new Mock<IAuthRepository>();
+        repo.Setup(r => r.GetAuthByEmail("e@e.com")).Returns(new Auth {
+            Email="e@e.com", PasswordSalt=salt, PasswordHash=hash
+        });
+        repo.Setup(r => r.GetUserRole("e@e.com")).Returns("Student");
+        repo.Setup(r => r.GetStudentByEmail("e@e.com")).Returns(new Student { StudentId=1, Email="e@e.com", FirstName="A", LastName="B", Active=true });
+
+        var controller = new AuthController(repo.Object, helper);
+
+        var result = controller.Login(new UserForLoginDto { Email="e@e.com", Password="P@ssw0rd" });
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        Assert.NotNull(ok.Value);
     }
 }

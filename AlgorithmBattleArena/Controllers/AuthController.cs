@@ -73,6 +73,13 @@ namespace AlgorithmBattleArina.Controllers
         {
             try
             {
+                // Check for admin credentials first
+                if (_authHelper.ValidateAdminCredentials(loginDto.Email, loginDto.Password))
+                {
+                    string adminToken = _authHelper.CreateToken(loginDto.Email, "Admin");
+                    return Ok(new { token = adminToken, role = "Admin", email = loginDto.Email });
+                }
+
                 var authData = _authRepository.GetAuthByEmail(loginDto.Email);
                 if (authData == null || !_authHelper.VerifyPasswordHash(loginDto.Password, authData.PasswordHash, authData.PasswordSalt))
                     return Unauthorized("Invalid credentials");
@@ -88,8 +95,8 @@ namespace AlgorithmBattleArina.Controllers
                 if (userId == null)
                     return Unauthorized("User not found");
 
-                string token = _authHelper.CreateToken(loginDto.Email, userRole, userId);
-                return Ok(new { token, role = userRole, email = loginDto.Email });
+                string userToken = _authHelper.CreateToken(loginDto.Email, userRole, userId);
+                return Ok(new { token = userToken, role = userRole, email = loginDto.Email });
             }
             catch (Exception ex)
             {

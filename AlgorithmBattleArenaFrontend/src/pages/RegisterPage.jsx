@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { createApiClient } from "../api"
+import api from "../services/api"
 import { Eye, EyeOff, GraduationCap, Users, BookOpen, Shield, CheckCircle } from "lucide-react"
 
 /** Password strength helper - unchanged logic */
@@ -57,7 +57,6 @@ const PasswordStrengthIndicator = ({ password }) => {
 /** Main RegisterPage component */
 export default function RegisterPage() {
   const navigate = useNavigate()
-  const api = createApiClient()
 
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -127,9 +126,9 @@ export default function RegisterPage() {
 
     try {
       if (selectedRole === "Student") {
-        await api.registerStudent(dto)
+        await api.auth.registerStudent(dto)
       } else {
-        await api.registerTeacher(dto)
+        await api.auth.registerTeacher(dto)
       }
 
       setStatusMessage("Registered successfully! Redirecting...")

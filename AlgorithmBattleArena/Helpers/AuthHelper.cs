@@ -33,10 +33,11 @@ namespace AlgorithmBattleArina.Helpers
                 throw new InvalidOperationException("Configuration is not available!");
             }
 
-            string? passwordKey = _config.GetSection("AppSettings:PasswordKey").Value;
+            string? passwordKey = Environment.GetEnvironmentVariable("PASSWORD_KEY") ?? 
+                                 _config.GetSection("AppSettings:PasswordKey").Value;
             if (string.IsNullOrEmpty(passwordKey))
             {
-                throw new InvalidOperationException("AppSettings:PasswordKey is missing from configuration!");
+                throw new InvalidOperationException("PasswordKey is missing from environment variables and configuration!");
             }
 
             var combinedSalt = Encoding.UTF8.GetBytes(passwordKey).Concat(salt).ToArray();
@@ -64,10 +65,11 @@ namespace AlgorithmBattleArina.Helpers
                 throw new InvalidOperationException("Configuration is not available!");
             }
 
-            string? tokenKeyValue = _config.GetSection("AppSettings:TokenKey").Value;
+            string? tokenKeyValue = Environment.GetEnvironmentVariable("TOKEN_KEY") ?? 
+                                   _config.GetSection("AppSettings:TokenKey").Value;
             if (string.IsNullOrEmpty(tokenKeyValue))
             {
-                throw new InvalidOperationException("AppSettings:TokenKey is missing from configuration!");
+                throw new InvalidOperationException("TokenKey is missing from environment variables and configuration!");
             }
 
             var claims = new List<Claim>
@@ -104,7 +106,8 @@ namespace AlgorithmBattleArina.Helpers
                 return null;
             }
            
-            string? tokenKeyValue = _config.GetSection("AppSettings:TokenKey").Value;
+            string? tokenKeyValue = Environment.GetEnvironmentVariable("TOKEN_KEY") ?? 
+                                   _config.GetSection("AppSettings:TokenKey").Value;
             if (string.IsNullOrEmpty(tokenKeyValue))
             {
                 return null;
@@ -158,6 +161,19 @@ namespace AlgorithmBattleArina.Helpers
                 _ => null
             };
             return int.TryParse(claimValue, out int id) ? id : null;
+        }
+
+        public bool ValidateAdminCredentials(string email, string password)
+        {
+            string? adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL") ?? 
+                                _config.GetSection("AppSettings:AdminEmail").Value;
+            string? adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD") ?? 
+                                   _config.GetSection("AppSettings:AdminPassword").Value;
+            
+            return !string.IsNullOrEmpty(adminEmail) && 
+                   !string.IsNullOrEmpty(adminPassword) &&
+                   email == adminEmail && 
+                   password == adminPassword;
         }
     }
 }

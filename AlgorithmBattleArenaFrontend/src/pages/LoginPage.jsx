@@ -18,28 +18,32 @@ export default function LoginPage() {
   // keep your logic and console logs unchanged — only add the loading toggles
   async function onSubmit(e) {
     e.preventDefault()
-    console.log("✅ onSubmit fired with:", { email, password })
-
-    // keep the same internal status logic (but we won't show the "Logging in..." text)
     setStatus("Logging in...")
-    setIsLoading(true) // disable inputs/button & show loader
+    setIsLoading(true)
 
     try {
-      // exact same auth call you had
-      await login(email, password)
-
+      const { role } = await login(email, password)
       setStatus("Login successful!")
-      console.log("➡ navigating to /lobby")
-      // navigate away (component will unmount)
-      navigate("/lobby")
-      // note: no setIsLoading(false) here because we navigate away;
-      // if navigation fails for any reason, component may still unmount,
-      // otherwise error path below resets isLoading.
+      
+      // Role-based navigation
+      switch (role) {
+        case 'Admin':
+          navigate("/admin")
+          break
+        case 'Teacher':
+          navigate("/teacher")
+          break
+        case 'Student':
+          navigate("/lobby")
+          break
+        default:
+          navigate("/dashboard")
+      }
     } catch (err) {
-      console.error("❌ login error:", err)
+      console.error("Login error:", err)
       const backendMsg = err.response?.data ?? err.message
       setStatus("Login failed: " + JSON.stringify(backendMsg))
-      setIsLoading(false) // re-enable inputs after failure
+      setIsLoading(false)
     }
   }
 
