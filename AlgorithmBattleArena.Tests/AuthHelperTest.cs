@@ -177,13 +177,16 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void GetPasswordHash_WithEnvironmentVariable_ShouldUseEnvVar()
     {
-        SetEnvironmentVariable("PASSWORD_KEY", "env-password-key");
+        var envPasswordKey = "env-password-key";
+        SetEnvironmentVariable("PASSWORD_KEY", envPasswordKey);
+        
+        // Verify environment variable is actually set
+        Assert.Equal(envPasswordKey, Environment.GetEnvironmentVariable("PASSWORD_KEY"));
         
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> {
                 ["AppSettings:PasswordKey"] = "config-password-key"
             })
-            .AddEnvironmentVariables()
             .Build();
         var auth = new AuthHelper(config);
         var salt = auth.GetPasswordSalt();
@@ -197,13 +200,16 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void CreateToken_WithEnvironmentVariable_ShouldUseEnvVar()
     {
-        SetEnvironmentVariable("TOKEN_KEY", "env-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#");
+        var envTokenKey = "env-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#";
+        SetEnvironmentVariable("TOKEN_KEY", envTokenKey);
+        
+        // Verify environment variable is actually set
+        Assert.Equal(envTokenKey, Environment.GetEnvironmentVariable("TOKEN_KEY"));
         
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> {
                 ["AppSettings:TokenKey"] = "config-token-key"
             })
-            .AddEnvironmentVariables()
             .Build();
         var auth = new AuthHelper(config);
         
@@ -217,12 +223,16 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void ValidateAdminCredentials_WithEnvironmentVariables_ShouldUseEnvVars()
     {
-        SetEnvironmentVariable("ADMIN_EMAIL", "env-admin@test.com");
-        SetEnvironmentVariable("ADMIN_PASSWORD", "env-admin-pass");
+        var envEmail = "env-admin@test.com";
+        var envPassword = "env-admin-pass";
+        SetEnvironmentVariable("ADMIN_EMAIL", envEmail);
+        SetEnvironmentVariable("ADMIN_PASSWORD", envPassword);
         
-        var config = new ConfigurationBuilder()
-            .AddEnvironmentVariables()
-            .Build();
+        // Verify environment variables are actually set
+        Assert.Equal(envEmail, Environment.GetEnvironmentVariable("ADMIN_EMAIL"));
+        Assert.Equal(envPassword, Environment.GetEnvironmentVariable("ADMIN_PASSWORD"));
+        
+        var config = new ConfigurationBuilder().Build();
         var auth = new AuthHelper(config);
         
         var result = auth.ValidateAdminCredentials("env-admin@test.com", "env-admin-pass");

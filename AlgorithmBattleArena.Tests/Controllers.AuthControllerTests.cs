@@ -383,13 +383,17 @@ public class AuthControllerTests : IDisposable
     public void Login_WithEnvironmentVariables_ShouldWork()
     {
         // Set environment variables first
-        SetEnvironmentVariable("PASSWORD_KEY", "env-password-key");
-        SetEnvironmentVariable("TOKEN_KEY", "this-is-a-very-long-token-key-for-jwt-signing-that-should-be-at-least-64-characters-long-to-work-properly-with-hmacsha512");
+        var envPasswordKey = "env-password-key";
+        var envTokenKey = "this-is-a-very-long-token-key-for-jwt-signing-that-should-be-at-least-64-characters-long-to-work-properly-with-hmacsha512";
+        SetEnvironmentVariable("PASSWORD_KEY", envPasswordKey);
+        SetEnvironmentVariable("TOKEN_KEY", envTokenKey);
         
-        // Create helper with config that includes environment variables
-        var config = new ConfigurationBuilder()
-            .AddEnvironmentVariables()
-            .Build();
+        // Verify environment variables are actually set
+        Assert.Equal(envPasswordKey, Environment.GetEnvironmentVariable("PASSWORD_KEY"));
+        Assert.Equal(envTokenKey, Environment.GetEnvironmentVariable("TOKEN_KEY"));
+        
+        // Create helper with empty config since it will use environment variables
+        var config = new ConfigurationBuilder().Build();
         var helper = new AuthHelper(config);
         
         var salt = helper.GetPasswordSalt();
