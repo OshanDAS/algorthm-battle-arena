@@ -166,7 +166,14 @@ public class AuthHelperTest : IDisposable
     public void GetPasswordHash_WithEnvironmentVariable_ShouldUseEnvVar()
     {
         SetEnvironmentVariable("PASSWORD_KEY", "env-password-key");
-        var auth = new AuthHelper(CreateMockConfiguration("config-password-key"));
+        
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["AppSettings:PasswordKey"] = "config-password-key"
+            })
+            .AddEnvironmentVariables()
+            .Build();
+        var auth = new AuthHelper(config);
         var salt = auth.GetPasswordSalt();
         
         var hash = auth.GetPasswordHash("password123", salt);
@@ -179,7 +186,14 @@ public class AuthHelperTest : IDisposable
     public void CreateToken_WithEnvironmentVariable_ShouldUseEnvVar()
     {
         SetEnvironmentVariable("TOKEN_KEY", "env-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#");
-        var auth = new AuthHelper(CreateMockConfiguration(tokenKey: "config-token-key"));
+        
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["AppSettings:TokenKey"] = "config-token-key"
+            })
+            .AddEnvironmentVariables()
+            .Build();
+        var auth = new AuthHelper(config);
         
         var token = auth.CreateToken("test@test.com", "Student", 1);
         
@@ -193,7 +207,11 @@ public class AuthHelperTest : IDisposable
     {
         SetEnvironmentVariable("ADMIN_EMAIL", "env-admin@test.com");
         SetEnvironmentVariable("ADMIN_PASSWORD", "env-admin-pass");
-        var auth = new AuthHelper(CreateMockConfiguration());
+        
+        var config = new ConfigurationBuilder()
+            .AddEnvironmentVariables()
+            .Build();
+        var auth = new AuthHelper(config);
         
         var result = auth.ValidateAdminCredentials("env-admin@test.com", "env-admin-pass");
         
