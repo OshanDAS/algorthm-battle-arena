@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'htttps://algorithmbattlearena-dwdmb7a6c0a7hqdc.southindia-01.azurewebsites.net';
+const BASE_URL = 'https://algorithmbattlearena-dwdmb7a6c0a7hqdc.southindia-01.azurewebsites.net';
 
 class ApiService {
   constructor() {
