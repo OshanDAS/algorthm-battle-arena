@@ -33,7 +33,7 @@ namespace AlgorithmBattleArina.Helpers
                 throw new InvalidOperationException("Configuration is not available!");
             }
 
-            string? passwordKey = Environment.GetEnvironmentVariable("PasswordKey") ?? 
+            string? passwordKey = Environment.GetEnvironmentVariable("PASSWORD_KEY") ?? 
                                  _config.GetSection("AppSettings:PasswordKey").Value;
             if (string.IsNullOrEmpty(passwordKey))
             {
@@ -65,7 +65,7 @@ namespace AlgorithmBattleArina.Helpers
                 throw new InvalidOperationException("Configuration is not available!");
             }
 
-            string? tokenKeyValue = Environment.GetEnvironmentVariable("TokenKey") ?? 
+            string? tokenKeyValue = Environment.GetEnvironmentVariable("TOKEN_KEY") ?? 
                                    _config.GetSection("AppSettings:TokenKey").Value;
             if (string.IsNullOrEmpty(tokenKeyValue))
             {
@@ -106,7 +106,7 @@ namespace AlgorithmBattleArina.Helpers
                 return null;
             }
            
-            string? tokenKeyValue = Environment.GetEnvironmentVariable("TokenKey") ?? 
+            string? tokenKeyValue = Environment.GetEnvironmentVariable("TOKEN_KEY") ?? 
                                    _config.GetSection("AppSettings:TokenKey").Value;
             if (string.IsNullOrEmpty(tokenKeyValue))
             {
@@ -165,9 +165,9 @@ namespace AlgorithmBattleArina.Helpers
 
         public bool ValidateAdminCredentials(string email, string password)
         {
-            string? adminEmail = Environment.GetEnvironmentVariable("AdminEmail") ?? 
+            string? adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL") ?? 
                                 _config.GetSection("AppSettings:AdminEmail").Value;
-            string? adminPassword = Environment.GetEnvironmentVariable("AdminPassword") ?? 
+            string? adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD") ?? 
                                    _config.GetSection("AppSettings:AdminPassword").Value;
             
             return !string.IsNullOrEmpty(adminEmail) && 

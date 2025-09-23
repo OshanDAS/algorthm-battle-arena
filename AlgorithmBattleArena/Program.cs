@@ -25,7 +25,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 
 // Register DbContexts, repositories, and helpers
-var connectionString = Environment.GetEnvironmentVariable("DefaultConnection") ?? 
+var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION") ?? 
                       builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DataContextEF>(options =>
     options.UseSqlServer(connectionString)
@@ -37,7 +37,7 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<AuthHelper>();
 
 // JWT Authentication configuration
-var tokenKey = Environment.GetEnvironmentVariable("TokenKey") ?? 
+var tokenKey = Environment.GetEnvironmentVariable("TOKEN_KEY") ?? 
                builder.Configuration.GetValue<string>("AppSettings:TokenKey");
 if (string.IsNullOrEmpty(tokenKey))
 {

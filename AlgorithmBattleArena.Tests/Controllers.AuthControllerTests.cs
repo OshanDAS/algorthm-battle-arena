@@ -372,8 +372,8 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_WithEnvironmentVariables_ShouldWork()
     {
-        SetEnvironmentVariable("PasswordKey", "env-password-key");
-        SetEnvironmentVariable("TokenKey", "env-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#");
+        SetEnvironmentVariable("PASSWORD_KEY", "env-password-key");
+        SetEnvironmentVariable("TOKEN_KEY", "env-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#");
         
         // Create helper that will use environment variables
         var config = new ConfigurationBuilder()
