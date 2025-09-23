@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using DotNetEnv;
 
 // Load environment variables from .env file
-Env.Load();
+DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
