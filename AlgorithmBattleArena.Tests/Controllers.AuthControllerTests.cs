@@ -386,8 +386,10 @@ public class AuthControllerTests : IDisposable
         SetEnvironmentVariable("PASSWORD_KEY", "env-password-key");
         SetEnvironmentVariable("TOKEN_KEY", "this-is-a-very-long-token-key-for-jwt-signing-that-should-be-at-least-64-characters-long-to-work-properly-with-hmacsha512");
         
-        // Create helper with empty config since it will use environment variables
-        var config = new ConfigurationBuilder().Build();
+        // Create helper with config that includes environment variables
+        var config = new ConfigurationBuilder()
+            .AddEnvironmentVariables()
+            .Build();
         var helper = new AuthHelper(config);
         
         var salt = helper.GetPasswordSalt();

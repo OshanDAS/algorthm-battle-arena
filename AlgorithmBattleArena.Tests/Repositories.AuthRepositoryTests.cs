@@ -109,11 +109,16 @@ public class AuthRepositoryTests : IDisposable
     [Fact]
     public void RegisterStudent_WithEnvironmentVariables_ShouldWork()
     {
-        SetEnvironmentVariable("PasswordKey", "env-password-key");
+        SetEnvironmentVariable("PASSWORD_KEY", "env-password-key");
+        
+        var config = new ConfigurationBuilder()
+            .AddEnvironmentVariables()
+            .Build();
+        var authHelper = new AuthHelper(config);
         
         var dapper = new Mock<IDataContextDapper>();
         dapper.Setup(d => d.ExecuteTransaction(It.IsAny<List<(string sql, object? parameters)>>())).Returns(true);
-        var repo = new AuthRepository(dapper.Object, CreateAuthHelper());
+        var repo = new AuthRepository(dapper.Object, authHelper);
 
         var ok = repo.RegisterStudent(new StudentForRegistrationDto { Email = "e@e.com", FirstName="A", LastName="B", Password = "x", PasswordConfirm = "x", TeacherId = 2 });
 
