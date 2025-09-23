@@ -37,6 +37,9 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Run unit tests
+        env:
+          PASSWORD_KEY: ${{ secrets.PASSWORD_KEY }}
+          TOKEN_KEY: ${{ secrets.TOKEN_KEY }}
         run: |
           mkdir -p ./TestResults
           dotnet test AlgorithmBattleArena.Tests/AlgorithmBattleArena.Tests.csproj \
