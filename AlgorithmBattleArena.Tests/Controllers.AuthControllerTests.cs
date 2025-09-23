@@ -33,6 +33,10 @@ public class AuthControllerTests : IDisposable
 
     private static AuthHelper CreateAuthHelper()
     {
+        // Clear environment variables to ensure test isolation
+        Environment.SetEnvironmentVariable("PASSWORD_KEY", null);
+        Environment.SetEnvironmentVariable("TOKEN_KEY", null);
+        
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string,string?>
             {
@@ -159,10 +163,6 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_ValidCredentials_ReturnsToken()
     {
-        // Clear any environment variables that might interfere
-        SetEnvironmentVariable("PASSWORD_KEY", null!);
-        SetEnvironmentVariable("TOKEN_KEY", null!);
-        
         var helper = CreateAuthHelper();
         var salt = helper.GetPasswordSalt();
         var hash = helper.GetPasswordHash("P@ssw0rd", salt);
@@ -191,9 +191,6 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_UnknownRole_ReturnsUnauthorized()
     {
-        SetEnvironmentVariable("PASSWORD_KEY", null!);
-        SetEnvironmentVariable("TOKEN_KEY", null!);
-        
         var helper = CreateAuthHelper();
         var salt = helper.GetPasswordSalt();
         var hash = helper.GetPasswordHash("P@ssw0rd", salt);
@@ -210,9 +207,6 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_ProfileMissing_ReturnsUnauthorized()
     {
-        SetEnvironmentVariable("PASSWORD_KEY", null!);
-        SetEnvironmentVariable("TOKEN_KEY", null!);
-        
         var helper = CreateAuthHelper();
         var salt = helper.GetPasswordSalt();
         var hash = helper.GetPasswordHash("P@ssw0rd", salt);
@@ -382,13 +376,15 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_WithEnvironmentVariables_ShouldWork()
     {
-        // Set environment variables first
         SetEnvironmentVariable("PASSWORD_KEY", "env-password-key");
         SetEnvironmentVariable("TOKEN_KEY", "this-is-a-very-long-token-key-for-jwt-signing-that-should-be-at-least-64-characters-long-to-work-properly-with-hmacsha512");
         
-        // Create helper with config that includes environment variables
         var config = new ConfigurationBuilder()
-            .AddEnvironmentVariables()
+            .AddInMemoryCollection(new Dictionary<string,string?>
+            {
+                ["AppSettings:PasswordKey"] = "fallback-password-key",
+                ["AppSettings:TokenKey"] = "fallback-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#"
+            })
             .Build();
         var helper = new AuthHelper(config);
         
@@ -405,12 +401,6 @@ public class AuthControllerTests : IDisposable
         var controller = new AuthController(repo.Object, helper);
 
         var result = controller.Login(new UserForLoginDto { Email="e@e.com", Password="P@ssw0rd" });
-
-        // Debug: Check what type we actually got
-        if (result is ObjectResult objResult && objResult.StatusCode == 500)
-        {
-            throw new Exception($"Login failed with 500 error: {objResult.Value}");
-        }
         
         var ok = Assert.IsType<OkObjectResult>(result);
         Assert.NotNull(ok.Value);
