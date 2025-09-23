@@ -126,9 +126,9 @@ export default function RegisterPage() {
 
     try {
       if (selectedRole === "Student") {
-        await api.registerStudent(dto)
+        await api.auth.registerStudent(dto)
       } else {
-        await api.registerTeacher(dto)
+        await api.auth.registerTeacher(dto)
       }
 
       setStatusMessage("Registered successfully! Redirecting...")
