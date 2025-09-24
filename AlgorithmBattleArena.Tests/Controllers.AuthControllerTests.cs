@@ -17,7 +17,7 @@ public class AuthControllerTests : IDisposable
 {
     private readonly List<string> _envVarsToCleanup = new();
 
-    private void SetEnvironmentVariable(string key, string value)
+    private void SetEnvironmentVariable(string key, string? value)
     {
         Environment.SetEnvironmentVariable(key, value);
         _envVarsToCleanup.Add(key);
@@ -43,6 +43,7 @@ public class AuthControllerTests : IDisposable
                 ["AppSettings:PasswordKey"] = "test-password-key",
                 ["AppSettings:TokenKey"] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#"
             })
+            .AddEnvironmentVariables()
             .Build();
         return new AuthHelper(config);
     }
@@ -163,6 +164,9 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_ValidCredentials_ReturnsToken()
     {
+        SetEnvironmentVariable("PASSWORD_KEY", null);
+        SetEnvironmentVariable("TOKEN_KEY", null);
+        
         var helper = CreateAuthHelper();
         var salt = helper.GetPasswordSalt();
         var hash = helper.GetPasswordHash("P@ssw0rd", salt);
@@ -191,6 +195,9 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_UnknownRole_ReturnsUnauthorized()
     {
+        SetEnvironmentVariable("PASSWORD_KEY", null);
+        SetEnvironmentVariable("TOKEN_KEY", null);
+        
         var helper = CreateAuthHelper();
         var salt = helper.GetPasswordSalt();
         var hash = helper.GetPasswordHash("P@ssw0rd", salt);
@@ -207,6 +214,9 @@ public class AuthControllerTests : IDisposable
     [Fact]
     public void Login_ProfileMissing_ReturnsUnauthorized()
     {
+        SetEnvironmentVariable("PASSWORD_KEY", null);
+        SetEnvironmentVariable("TOKEN_KEY", null);
+        
         var helper = CreateAuthHelper();
         var salt = helper.GetPasswordSalt();
         var hash = helper.GetPasswordHash("P@ssw0rd", salt);
@@ -385,6 +395,7 @@ public class AuthControllerTests : IDisposable
                 ["AppSettings:PasswordKey"] = "fallback-password-key",
                 ["AppSettings:TokenKey"] = "fallback-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#"
             })
+            .AddEnvironmentVariables()
             .Build();
         var helper = new AuthHelper(config);
         
