@@ -3,7 +3,6 @@ using Moq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using AlgorithmBattleArina.Controllers;
 using AlgorithmBattleArina.Data;
@@ -19,22 +18,21 @@ public class ProblemsControllerTests
     {
         var logger = new Mock<ILogger<ProblemsController>>();
         var controller = new ProblemsController(dapperMock.Object, logger.Object);
-        
-        // Set up authenticated user context for unit tests
+
         var identity = new ClaimsIdentity(new[]
         {
             new Claim(ClaimTypes.Email, "test@example.com"),
             new Claim(ClaimTypes.Role, "Teacher"),
             new Claim("teacherId", "1"),
         }, "TestAuth");
-        controller.ControllerContext = new ControllerContext 
-        { 
-            HttpContext = new DefaultHttpContext 
-            { 
-                User = new ClaimsPrincipal(identity) 
-            } 
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(identity)
+            }
         };
-        
+
         return controller;
     }
 
@@ -152,5 +150,4 @@ public class ProblemsControllerTests
 
         Assert.IsType<OkObjectResult>(result);
     }
-
 }

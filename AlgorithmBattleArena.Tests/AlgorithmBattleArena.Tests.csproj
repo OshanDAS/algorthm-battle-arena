@@ -32,4 +32,10 @@
     <ProjectReference Include="..\AlgorithmBattleArena\AlgorithmBattleArena.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="appsettings.test.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

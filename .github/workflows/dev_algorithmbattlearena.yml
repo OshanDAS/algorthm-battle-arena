@@ -21,20 +21,17 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      - name: Create .env file from GitHub Secrets
-        run: |
-          echo "DefaultConnection=${{ secrets.DEFAULT_CONNECTION }}" >> .env
-          echo "TokenKey=${{ secrets.TOKEN_KEY }}" >> .env
-          echo "PasswordKey=${{ secrets.PASSWORD_KEY }}" >> .env
-          echo "AdminEmail=${{ secrets.ADMIN_EMAIL }}" >> .env
-          echo "AdminPassword=${{ secrets.ADMIN_PASSWORD }}" >> .env
-        shell: bash
-
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Build project
         run: dotnet build --configuration Release --no-restore
+
+      - name: Create test output directory
+        run: mkdir -p AlgorithmBattleArena.Tests/bin/Release/net8.0/
+
+      - name: Copy appsettings.test.json
+        run: cp AlgorithmBattleArena.Tests/appsettings.test.json AlgorithmBattleArena.Tests/bin/Release/net8.0/
 
       - name: Run unit tests
         run: |
@@ -72,9 +69,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-
-      - name: Ensure .env is not deployed
-        run: rm -f .env
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3

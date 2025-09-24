@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import * as signalR from "@microsoft/signalr"
 import { Code, Users, Trophy, Zap, CheckCircle, Swords, Timer, Target, Shield } from "lucide-react"
+import apiService from "../services/api"
 
 /** Skill Level Indicator - adapted from password strength */
 const SkillLevelIndicator = ({ level }) => {
@@ -98,25 +99,15 @@ export default function LobbyPage() {
     setStatusMessage("Fetching lobbies...")
 
     try {
-      const res = await fetch("http://localhost:5000/api/Lobbies", {
-        headers: {
-          Authorization: `Bearer ${currentToken}`,
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (!res.ok) {
-        const body = await res.text()
-        throw new Error(`HTTP ${res.status} - ${body}`)
-      }
-
-      const data = await res.json()
+      apiService.setAuthToken(currentToken)
+      const res = await apiService.lobbies.getAll()
+      const data = res.data
       setLobbies(data || [])
       logEvent("Fetched lobbies successfully")
       setStatusMessage("Lobbies loaded")
     } catch (err) {
       console.error("fetchLobbies error:", err)
-      logEvent(`Fetch lobbies failed: ${err.message}`)
+      logEvent(`Fetch lobbies failed: ${err.response?.data || err.message}`)
       setStatusMessage("Failed to load lobbies")
     } finally {
       setIsFetchingLobbies(false)
@@ -144,7 +135,7 @@ export default function LobbyPage() {
     logEvent("Starting SignalR connection...")
 
     const hub = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5000/lobbyHub", {
+      .withUrl(`${apiService.client.defaults.baseURL}/lobbyHub`, {
         accessTokenFactory: () => currentToken,
       })
       .withAutomaticReconnect()
@@ -282,29 +273,17 @@ export default function LobbyPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/Lobbies", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${currentToken}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(lobbyData)
-      })
-
-      if (!res.ok) {
-        const errorText = await res.text()
-        throw new Error(`HTTP ${res.status}: ${errorText}`)
-      }
-
-      const createdLobby = await res.json()
+      apiService.setAuthToken(currentToken)
+      const res = await apiService.lobbies.create(lobbyData)
+      const createdLobby = res.data
       setStatusMessage("Lobby created successfully!")
       logEvent(`Lobby created: ${createdLobby.id || 'Unknown ID'}`)
       fetchLobbies() // Refresh lobby list
       setIsLoading(false)
     } catch (err) {
       console.error("CreateLobby error:", err)
-      setStatusMessage("Failed to create lobby: " + (err?.message || err))
-      logEvent(`CreateLobby failed: ${err?.message || err}`)
+      setStatusMessage("Failed to create lobby: " + (err?.response?.data || err?.message || err))
+      logEvent(`CreateLobby failed: ${err?.response?.data || err?.message || err}`)
       setIsLoading(false)
     }
   }
@@ -321,19 +300,8 @@ export default function LobbyPage() {
     setStatusMessage("Joining lobby...")
 
     try {
-      const res = await fetch(`http://localhost:5000/api/Lobbies/${lobbyId}/join`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${currentToken}`,
-          "Content-Type": "application/json"
-        }
-      })
-
-      if (!res.ok) {
-        const errorText = await res.text()
-        throw new Error(`HTTP ${res.status}: ${errorText}`)
-      }
-
+      apiService.setAuthToken(currentToken)
+      await apiService.lobbies.join(lobbyId)
       setStatusMessage("Lobby joined successfully!")
       setSuccess(true)
       setIsLoading(false)
@@ -341,8 +309,8 @@ export default function LobbyPage() {
       fetchLobbies() // Refresh lobby list
     } catch (err) {
       console.error("JoinLobby error:", err)
-      setStatusMessage("Failed to join lobby: " + (err?.message || err))
-      logEvent(`JoinLobby failed: ${err?.message || err}`)
+      setStatusMessage("Failed to join lobby: " + (err?.response?.data || err?.message || err))
+      logEvent(`JoinLobby failed: ${err?.response?.data || err?.message || err}`)
       setIsLoading(false)
     }
   }
