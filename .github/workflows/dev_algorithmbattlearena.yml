@@ -27,6 +27,9 @@ jobs:
       - name: Build project
         run: dotnet build --configuration Release --no-restore
 
+      - name: Create test output directory
+        run: mkdir -p AlgorithmBattleArena.Tests/bin/Release/net8.0/
+
       - name: Copy appsettings.test.json
         run: cp AlgorithmBattleArena.Tests/appsettings.test.json AlgorithmBattleArena.Tests/bin/Release/net8.0/
 
