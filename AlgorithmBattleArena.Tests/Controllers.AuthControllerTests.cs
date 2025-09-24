@@ -33,6 +33,10 @@ public class AuthControllerTests : IDisposable
 
     private static AuthHelper CreateAuthHelper()
     {
+        // Clear environment variables to ensure test isolation
+        Environment.SetEnvironmentVariable("PASSWORD_KEY", null);
+        Environment.SetEnvironmentVariable("TOKEN_KEY", null);
+        
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string,string?>
             {
