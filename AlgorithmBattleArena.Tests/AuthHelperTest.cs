@@ -10,7 +10,7 @@ public class AuthHelperTest : IDisposable
 {
     private readonly List<string> _envVarsToCleanup = new();
 
-    private void SetEnvironmentVariable(string key, string value)
+    private void SetEnvironmentVariable(string key, string? value)
     {
         Environment.SetEnvironmentVariable(key, value);
         _envVarsToCleanup.Add(key);
@@ -24,22 +24,18 @@ public class AuthHelperTest : IDisposable
         }
     }
 
-    private IConfiguration CreateMockConfiguration(string passwordKey = "test-password-key", string tokenKey = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#")
+    private IConfiguration CreateConfiguration()
     {
-        var inMemorySettings = new Dictionary<string, string?> {
-            {"AppSettings:PasswordKey", passwordKey},
-            {"AppSettings:TokenKey", tokenKey},
-        };
-
         return new ConfigurationBuilder()
-            .AddInMemoryCollection(inMemorySettings)
+            .AddJsonFile("appsettings.test.json")
+            .AddEnvironmentVariables()
             .Build();
     }
 
     [Fact]
     public void GetPasswordSalt_ShouldGenerateUniqueSalts()
     {
-        var auth = new AuthHelper(CreateMockConfiguration());
+        var auth = new AuthHelper(CreateConfiguration());
         var salt1 = auth.GetPasswordSalt();
         var salt2 = auth.GetPasswordSalt();
         
@@ -50,10 +46,9 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void GetPasswordHash_WithValidConfig_ShouldGenerateHash()
     {
-        // Clear environment variables that could interfere with test
-        SetEnvironmentVariable("PASSWORD_KEY", null!);
+        SetEnvironmentVariable("PASSWORD_KEY", null);
         
-        var auth = new AuthHelper(CreateMockConfiguration());
+        var auth = new AuthHelper(CreateConfiguration());
         var salt = auth.GetPasswordSalt();
         var hash = auth.GetPasswordHash("password123", salt);
         
@@ -64,10 +59,9 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void VerifyPasswordHash_WithMatchingPasswords_ShouldReturnTrue()
     {
-        // Clear environment variables that could interfere with test
-        SetEnvironmentVariable("PASSWORD_KEY", null!);
+        SetEnvironmentVariable("PASSWORD_KEY", null);
         
-        var auth = new AuthHelper(CreateMockConfiguration());
+        var auth = new AuthHelper(CreateConfiguration());
         var salt = auth.GetPasswordSalt();
         var hash = auth.GetPasswordHash("password123", salt);
         
@@ -79,10 +73,9 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void VerifyPasswordHash_WithNonMatchingPasswords_ShouldReturnFalse()
     {
-        // Clear environment variables that could interfere with test
-        SetEnvironmentVariable("PASSWORD_KEY", null!);
+        SetEnvironmentVariable("PASSWORD_KEY", null);
         
-        var auth = new AuthHelper(CreateMockConfiguration());
+        var auth = new AuthHelper(CreateConfiguration());
         var salt = auth.GetPasswordSalt();
         var hash = auth.GetPasswordHash("password123", salt);
         
@@ -94,9 +87,9 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void CreateToken_WithValidInputs_ShouldCreateValidToken()
     {
-        SetEnvironmentVariable("TOKEN_KEY", null!);
+        SetEnvironmentVariable("TOKEN_KEY", null);
         
-        var auth = new AuthHelper(CreateMockConfiguration());
+        var auth = new AuthHelper(CreateConfiguration());
         var token = auth.CreateToken("test@test.com", "Student", 1);
         
         Assert.NotNull(token);
@@ -109,9 +102,9 @@ public class AuthHelperTest : IDisposable
     [InlineData("Teacher", "teacherId")]
     public void CreateToken_WithUserRole_ShouldIncludeCorrectClaims(string role, string expectedClaimType)
     {
-        SetEnvironmentVariable("TOKEN_KEY", null!);
+        SetEnvironmentVariable("TOKEN_KEY", null);
         
-        var auth = new AuthHelper(CreateMockConfiguration());
+        var auth = new AuthHelper(CreateConfiguration());
         var token = auth.CreateToken("test@test.com", role, 1);
         var principal = auth.ValidateToken(token);
         
@@ -124,9 +117,9 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void ValidateToken_WithInvalidToken_ShouldReturnNull()
     {
-        SetEnvironmentVariable("TOKEN_KEY", null!);
+        SetEnvironmentVariable("TOKEN_KEY", null);
         
-        var auth = new AuthHelper(CreateMockConfiguration());
+        var auth = new AuthHelper(CreateConfiguration());
         var result = auth.ValidateToken("invalid-token");
         
         Assert.Null(result);
@@ -135,9 +128,9 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void GetClaimValue_WithExistingClaim_ShouldReturnValue()
     {
-        SetEnvironmentVariable("TOKEN_KEY", null!);
+        SetEnvironmentVariable("TOKEN_KEY", null);
         
-        var auth = new AuthHelper(CreateMockConfiguration());
+        var auth = new AuthHelper(CreateConfiguration());
         var token = auth.CreateToken("test@test.com", "Student", 1);
         var principal = auth.ValidateToken(token);
         
@@ -149,9 +142,9 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void GetClaimValue_WithMissingClaim_ShouldReturnNull()
     {
-        SetEnvironmentVariable("TOKEN_KEY", null!);
+        SetEnvironmentVariable("TOKEN_KEY", null);
         
-        var auth = new AuthHelper(CreateMockConfiguration());
+        var auth = new AuthHelper(CreateConfiguration());
         var token = auth.CreateToken("test@test.com", "Student", 1);
         var principal = auth.ValidateToken(token);
         
@@ -163,9 +156,9 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void GetUserIdFromClaims_WithValidStudentRole_ShouldReturnId()
     {
-        SetEnvironmentVariable("TOKEN_KEY", null!);
+        SetEnvironmentVariable("TOKEN_KEY", null);
         
-        var auth = new AuthHelper(CreateMockConfiguration());
+        var auth = new AuthHelper(CreateConfiguration());
         var token = auth.CreateToken("test@test.com", "Student", 1);
         var principal = auth.ValidateToken(token);
         
@@ -178,7 +171,7 @@ public class AuthHelperTest : IDisposable
     public void GetPasswordHash_WithEnvironmentVariable_ShouldUseEnvVar()
     {
         SetEnvironmentVariable("PASSWORD_KEY", "env-password-key");
-        var auth = new AuthHelper(CreateMockConfiguration("config-password-key"));
+        var auth = new AuthHelper(CreateConfiguration());
         var salt = auth.GetPasswordSalt();
         
         var hash = auth.GetPasswordHash("password123", salt);
@@ -191,7 +184,7 @@ public class AuthHelperTest : IDisposable
     public void CreateToken_WithEnvironmentVariable_ShouldUseEnvVar()
     {
         SetEnvironmentVariable("TOKEN_KEY", "env-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#");
-        var auth = new AuthHelper(CreateMockConfiguration(tokenKey: "config-token-key"));
+        var auth = new AuthHelper(CreateConfiguration());
         
         var token = auth.CreateToken("test@test.com", "Student", 1);
         
@@ -205,7 +198,7 @@ public class AuthHelperTest : IDisposable
     {
         SetEnvironmentVariable("ADMIN_EMAIL", "env-admin@test.com");
         SetEnvironmentVariable("ADMIN_PASSWORD", "env-admin-pass");
-        var auth = new AuthHelper(CreateMockConfiguration());
+        var auth = new AuthHelper(CreateConfiguration());
         
         var result = auth.ValidateAdminCredentials("env-admin@test.com", "env-admin-pass");
         

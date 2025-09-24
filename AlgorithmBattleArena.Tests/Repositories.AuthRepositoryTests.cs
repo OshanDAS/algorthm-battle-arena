@@ -36,6 +36,7 @@ public class AuthRepositoryTests : IDisposable
                 ["AppSettings:PasswordKey"] = "test-password-key",
                 ["AppSettings:TokenKey"] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#"
             })
+            .AddEnvironmentVariables()
             .Build();
         return new AuthHelper(config);
     }
