@@ -18,7 +18,7 @@ public class CompilationTest
         var student = new StudentForRegistrationDto();
         var teacher = new TeacherForRegistrationDto();
         var login = new UserForLoginDto();
-        
+
         Assert.NotNull(filter);
         Assert.NotNull(list);
         Assert.NotNull(response);
@@ -36,7 +36,7 @@ public class CompilationTest
         var problem = new Problem();
         var testCase = new ProblemTestCase();
         var solution = new ProblemSolution();
-        
+
         Assert.NotNull(auth);
         Assert.NotNull(student);
         Assert.NotNull(teacher);
@@ -49,13 +49,9 @@ public class CompilationTest
     public void AuthHelperCompiles()
     {
         var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["AppSettings:PasswordKey"] = "test-key",
-                ["AppSettings:TokenKey"] = "test-token-key-long-enough-for-hmac"
-            })
+            .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: false)
             .Build();
-            
+
         var helper = new AuthHelper(config);
         Assert.NotNull(helper);
     }
