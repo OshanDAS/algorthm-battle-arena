@@ -1,4 +1,3 @@
-
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -27,14 +26,7 @@ public class AuthHelperTest : IDisposable
     private IConfiguration CreateConfiguration()
     {
         return new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["AppSettings:PasswordKey"] = "nvjnnjbjbbjvsfnfnjfnuifefheufihefefuibufbeuf-9348484744939",
-                ["AppSettings:TokenKey"] = "8zV7kX2j9pWqT3mY6rN5tL8sF2hD4vC7xB9nK3mP5qW8tR2yJ6zA4cV9uL3eQ2wF7gT1mN8kX4pR6yH2jB5vC9tL3",
-                ["AppSettings:AdminEmail"] = "admin@algorithmArena.com",
-                ["AppSettings:AdminPassword"] = "Admin@123"
-            })
-            .AddJsonFile("appsettings.test.json", optional: true)
-            .AddEnvironmentVariables()
+            .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: false)
             .Build();
     }
 
@@ -44,7 +36,7 @@ public class AuthHelperTest : IDisposable
         var auth = new AuthHelper(CreateConfiguration());
         var salt1 = auth.GetPasswordSalt();
         var salt2 = auth.GetPasswordSalt();
-        
+
         Assert.NotEqual(salt1, salt2);
         Assert.Equal(16, salt1.Length);
     }
@@ -52,12 +44,10 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void GetPasswordHash_WithValidConfig_ShouldGenerateHash()
     {
-        SetEnvironmentVariable("PASSWORD_KEY", null);
-        
         var auth = new AuthHelper(CreateConfiguration());
         var salt = auth.GetPasswordSalt();
         var hash = auth.GetPasswordHash("password123", salt);
-        
+
         Assert.NotNull(hash);
         Assert.Equal(32, hash.Length);
     }
@@ -65,41 +55,35 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void VerifyPasswordHash_WithMatchingPasswords_ShouldReturnTrue()
     {
-        SetEnvironmentVariable("PASSWORD_KEY", null);
-        
         var config = CreateConfiguration();
         var auth = new AuthHelper(config);
         var salt = auth.GetPasswordSalt();
         var hash = auth.GetPasswordHash("password123", salt);
-        
+
         var result = auth.VerifyPasswordHash("password123", hash, salt);
-        
+
         Assert.True(result);
     }
 
     [Fact]
     public void VerifyPasswordHash_WithNonMatchingPasswords_ShouldReturnFalse()
     {
-        SetEnvironmentVariable("PASSWORD_KEY", null);
-        
         var config = CreateConfiguration();
         var auth = new AuthHelper(config);
         var salt = auth.GetPasswordSalt();
         var hash = auth.GetPasswordHash("password123", salt);
-        
+
         var result = auth.VerifyPasswordHash("wrongpassword", hash, salt);
-        
+
         Assert.False(result);
     }
 
     [Fact]
     public void CreateToken_WithValidInputs_ShouldCreateValidToken()
     {
-        SetEnvironmentVariable("TOKEN_KEY", null);
-        
         var auth = new AuthHelper(CreateConfiguration());
         var token = auth.CreateToken("test@test.com", "Student", 1);
-        
+
         Assert.NotNull(token);
         var principal = auth.ValidateToken(token);
         Assert.NotNull(principal);
@@ -110,12 +94,10 @@ public class AuthHelperTest : IDisposable
     [InlineData("Teacher", "teacherId")]
     public void CreateToken_WithUserRole_ShouldIncludeCorrectClaims(string role, string expectedClaimType)
     {
-        SetEnvironmentVariable("TOKEN_KEY", null);
-        
         var auth = new AuthHelper(CreateConfiguration());
         var token = auth.CreateToken("test@test.com", role, 1);
         var principal = auth.ValidateToken(token);
-        
+
         Assert.NotNull(principal);
         Assert.Equal("test@test.com", auth.GetEmailFromClaims(principal));
         Assert.Equal(role, auth.GetRoleFromClaims(principal));
@@ -125,109 +107,55 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void ValidateToken_WithInvalidToken_ShouldReturnNull()
     {
-        SetEnvironmentVariable("TOKEN_KEY", null);
-        
         var auth = new AuthHelper(CreateConfiguration());
         var result = auth.ValidateToken("invalid-token");
-        
+
         Assert.Null(result);
     }
 
     [Fact]
     public void GetClaimValue_WithExistingClaim_ShouldReturnValue()
     {
-        SetEnvironmentVariable("TOKEN_KEY", null);
-        
         var auth = new AuthHelper(CreateConfiguration());
         var token = auth.CreateToken("test@test.com", "Student", 1);
         var principal = auth.ValidateToken(token);
-        
+
         var email = auth.GetClaimValue(principal!, "email", ClaimTypes.Email);
-        
+
         Assert.Equal("test@test.com", email);
     }
 
     [Fact]
     public void GetClaimValue_WithMissingClaim_ShouldReturnNull()
     {
-        SetEnvironmentVariable("TOKEN_KEY", null);
-        
         var auth = new AuthHelper(CreateConfiguration());
         var token = auth.CreateToken("test@test.com", "Student", 1);
         var principal = auth.ValidateToken(token);
-        
+
         var value = auth.GetClaimValue(principal!, "nonexistent-claim");
-        
+
         Assert.Null(value);
     }
 
     [Fact]
     public void GetUserIdFromClaims_WithValidStudentRole_ShouldReturnId()
     {
-        SetEnvironmentVariable("TOKEN_KEY", null);
-        
         var auth = new AuthHelper(CreateConfiguration());
         var token = auth.CreateToken("test@test.com", "Student", 1);
         var principal = auth.ValidateToken(token);
-        
+
         var userId = auth.GetUserIdFromClaims(principal!, "Student");
-        
+
         Assert.Equal(1, userId);
     }
 
     [Fact]
-    public void GetPasswordHash_WithEnvironmentVariable_ShouldUseEnvVar()
+    public void ValidateAdminCredentials_WithConfiguration_ShouldUseConfig()
     {
-        var envPasswordKey = "env-password-key";
-        SetEnvironmentVariable("PASSWORD_KEY", envPasswordKey);
-        
-        var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["AppSettings:PasswordKey"] = "config-password-key"
-            })
-            .Build();
-        var auth = new AuthHelper(config);
-        var salt = auth.GetPasswordSalt();
-        
-        var hash = auth.GetPasswordHash("password123", salt);
-        
-        Assert.NotNull(hash);
-        Assert.Equal(32, hash.Length);
-    }
-
-    [Fact]
-    public void CreateToken_WithEnvironmentVariable_ShouldUseEnvVar()
-    {
-        SetEnvironmentVariable("TOKEN_KEY", "env-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#");
-        
         var config = CreateConfiguration();
         var auth = new AuthHelper(config);
-        
-        var token = auth.CreateToken("test@test.com", "Student", 1);
-        
-        Assert.NotNull(token);
-        var principal = auth.ValidateToken(token);
-        Assert.NotNull(principal);
-    }
+        var result = auth.ValidateAdminCredentials("test-admin@test.com", "TestAdmin123");
 
-    [Fact]
-    public void ValidateAdminCredentials_WithEnvironmentVariables_ShouldUseEnvVars()
-    {
-        var envEmail = "env-admin@test.com";
-        var envPassword = "env-admin-pass";
-        SetEnvironmentVariable("ADMIN_EMAIL", envEmail);
-        SetEnvironmentVariable("ADMIN_PASSWORD", envPassword);
-        
-        var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["AppSettings:AdminEmail"] = "config-admin@test.com",
-                ["AppSettings:AdminPassword"] = "config-admin-pass"
-            })
-            .Build();
-        var auth = new AuthHelper(config);
-        
-        var result = auth.ValidateAdminCredentials("env-admin@test.com", "env-admin-pass");
-        
         Assert.True(result);
     }
 }

@@ -31,12 +31,7 @@ public class AuthRepositoryTests : IDisposable
     private static AuthHelper CreateAuthHelper()
     {
         var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string,string?>
-            {
-                ["AppSettings:PasswordKey"] = "test-password-key",
-                ["AppSettings:TokenKey"] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#"
-            })
-            .AddEnvironmentVariables()
+            .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: false)
             .Build();
         return new AuthHelper(config);
     }
@@ -108,15 +103,9 @@ public class AuthRepositoryTests : IDisposable
     }
 
     [Fact]
-    public void RegisterStudent_WithEnvironmentVariables_ShouldWork()
+    public void RegisterStudent_WithConfiguration_ShouldWork()
     {
-        SetEnvironmentVariable("PASSWORD_KEY", "env-password-key");
-        
-        var config = new ConfigurationBuilder()
-            .AddEnvironmentVariables()
-            .Build();
-        var authHelper = new AuthHelper(config);
-        
+        var authHelper = CreateAuthHelper();
         var dapper = new Mock<IDataContextDapper>();
         dapper.Setup(d => d.ExecuteTransaction(It.IsAny<List<(string sql, object? parameters)>>())).Returns(true);
         var repo = new AuthRepository(dapper.Object, authHelper);
