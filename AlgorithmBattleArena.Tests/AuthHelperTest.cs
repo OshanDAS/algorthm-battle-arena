@@ -27,7 +27,13 @@ public class AuthHelperTest : IDisposable
     private IConfiguration CreateConfiguration()
     {
         return new ConfigurationBuilder()
-            .AddJsonFile("appsettings.test.json")
+            .AddInMemoryCollection(new Dictionary<string, string?> {
+                ["AppSettings:PasswordKey"] = "nvjnnjbjbbjvsfnfnjfnuifefheufihefefuibufbeuf-9348484744939",
+                ["AppSettings:TokenKey"] = "8zV7kX2j9pWqT3mY6rN5tL8sF2hD4vC7xB9nK3mP5qW8tR2yJ6zA4cV9uL3eQ2wF7gT1mN8kX4pR6yH2jB5vC9tL3",
+                ["AppSettings:AdminEmail"] = "admin@algorithmArena.com",
+                ["AppSettings:AdminPassword"] = "Admin@123"
+            })
+            .AddJsonFile("appsettings.test.json", optional: true)
             .AddEnvironmentVariables()
             .Build();
     }
@@ -61,7 +67,8 @@ public class AuthHelperTest : IDisposable
     {
         SetEnvironmentVariable("PASSWORD_KEY", null);
         
-        var auth = new AuthHelper(CreateConfiguration());
+        var config = CreateConfiguration();
+        var auth = new AuthHelper(config);
         var salt = auth.GetPasswordSalt();
         var hash = auth.GetPasswordHash("password123", salt);
         
@@ -75,7 +82,8 @@ public class AuthHelperTest : IDisposable
     {
         SetEnvironmentVariable("PASSWORD_KEY", null);
         
-        var auth = new AuthHelper(CreateConfiguration());
+        var config = CreateConfiguration();
+        var auth = new AuthHelper(config);
         var salt = auth.GetPasswordSalt();
         var hash = auth.GetPasswordHash("password123", salt);
         
@@ -190,14 +198,9 @@ public class AuthHelperTest : IDisposable
     [Fact]
     public void CreateToken_WithEnvironmentVariable_ShouldUseEnvVar()
     {
-        var envTokenKey = "env-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#";
-        SetEnvironmentVariable("TOKEN_KEY", envTokenKey);
+        SetEnvironmentVariable("TOKEN_KEY", "env-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#");
         
-        var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["AppSettings:TokenKey"] = "config-token-key-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#"
-            })
-            .Build();
+        var config = CreateConfiguration();
         var auth = new AuthHelper(config);
         
         var token = auth.CreateToken("test@test.com", "Student", 1);
