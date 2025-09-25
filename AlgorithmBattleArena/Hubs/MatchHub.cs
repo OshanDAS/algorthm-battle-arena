@@ -22,6 +22,7 @@ namespace AlgorithmBattleArina.Hubs
 
         private string? GetUserEmail()
         {
+            if (Context.User == null) return null;
             return _authHelper.GetEmailFromClaims(Context.User);
         }
 

@@ -226,3 +226,62 @@ CREATE TABLE AlgorithmBattleArinaSchema.LobbyParticipants (
 );
 
 
+-- ===========================================
+-- MATCHES
+-- ===========================================
+CREATE TABLE AlgorithmBattleArinaSchema.Matches (
+    MatchId INT IDENTITY(1,1) PRIMARY KEY,
+    LobbyId INT NOT NULL,
+    StartedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    EndedAt DATETIME2 NULL,
+
+    CONSTRAINT FK_Match_Lobby FOREIGN KEY (LobbyId)
+        REFERENCES AlgorithmBattleArinaSchema.Lobbies(LobbyId)
+        ON DELETE CASCADE
+);
+
+
+
+-- ===========================================
+-- MATCH PROBLEMS
+-- ===========================================
+CREATE TABLE AlgorithmBattleArinaSchema.MatchProblems (
+    MatchProblemId INT IDENTITY(1,1) PRIMARY KEY,
+    MatchId INT NOT NULL,
+    ProblemId INT NOT NULL,
+
+    CONSTRAINT FK_MatchProblems_Match FOREIGN KEY (MatchId)
+        REFERENCES AlgorithmBattleArinaSchema.Matches(MatchId)
+        ON DELETE CASCADE,
+
+    CONSTRAINT FK_MatchProblems_Problem FOREIGN KEY (ProblemId)
+        REFERENCES AlgorithmBattleArinaSchema.Problems(ProblemId)
+        ON DELETE CASCADE
+);
+
+
+-- ===========================================
+-- SUBMISSIONS
+-- ===========================================
+CREATE TABLE AlgorithmBattleArinaSchema.Submissions (
+    SubmissionId INT IDENTITY(1,1) PRIMARY KEY,
+    MatchId INT NOT NULL,
+    ProblemId INT NOT NULL,
+    ParticipantEmail NVARCHAR(50) NOT NULL,
+    Language NVARCHAR(50) NOT NULL,
+    Code NVARCHAR(MAX) NOT NULL,
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Submitted',
+    SubmittedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT FK_Submission_Match FOREIGN KEY (MatchId)
+        REFERENCES AlgorithmBattleArinaSchema.Matches(MatchId)
+        ON DELETE NO ACTION,
+
+    CONSTRAINT FK_Submission_Problem FOREIGN KEY (ProblemId)
+        REFERENCES AlgorithmBattleArinaSchema.Problems(ProblemId),
+
+    CONSTRAINT FK_Submission_Participant FOREIGN KEY (ParticipantEmail)
+        REFERENCES AlgorithmBattleArinaSchema.Auth(Email)
+);
+
+

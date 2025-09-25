@@ -19,12 +19,14 @@ namespace AlgorithmBattleArina.Controllers
     {
         private readonly IHubContext<MatchHub> _hubContext;
         private readonly ILobbyRepository _lobbyRepository;
+        private readonly IMatchRepository _matchRepository;
         private readonly AuthHelper _authHelper;
 
-        public MatchesController(IHubContext<MatchHub> hubContext, ILobbyRepository lobbyRepository, AuthHelper authHelper)
+        public MatchesController(IHubContext<MatchHub> hubContext, ILobbyRepository lobbyRepository, IMatchRepository matchRepository, AuthHelper authHelper)
         {
             _hubContext = hubContext;
             _lobbyRepository = lobbyRepository;
+            _matchRepository = matchRepository;
             _authHelper = authHelper;
         }
 
@@ -37,30 +39,27 @@ namespace AlgorithmBattleArina.Controllers
         public async Task<IActionResult> StartMatch(int lobbyId, [FromBody] StartMatchRequest request)
         {
             var userEmail = _authHelper.GetEmailFromClaims(User);
-            if (string.IsNullOrEmpty(userEmail))
-                return Unauthorized();
-
-            // Ensure caller is host of the lobby
-            if (!await _lobbyRepository.IsHost(lobbyId, userEmail))
+            if (string.IsNullOrEmpty(userEmail) || !await _lobbyRepository.IsHost(lobbyId, userEmail))
+            {
                 return Forbid("Only the host can start the match.");
+            }
 
-            // Compute a single StartAtUtc for all participants.
+            var match = await _matchRepository.CreateMatch(lobbyId, request.ProblemIds);
+
             var bufferSec = Math.Max(1, request.PreparationBufferSec);
             var startAtUtc = DateTime.UtcNow.AddSeconds(bufferSec);
 
             var dto = new MatchStartedDto
             {
-                MatchId = Guid.NewGuid(),
-                ProblemId = request.ProblemId,
+                MatchId = match.MatchId,
+                ProblemIds = request.ProblemIds,
                 StartAtUtc = startAtUtc,
                 DurationSec = request.DurationSec,
                 SentAtUtc = DateTime.UtcNow
             };
 
-            // Broadcast to the SignalR group representing the lobby.
-            await _hubContext.Clients.Group(lobbyId.ToString()).SendAsync("MatchStarted", dto);
+            await _hubContext.Clients.All.SendAsync("MatchStarted", dto);
 
-            // Update lobby status
             await _lobbyRepository.UpdateLobbyStatus(lobbyId, "InProgress");
 
             return Ok(dto);

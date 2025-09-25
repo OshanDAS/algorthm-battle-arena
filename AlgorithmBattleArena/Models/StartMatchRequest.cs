@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 
 namespace AlgorithmBattleArina.Models
 {
@@ -7,7 +7,7 @@ namespace AlgorithmBattleArina.Models
     /// </summary>
     public class StartMatchRequest
     {
-        public Guid ProblemId { get; set; }
+        public List<int> ProblemIds { get; set; } = new List<int>();
         public int DurationSec { get; set; }
 
         /// <summary>
