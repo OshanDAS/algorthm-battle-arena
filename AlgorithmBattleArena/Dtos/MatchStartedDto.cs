@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace AlgorithmBattleArina.Dtos
 {
@@ -8,8 +9,8 @@ namespace AlgorithmBattleArina.Dtos
     /// </summary>
     public class MatchStartedDto
     {
-        public Guid MatchId { get; set; }
-        public Guid ProblemId { get; set; }
+        public int MatchId { get; set; }
+        public List<int> ProblemIds { get; set; } = new List<int>();
 
         /// <summary>
         /// Absolute UTC start time for the match. Clients should compute countdowns off this value.

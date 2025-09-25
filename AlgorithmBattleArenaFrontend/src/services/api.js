@@ -48,8 +48,13 @@ class ApiService {
     getAll: (filters) => this.client.get('/api/Problems', { params: filters }),
     getById: (id) => this.client.get(`/api/Problems/${id}`),
     create: (data) => this.client.post('/api/Problems', data),
+    generate: (data) => this.client.post('/api/Problems/generate', data),
     update: (id, data) => this.client.put(`/api/Problems/${id}`, data),
     delete: (id) => this.client.delete(`/api/Problems/${id}`)
+  };
+
+  submissions = {
+    create: (data) => this.client.post('/api/Submissions', data)
   };
 
   lobbies = {
