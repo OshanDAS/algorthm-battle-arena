@@ -21,26 +21,27 @@ export default function LoginPage() {
     setStatus("Logging in...")
     setIsLoading(true)
 
-    try {
-      const { role } = await login(email, password)
-      setStatus("Login successful!")
-      
-      // Role-based navigation
-      switch (role) {
-        case 'Admin':
-          navigate("/admin")
-          break
-        case 'Teacher':
-          navigate("/teacher")
-          break
-        case 'Student':
-          navigate("/lobby")
-          break
-        default:
-          navigate("/dashboard")
-      }
-    } catch (err) {
-      console.error("Login error:", err)
+          try {
+            const { role } = await login(email, password)
+            console.log(role)
+            setStatus("Login successful!")
+            setIsLoading(false)
+            
+            // Role-based navigation
+            switch (role) {
+              case 'Admin':
+                navigate("/admin")
+                break
+              case 'Teacher':
+                navigate("/teacher")
+                break
+              case 'Student':
+                navigate("/student-dashboard")
+                break
+              default:
+                navigate("/dashboard")
+            }
+          } catch (err) {      console.error("Login error:", err)
       const backendMsg = err.response?.data ?? err.message
       setStatus("Login failed: " + JSON.stringify(backendMsg))
       setIsLoading(false)

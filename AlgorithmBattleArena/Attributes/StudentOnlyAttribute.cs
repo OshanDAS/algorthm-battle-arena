@@ -16,7 +16,7 @@ namespace AlgorithmBattleArina.Attributes
                 return;
             }
 
-            var role = user.FindFirst(ClaimTypes.Role)?.Value;
+            var role = user.FindFirst(ClaimTypes.Role)?.Value ?? user.FindFirst("role")?.Value;
             if (role != "Student")
             {
                 context.Result = new ForbidResult();
