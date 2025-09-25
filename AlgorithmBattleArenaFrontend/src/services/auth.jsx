@@ -1,4 +1,3 @@
-// src/services/auth.jsx  (update imports & initial state)
 import React, { createContext, useContext, useState, useEffect } from "react";
 import jwtDecode from "jwt-decode";
 import { getToken, setToken as saveToken, clearToken } from "./tokenStorage";
@@ -6,18 +5,32 @@ import apiService from "./api";
 
 const AuthContext = createContext(null);
 
+const parseUserFromToken = (token) => {
+    if (!token) return null;
+    const decoded = jwtDecode(token);
+    return {
+        ...decoded,
+        email: decoded.email,
+        role: decoded.role
+    };
+}
+
 export function AuthProvider({ children }) {
   const [token, setTokenState] = useState(() => getToken());
-  const [user, setUser] = useState(() => {
-    const saved = getToken();
-    return saved ? jwtDecode(saved) : null;
-  });
+  const [user, setUser] = useState(() => parseUserFromToken(getToken()));
+
+  useEffect(() => {
+    const t = getToken();
+    if (t) {
+      apiService.setAuthToken(t);
+    }
+  }, []);
 
   useEffect(() => {
     const onTokenChanged = () => {
       const t = getToken();
       setTokenState(t);
-      setUser(t ? jwtDecode(t) : null);
+      setUser(parseUserFromToken(t));
       apiService.setAuthToken(t);
     };
 
@@ -32,17 +45,17 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     try {
       const response = await apiService.auth.login(email, password);
-      const { token: t, role } = response.data;
+      const { token } = response.data;
       
-      if (!t) throw new Error("No token returned from server");
+      if (!token) throw new Error("No token returned from server");
 
-      saveToken(t);
-      setTokenState(t);
-      const decoded = jwtDecode(t);
-      setUser({ ...decoded, role });
-      apiService.setAuthToken(t);
+      saveToken(token);
+      const parsedUser = parseUserFromToken(token);
+      setTokenState(token);
+      setUser(parsedUser);
+      apiService.setAuthToken(token);
       
-      return { role };
+      return { role: parsedUser.role };
     } catch (err) {
       console.error("Login error:", err);
       throw err;
@@ -64,3 +77,4 @@ export function AuthProvider({ children }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
+
