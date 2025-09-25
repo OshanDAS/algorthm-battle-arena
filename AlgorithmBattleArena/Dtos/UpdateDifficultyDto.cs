@@ -5,6 +5,6 @@ namespace AlgorithmBattleArina.Dtos
     public class UpdateDifficultyDto
     {
         [JsonPropertyName("difficulty")]
-        public string Difficulty { get; set; }
+        public string Difficulty { get; set; } = string.Empty;
     }
 }
