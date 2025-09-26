@@ -51,5 +51,17 @@ namespace AlgorithmBattleArina.Helpers
                 return HandleError(ex, errorMessage, logger);
             }
         }
+
+        public static async Task<IActionResult> SafeExecuteAsync(Func<Task<IActionResult>> action, string errorMessage, ILogger logger)
+        {
+            try
+            {
+                return await action();
+            }
+            catch (Exception ex)
+            {
+                return HandleError(ex, errorMessage, logger);
+            }
+        }
     }
 }

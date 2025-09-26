@@ -4,6 +4,11 @@ using AlgorithmBattleArina.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using AlgorithmBattleArina.Dtos;
+using System.Threading.Tasks;
+using System;
+using Microsoft.AspNetCore.SignalR;
+using AlgorithmBattleArina.Hubs;
 
 namespace AlgorithmBattleArina.Controllers
 {
@@ -14,90 +19,179 @@ namespace AlgorithmBattleArina.Controllers
     {
         private readonly ILobbyRepository _lobbyRepository;
         private readonly AuthHelper _authHelper;
+        private readonly IHubContext<MatchHub> _hubContext;
 
-        public LobbiesController(ILobbyRepository lobbyRepository, AuthHelper authHelper)
+        public LobbiesController(ILobbyRepository lobbyRepository, AuthHelper authHelper, IHubContext<MatchHub> hubContext)
         {
             _lobbyRepository = lobbyRepository;
             _authHelper = authHelper;
+            _hubContext = hubContext;
         }
 
         [StudentOrAdmin]
         [HttpGet]
-        public IActionResult GetLobbies()
+        public async Task<IActionResult> GetOpenLobbies()
         {
-            var lobbies = _lobbyRepository.GetLobbies();
+            var lobbies = await _lobbyRepository.GetOpenLobbies();
             return Ok(lobbies);
         }
 
         [StudentOrAdmin]
-        [HttpGet("{lobbyId}")]
-        public IActionResult GetLobby(string lobbyId)
+        [HttpGet("{lobbyId:int}")]
+        public async Task<IActionResult> GetLobby(int lobbyId)
         {
-            var lobby = _lobbyRepository.GetLobby(lobbyId);
+            var lobby = await _lobbyRepository.GetLobbyById(lobbyId);
             if (lobby == null) return NotFound();
             return Ok(lobby);
         }
 
         [StudentOrAdmin]
         [HttpPost]
-        public IActionResult CreateLobby([FromBody] CreateLobbyRequest request)
+        public async Task<IActionResult> CreateLobby([FromBody] LobbyCreateDto request)
         {
-            var role = _authHelper.GetRoleFromClaims(User);
-            var userId = _authHelper.GetUserIdFromClaims(User, role ?? "")?.ToString();
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var hostEmail = _authHelper.GetEmailFromClaims(User);
+            if (string.IsNullOrEmpty(hostEmail)) return Unauthorized();
 
-            var lobbyId = _lobbyRepository.CreateLobby(userId, request.Name, request.MaxPlayers);
-            var lobby = _lobbyRepository.GetLobby(lobbyId);
+            var lobbyCode = GenerateLobbyCode();
+            var lobby = await _lobbyRepository.CreateLobby(request.Name, request.MaxPlayers, request.Mode, request.Difficulty, hostEmail, lobbyCode);
             
-            return CreatedAtAction(nameof(GetLobby), new { lobbyId }, lobby);
+            return CreatedAtAction(nameof(GetLobby), new { lobbyId = lobby.LobbyId }, lobby);
         }
 
         [StudentOrAdmin]
-        [HttpPost("{lobbyId}/join")]
-        public IActionResult JoinLobby(string lobbyId)
+        [HttpPost("{lobbyCode}/join")]
+        public async Task<IActionResult> JoinLobby(string lobbyCode)
         {
-            var role = _authHelper.GetRoleFromClaims(User);
-            var userId = _authHelper.GetUserIdFromClaims(User, role ?? "")?.ToString();
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var participantEmail = _authHelper.GetEmailFromClaims(User);
+            if (string.IsNullOrEmpty(participantEmail)) return Unauthorized();
 
-            var success = _lobbyRepository.JoinLobby(lobbyId, userId);
-            if (!success) return BadRequest("Cannot join lobby");
+            var lobby = await _lobbyRepository.GetLobbyByCode(lobbyCode);
+            if (lobby == null) return NotFound("Lobby not found");
 
-            return Ok(new { message = "Joined lobby successfully" });
+            var success = await _lobbyRepository.JoinLobby(lobby.LobbyId, participantEmail);
+            if (!success) return BadRequest("Cannot join lobby. It might be full or closed.");
+
+            var updatedLobby = await _lobbyRepository.GetLobbyById(lobby.LobbyId);
+            await _hubContext.Clients.Group(lobby.LobbyId.ToString()).SendAsync("LobbyUpdated", updatedLobby);
+
+            return Ok(updatedLobby);
         }
 
         [StudentOrAdmin]
-        [HttpPost("{lobbyId}/leave")]
-        public IActionResult LeaveLobby(string lobbyId)
+        [HttpPost("{lobbyId:int}/leave")]
+        public async Task<IActionResult> LeaveLobby(int lobbyId)
         {
-            var role = _authHelper.GetRoleFromClaims(User);
-            var userId = _authHelper.GetUserIdFromClaims(User, role ?? "")?.ToString();
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var participantEmail = _authHelper.GetEmailFromClaims(User);
+            if (string.IsNullOrEmpty(participantEmail)) return Unauthorized();
 
-            var success = _lobbyRepository.LeaveLobby(lobbyId, userId);
+            var success = await _lobbyRepository.LeaveLobby(lobbyId, participantEmail);
             if (!success) return BadRequest("Cannot leave lobby");
+
+            var updatedLobby = await _lobbyRepository.GetLobbyById(lobbyId);
+            await _hubContext.Clients.Group(lobbyId.ToString()).SendAsync("LobbyUpdated", updatedLobby);
 
             return Ok(new { message = "Left lobby successfully" });
         }
 
         [StudentOrAdmin]
-        [HttpDelete("{lobbyId}")]
-        public IActionResult DeleteLobby(string lobbyId)
+        [HttpPost("{lobbyId:int}/close")]
+        public async Task<IActionResult> CloseLobby(int lobbyId)
         {
-            var role = _authHelper.GetRoleFromClaims(User);
-            var userId = _authHelper.GetUserIdFromClaims(User, role ?? "")?.ToString();
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var hostEmail = _authHelper.GetEmailFromClaims(User);
+            if (string.IsNullOrEmpty(hostEmail)) return Unauthorized();
 
-            var success = _lobbyRepository.DeleteLobby(lobbyId, userId);
-            if (!success) return Forbid("Only host can delete lobby");
+            var success = await _lobbyRepository.CloseLobby(lobbyId, hostEmail);
+            if (!success) return Forbid("Only the host can close the lobby.");
+
+            var updatedLobby = await _lobbyRepository.GetLobbyById(lobbyId);
+            await _hubContext.Clients.Group(lobbyId.ToString()).SendAsync("LobbyUpdated", updatedLobby);
+
+            return Ok(new { message = "Lobby closed successfully" });
+        }
+
+        [StudentOrAdmin]
+        [HttpDelete("{lobbyId:int}/participants/{participantEmail}")]
+        public async Task<IActionResult> KickParticipant(int lobbyId, string participantEmail)
+        {
+            var hostEmail = _authHelper.GetEmailFromClaims(User);
+            if (string.IsNullOrEmpty(hostEmail) || !await _lobbyRepository.IsHost(lobbyId, hostEmail))
+            {
+                return Forbid("Only the host can kick participants.");
+            }
+
+            var success = await _lobbyRepository.KickParticipant(lobbyId, hostEmail, participantEmail);
+            if (!success) return BadRequest("Failed to kick participant.");
+
+            var updatedLobby = await _lobbyRepository.GetLobbyById(lobbyId);
+            await _hubContext.Clients.Group(lobbyId.ToString()).SendAsync("LobbyUpdated", updatedLobby);
+
+            return Ok(new { message = "Participant kicked successfully" });
+        }
+
+        [StudentOrAdmin]
+        [HttpPut("{lobbyId:int}/privacy")]
+        public async Task<IActionResult> UpdateLobbyPrivacy(int lobbyId, [FromBody] UpdatePrivacyDto dto)
+        {
+            var hostEmail = _authHelper.GetEmailFromClaims(User);
+            if (string.IsNullOrEmpty(hostEmail) || !await _lobbyRepository.IsHost(lobbyId, hostEmail))
+            {
+                return Forbid("Only the host can change the lobby privacy.");
+            }
+
+            var success = await _lobbyRepository.UpdateLobbyPrivacy(lobbyId, dto.IsPublic);
+            if (!success) return BadRequest("Failed to update lobby privacy.");
+
+            var updatedLobby = await _lobbyRepository.GetLobbyById(lobbyId);
+            await _hubContext.Clients.Group(lobbyId.ToString()).SendAsync("LobbyUpdated", updatedLobby);
+
+            return Ok(new { message = "Lobby privacy updated successfully" });
+        }
+
+
+
+        [StudentOrAdmin]
+        [HttpPut("{lobbyId:int}/difficulty")]
+        public async Task<IActionResult> UpdateLobbyDifficulty(int lobbyId, [FromBody] UpdateDifficultyDto dto)
+        {
+            var hostEmail = _authHelper.GetEmailFromClaims(User);
+            if (string.IsNullOrEmpty(hostEmail) || !await _lobbyRepository.IsHost(lobbyId, hostEmail))
+            {
+                return Forbid("Only the host can change the lobby difficulty.");
+            }
+
+            var success = await _lobbyRepository.UpdateLobbyDifficulty(lobbyId, dto.Difficulty);
+            if (!success) return BadRequest("Failed to update lobby difficulty.");
+
+            var updatedLobby = await _lobbyRepository.GetLobbyById(lobbyId);
+            await _hubContext.Clients.Group(lobbyId.ToString()).SendAsync("LobbyUpdated", updatedLobby);
+
+            return Ok(new { message = "Lobby difficulty updated successfully" });
+        }
+
+        [StudentOrAdmin]
+        [HttpDelete("{lobbyId:int}")]
+        public async Task<IActionResult> DeleteLobby(int lobbyId)
+        {
+            var hostEmail = _authHelper.GetEmailFromClaims(User);
+            if (string.IsNullOrEmpty(hostEmail) || !await _lobbyRepository.IsHost(lobbyId, hostEmail))
+            {
+                return Forbid("Only the host can delete the lobby.");
+            }
+
+            var success = await _lobbyRepository.DeleteLobby(lobbyId);
+            if (!success) return BadRequest("Failed to delete lobby.");
+
+            await _hubContext.Clients.Group(lobbyId.ToString()).SendAsync("LobbyDeleted");
 
             return Ok(new { message = "Lobby deleted successfully" });
         }
-    }
 
-    public class CreateLobbyRequest
-    {
-        public string Name { get; set; } = string.Empty;
-        public int MaxPlayers { get; set; } = 10;
+        private string GenerateLobbyCode()
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, 6)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
     }
 }

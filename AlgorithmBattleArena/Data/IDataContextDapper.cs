@@ -1,9 +1,15 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AlgorithmBattleArina.Data
 {
     public interface IDataContextDapper
     {
+        Task<IEnumerable<T>> LoadDataAsync<T>(string sql, object? parameters = null);
+        Task<T> LoadDataSingleAsync<T>(string sql, object? parameters = null);
+        Task<T?> LoadDataSingleOrDefaultAsync<T>(string sql, object? parameters = null);
+        Task<bool> ExecuteSqlAsync(string sql, object? parameters = null);
+
         IEnumerable<T> LoadData<T>(string sql, object? parameters = null);
         T LoadDataSingle<T>(string sql, object? parameters = null);
         T? LoadDataSingleOrDefault<T>(string sql, object? parameters = null);

@@ -33,8 +33,10 @@ class ApiService {
     getAll: () => this.client.get('/api/Lobbies'),
     getById: (id) => this.client.get(`/api/Lobbies/${id}`),
     create: (data) => this.client.post('/api/Lobbies', data),
-    join: (id) => this.client.post(`/api/Lobbies/${id}/join`),
+    join: (lobbyCode) => this.client.post(`/api/Lobbies/${lobbyCode}/join`),
     leave: (id) => this.client.post(`/api/Lobbies/${id}/leave`),
+    close: (id) => this.client.post(`/api/Lobbies/${id}/close`),
+    kickParticipant: (id, email) => this.client.delete(`/api/Lobbies/${id}/participants/${email}`),
     delete: (id) => this.client.delete(`/api/Lobbies/${id}`)
   };
 
@@ -46,8 +48,26 @@ class ApiService {
     getAll: (filters) => this.client.get('/api/Problems', { params: filters }),
     getById: (id) => this.client.get(`/api/Problems/${id}`),
     create: (data) => this.client.post('/api/Problems', data),
+    generate: (data) => this.client.post('/api/Problems/generate', data),
     update: (id, data) => this.client.put(`/api/Problems/${id}`, data),
     delete: (id) => this.client.delete(`/api/Problems/${id}`)
+  };
+
+  submissions = {
+    create: (data) => this.client.post('/api/Submissions', data)
+  };
+
+  lobbies = {
+    getAll: () => this.client.get('/api/Lobbies'),
+    getById: (id) => this.client.get(`/api/Lobbies/${id}`),
+    create: (data) => this.client.post('/api/Lobbies', data),
+    join: (lobbyCode) => this.client.post(`/api/Lobbies/${lobbyCode}/join`),
+    leave: (id) => this.client.post(`/api/Lobbies/${id}/leave`),
+    close: (id) => this.client.post(`/api/Lobbies/${id}/close`),
+    kickParticipant: (id, email) => this.client.delete(`/api/Lobbies/${id}/participants/${email}`),
+    updatePrivacy: (id, isPublic) => this.client.put(`/api/Lobbies/${id}/privacy`, { isPublic }),
+    updateDifficulty: (id, difficulty) => this.client.put(`/api/Lobbies/${id}/difficulty`, { difficulty }),
+    delete: (id) => this.client.delete(`/api/Lobbies/${id}`)
   };
 }
 

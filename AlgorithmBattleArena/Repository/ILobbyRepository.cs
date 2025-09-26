@@ -1,39 +1,28 @@
+using AlgorithmBattleArina.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AlgorithmBattleArina.Repositories
 {
     public interface ILobbyRepository
     {
         // Lobby Management
-        string CreateLobby(string hostUserId, string lobbyName, int maxPlayers = 10);
-        bool JoinLobby(string lobbyId, string userId);
-        bool LeaveLobby(string lobbyId, string userId);
-        bool DeleteLobby(string lobbyId, string hostUserId);
-        
-        // Connection Management (SignalR)
-        void AddConnection(string lobbyId, string userId, string connectionId);
-        void RemoveConnection(string lobbyId, string connectionId);
-        IEnumerable<string> RemoveConnectionFromAllLobbies(string connectionId);
-        
+        Task<Lobby> CreateLobby(string lobbyName, int maxPlayers, string mode, string difficulty, string hostEmail, string lobbyCode);
+        Task<bool> JoinLobby(int lobbyId, string participantEmail);
+        Task<bool> LeaveLobby(int lobbyId, string participantEmail);
+        Task<bool> KickParticipant(int lobbyId, string hostEmail, string participantEmail);
+        Task<bool> CloseLobby(int lobbyId, string hostEmail);
+        Task<bool> UpdateLobbyStatus(int lobbyId, string status);
+        Task<bool> UpdateLobbyPrivacy(int lobbyId, bool isPublic);
+        Task<bool> UpdateLobbyDifficulty(int lobbyId, string difficulty);
+        Task<bool> DeleteLobby(int lobbyId);
+
         // Query Methods
-        IEnumerable<LobbyInfo> GetLobbies();
-        LobbyInfo? GetLobby(string lobbyId);
-        IEnumerable<string> GetLobbyMembers(string lobbyId);
+        Task<IEnumerable<Lobby>> GetOpenLobbies();
+        Task<Lobby?> GetLobbyById(int lobbyId);
+        Task<Lobby?> GetLobbyByCode(string lobbyCode);
         
         // Authorization
-        bool IsMember(string lobbyId, string userId);
-        bool IsHost(string lobbyId, string userId);
-    }
-
-    public class LobbyInfo
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public string HostUserId { get; set; } = string.Empty;
-        public int MemberCount { get; set; }
-        public int MaxPlayers { get; set; } = 10;
-        public bool IsActive { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public List<string> Members { get; set; } = new();
+        Task<bool> IsHost(int lobbyId, string email);
     }
 }

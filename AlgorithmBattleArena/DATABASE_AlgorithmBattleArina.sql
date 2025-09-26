@@ -180,3 +180,108 @@ EXEC AlgorithmBattleArinaSchema.spUpsertProblem
 
 
 
+
+  -- ===========================================
+-- LOBBIES
+-- ===========================================
+CREATE TABLE AlgorithmBattleArinaSchema.Lobbies (
+    LobbyId INT IDENTITY(1,1) PRIMARY KEY,
+    LobbyCode NVARCHAR(10) NOT NULL UNIQUE, -- short invite code
+    HostEmail NVARCHAR(50) NOT NULL,
+    LobbyName NVARCHAR(100) NOT NULL,
+    IsPublic BIT NOT NULL DEFAULT 1,
+    MaxPlayers INT NOT NULL DEFAULT 10,
+    Mode NVARCHAR(20) CHECK (Mode IN ('1v1','Team','FreeForAll')) NOT NULL,
+    Difficulty NVARCHAR(20) CHECK (Difficulty IN ('Easy','Medium','Hard','Mixed')) NOT NULL,
+    Category NVARCHAR(100) NULL,
+    Status NVARCHAR(20) CHECK (Status IN ('Open','InProgress','Closed')) NOT NULL DEFAULT 'Open',
+    CreatedAt DATETIME2 DEFAULT GETDATE(),
+    StartedAt DATETIME2 NULL,
+    EndedAt DATETIME2 NULL,
+
+    CONSTRAINT FK_Lobby_Host FOREIGN KEY (HostEmail)
+        REFERENCES AlgorithmBattleArinaSchema.Auth(Email)
+);
+
+
+-- ===========================================
+-- LOBBY PARTICIPANTS
+-- ===========================================
+CREATE TABLE AlgorithmBattleArinaSchema.LobbyParticipants (
+    LobbyParticipantId INT IDENTITY(1,1) PRIMARY KEY,
+    LobbyId INT NOT NULL,
+    ParticipantEmail NVARCHAR(50) NOT NULL,
+    Role NVARCHAR(20) CHECK (Role IN ('Host','Player','Spectator')) NOT NULL DEFAULT 'Player',
+    JoinedAt DATETIME2 DEFAULT GETDATE(),
+
+    CONSTRAINT FK_LobbyParticipants_Lobby FOREIGN KEY (LobbyId)
+        REFERENCES AlgorithmBattleArinaSchema.Lobbies(LobbyId)
+        ON DELETE CASCADE,
+
+    CONSTRAINT FK_LobbyParticipants_User FOREIGN KEY (ParticipantEmail)
+        REFERENCES AlgorithmBattleArinaSchema.Auth(Email)
+        ON DELETE CASCADE,
+
+    CONSTRAINT UQ_Lobby_Participant UNIQUE (LobbyId, ParticipantEmail)
+);
+
+
+-- ===========================================
+-- MATCHES
+-- ===========================================
+CREATE TABLE AlgorithmBattleArinaSchema.Matches (
+    MatchId INT IDENTITY(1,1) PRIMARY KEY,
+    LobbyId INT NOT NULL,
+    StartedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    EndedAt DATETIME2 NULL,
+
+    CONSTRAINT FK_Match_Lobby FOREIGN KEY (LobbyId)
+        REFERENCES AlgorithmBattleArinaSchema.Lobbies(LobbyId)
+        ON DELETE CASCADE
+);
+
+
+
+-- ===========================================
+-- MATCH PROBLEMS
+-- ===========================================
+CREATE TABLE AlgorithmBattleArinaSchema.MatchProblems (
+    MatchProblemId INT IDENTITY(1,1) PRIMARY KEY,
+    MatchId INT NOT NULL,
+    ProblemId INT NOT NULL,
+
+    CONSTRAINT FK_MatchProblems_Match FOREIGN KEY (MatchId)
+        REFERENCES AlgorithmBattleArinaSchema.Matches(MatchId)
+        ON DELETE CASCADE,
+
+    CONSTRAINT FK_MatchProblems_Problem FOREIGN KEY (ProblemId)
+        REFERENCES AlgorithmBattleArinaSchema.Problems(ProblemId)
+        ON DELETE CASCADE
+);
+
+
+-- ===========================================
+-- SUBMISSIONS
+-- ===========================================
+CREATE TABLE AlgorithmBattleArinaSchema.Submissions (
+    SubmissionId INT IDENTITY(1,1) PRIMARY KEY,
+    MatchId INT NOT NULL,
+    ProblemId INT NOT NULL,
+    ParticipantEmail NVARCHAR(50) NOT NULL,
+    Language NVARCHAR(50) NOT NULL,
+    Code NVARCHAR(MAX) NOT NULL,
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Submitted',
+    SubmittedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT FK_Submission_Match FOREIGN KEY (MatchId)
+        REFERENCES AlgorithmBattleArinaSchema.Matches(MatchId)
+        ON DELETE NO ACTION,
+
+    CONSTRAINT FK_Submission_Problem FOREIGN KEY (ProblemId)
+        REFERENCES AlgorithmBattleArinaSchema.Problems(ProblemId),
+
+    CONSTRAINT FK_Submission_Participant FOREIGN KEY (ParticipantEmail)
+        REFERENCES AlgorithmBattleArinaSchema.Auth(Email)
+);
+
+

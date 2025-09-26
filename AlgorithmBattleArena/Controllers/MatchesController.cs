@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
-
+using AlgorithmBattleArina.Helpers;
 
 namespace AlgorithmBattleArina.Controllers
 {
@@ -19,11 +19,15 @@ namespace AlgorithmBattleArina.Controllers
     {
         private readonly IHubContext<MatchHub> _hubContext;
         private readonly ILobbyRepository _lobbyRepository;
+        private readonly IMatchRepository _matchRepository;
+        private readonly AuthHelper _authHelper;
 
-        public MatchesController(IHubContext<MatchHub> hubContext, ILobbyRepository lobbyRepository)
+        public MatchesController(IHubContext<MatchHub> hubContext, ILobbyRepository lobbyRepository, IMatchRepository matchRepository, AuthHelper authHelper)
         {
             _hubContext = hubContext;
             _lobbyRepository = lobbyRepository;
+            _matchRepository = matchRepository;
+            _authHelper = authHelper;
         }
 
         /// <summary>
@@ -31,32 +35,32 @@ namespace AlgorithmBattleArina.Controllers
         /// The caller must be the host for that lobby (IsHost check).
         /// Broadcasts a single MatchStarted DTO to the lobby group.
         /// </summary>
-        [HttpPost("{lobbyId}/start")]
-        public async Task<IActionResult> StartMatch(string lobbyId, [FromBody] StartMatchRequest request)
+        [HttpPost("{lobbyId:int}/start")]
+        public async Task<IActionResult> StartMatch(int lobbyId, [FromBody] StartMatchRequest request)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
+            var userEmail = _authHelper.GetEmailFromClaims(User);
+            if (string.IsNullOrEmpty(userEmail) || !await _lobbyRepository.IsHost(lobbyId, userEmail))
+            {
+                return Forbid("Only the host can start the match.");
+            }
 
-            // Ensure caller is host of the lobby
-            if (!_lobbyRepository.IsHost(lobbyId, userId))
-                return Forbid();
+            var match = await _matchRepository.CreateMatch(lobbyId, request.ProblemIds);
 
-            // Compute a single StartAtUtc for all participants.
             var bufferSec = Math.Max(1, request.PreparationBufferSec);
             var startAtUtc = DateTime.UtcNow.AddSeconds(bufferSec);
 
             var dto = new MatchStartedDto
             {
-                MatchId = Guid.NewGuid(),
-                ProblemId = request.ProblemId,
+                MatchId = match.MatchId,
+                ProblemIds = request.ProblemIds,
                 StartAtUtc = startAtUtc,
                 DurationSec = request.DurationSec,
                 SentAtUtc = DateTime.UtcNow
             };
 
-            // Broadcast to the SignalR group representing the lobby.
-            await _hubContext.Clients.Group(lobbyId).SendAsync("MatchStarted", dto);
+            await _hubContext.Clients.All.SendAsync("MatchStarted", dto);
+
+            await _lobbyRepository.UpdateLobbyStatus(lobbyId, "InProgress");
 
             return Ok(dto);
         }
