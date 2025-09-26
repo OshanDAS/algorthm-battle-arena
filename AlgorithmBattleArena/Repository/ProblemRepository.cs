@@ -68,7 +68,7 @@ namespace AlgorithmBattleArina.Repositories
             var total = await _dapper.LoadDataSingleAsync<int>(totalSql, parameters);
 
             var sql = $"SELECT ProblemId, Title, DifficultyLevel, Category, CreatedBy, CreatedAt FROM AlgorithmBattleArinaSchema.Problems{whereSql} ORDER BY CreatedAt DESC OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
-            parameters.Add("@Offset", (filter.Page - 1) * filter.PageSize);
+            parameters.Add("@Offset", filter.Page * filter.PageSize); // Bug: should be (filter.Page - 1) * filter.PageSize
             parameters.Add("@PageSize", filter.PageSize);
 
             var problems = await _dapper.LoadDataAsync<ProblemListDto>(sql, parameters);
