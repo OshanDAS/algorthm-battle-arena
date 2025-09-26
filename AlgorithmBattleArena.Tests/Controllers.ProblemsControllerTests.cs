@@ -5,19 +5,20 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using AlgorithmBattleArina.Controllers;
-using AlgorithmBattleArina.Data;
+using AlgorithmBattleArina.Repositories;
 using AlgorithmBattleArina.Dtos;
 using AlgorithmBattleArina.Models;
+using AlgorithmBattleArina.Helpers;
 using System.Collections.Generic;
 
 namespace AlgorithmBattleArena.Tests;
 
 public class ProblemsControllerTests
 {
-    private static ProblemsController CreateController(Mock<IDataContextDapper> dapperMock)
+    private static ProblemsController CreateController(Mock<IProblemRepository> problemRepoMock)
     {
         var logger = new Mock<ILogger<ProblemsController>>();
-        var controller = new ProblemsController(dapperMock.Object, logger.Object);
+        var controller = new ProblemsController(problemRepoMock.Object, logger.Object);
 
         var identity = new ClaimsIdentity(new[]
         {
@@ -37,21 +38,24 @@ public class ProblemsControllerTests
     }
 
     [Fact]
-    public void GetProblems_ReturnsPagedList()
+    public async Task GetProblems_ReturnsPagedList()
     {
-        var dapper = new Mock<IDataContextDapper>();
-        dapper.Setup(d => d.LoadDataSingle<int>(It.Is<string>(s => s.StartsWith("SELECT COUNT(*)")), It.IsAny<object>())).Returns(2);
-        dapper.Setup(d => d.LoadData<ProblemListDto>(It.Is<string>(s => s.Contains("ORDER BY CreatedAt DESC")), It.IsAny<object>()))
-              .Returns(new List<ProblemListDto> {
-                  new ProblemListDto { ProblemId=1, Title="A", Category="DP", DifficultyLevel="Easy", CreatedBy="t", CreatedAt=System.DateTime.UtcNow },
-                  new ProblemListDto { ProblemId=2, Title="B", Category="Graph", DifficultyLevel="Hard", CreatedBy="t", CreatedAt=System.DateTime.UtcNow }
-              });
+        var problemRepo = new Mock<IProblemRepository>();
+        var result = new PagedResult<ProblemListDto>
+        {
+            Items = new List<ProblemListDto> {
+                new ProblemListDto { ProblemId=1, Title="A", Category="DP", DifficultyLevel="Easy", CreatedBy="t", CreatedAt=System.DateTime.UtcNow },
+                new ProblemListDto { ProblemId=2, Title="B", Category="Graph", DifficultyLevel="Hard", CreatedBy="t", CreatedAt=System.DateTime.UtcNow }
+            },
+            Total = 2
+        };
+        problemRepo.Setup(r => r.GetProblems(It.IsAny<ProblemFilterDto>())).ReturnsAsync(result);
 
-        var controller = CreateController(dapper);
+        var controller = CreateController(problemRepo);
         var filter = new ProblemFilterDto { Page = 1, PageSize = 10 };
-        var result = controller.GetProblems(filter);
+        var actionResult = await controller.GetProblems(filter);
 
-        var ok = Assert.IsType<OkObjectResult>(result);
+        var ok = Assert.IsType<OkObjectResult>(actionResult);
         var val = ok.Value!;
         int page = (int)val.GetType().GetProperty("page")!.GetValue(val)!;
         int pageSize = (int)val.GetType().GetProperty("pageSize")!.GetValue(val)!;
@@ -68,86 +72,64 @@ public class ProblemsControllerTests
     }
 
     [Fact]
-    public void GetProblem_NotFound_Returns404()
+    public async Task GetProblem_NotFound_Returns404()
     {
-        var dapper = new Mock<IDataContextDapper>();
-        dapper.Setup(d => d.LoadDataSingle<Problem>(It.IsAny<string>(), It.IsAny<object>())).Returns((Problem)null!);
-        var controller = CreateController(dapper);
+        var problemRepo = new Mock<IProblemRepository>();
+        problemRepo.Setup(r => r.GetProblem(It.IsAny<int>())).ReturnsAsync((ProblemResponseDto)null!);
+        var controller = CreateController(problemRepo);
 
-        var result = controller.GetProblem(123);
+        var result = await controller.GetProblem(123);
 
         Assert.IsType<NotFoundObjectResult>(result);
     }
 
     [Fact]
-    public void GetProblem_ReturnsDtoWithTestCasesAndSolutions()
+    public async Task GetProblem_ReturnsProblem()
     {
-        var dapper = new Mock<IDataContextDapper>();
-        dapper.Setup(d => d.LoadDataSingle<Problem>(It.IsAny<string>(), It.IsAny<object>())).Returns(new Problem
+        var problemRepo = new Mock<IProblemRepository>();
+        var problem = new ProblemResponseDto
         {
             ProblemId = 5,
             Title = "Two Sum",
             Description = "Find pair",
             DifficultyLevel = "Easy",
-            Category = "Array",
-            TimeLimit = 1,
-            MemoryLimit = 256,
-            CreatedBy = "t",
-            Tags = "hash",
-            CreatedAt = System.DateTime.UtcNow
-        });
-        dapper.Setup(d => d.LoadData<ProblemTestCase>(It.IsAny<string>(), It.IsAny<object>()))
-              .Returns(new List<ProblemTestCase> { new ProblemTestCase { TestCaseId=1, ProblemId=5, InputData="a", ExpectedOutput="b" } });
-        dapper.Setup(d => d.LoadData<ProblemSolution>(It.IsAny<string>(), It.IsAny<object>()))
-              .Returns(new List<ProblemSolution> { new ProblemSolution { ProblemId=5, Language="C#", SolutionText="//..." } });
+            Category = "Array"
+        };
+        problemRepo.Setup(r => r.GetProblem(5)).ReturnsAsync(problem);
 
-        var controller = CreateController(dapper);
+        var controller = CreateController(problemRepo);
 
-        var result = controller.GetProblem(5);
+        var result = await controller.GetProblem(5);
 
         var ok = Assert.IsType<OkObjectResult>(result);
         var dto = Assert.IsType<ProblemResponseDto>(ok.Value);
         Assert.Equal(5, dto.ProblemId);
-        Assert.Single(dto.TestCases);
-        Assert.Single(dto.Solutions);
     }
 
     [Fact]
-    public void DeleteProblem_NotFound_Returns404()
+    public async Task DeleteProblem_Succeeds_ReturnsOk()
     {
-        var dapper = new Mock<IDataContextDapper>();
-        dapper.Setup(d => d.LoadDataSingle<int?>(It.IsAny<string>(), It.IsAny<object>())).Returns((int?)null);
-        var controller = CreateController(dapper);
+        var problemRepo = new Mock<IProblemRepository>();
+        problemRepo.Setup(r => r.DeleteProblem(9)).ReturnsAsync(true);
+        var controller = CreateController(problemRepo);
 
-        var result = controller.DeleteProblem(9);
+        var result = await controller.DeleteProblem(9);
 
-        Assert.IsType<NotFoundObjectResult>(result);
+        Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
-    public void DeleteProblem_FailsDeletion_Returns500()
+    public async Task DeleteProblem_Fails_Returns500()
     {
-        var dapper = new Mock<IDataContextDapper>();
-        dapper.Setup(d => d.LoadDataSingle<int?>(It.IsAny<string>(), It.IsAny<object>())).Returns(9);
-        dapper.Setup(d => d.ExecuteSql(It.IsAny<string>(), It.IsAny<object>())).Returns(false);
-        var controller = CreateController(dapper);
+        var problemRepo = new Mock<IProblemRepository>();
+        problemRepo.Setup(r => r.DeleteProblem(9)).ReturnsAsync(false);
+        var controller = CreateController(problemRepo);
 
-        var result = controller.DeleteProblem(9);
+        var result = await controller.DeleteProblem(9);
 
         var obj = Assert.IsType<ObjectResult>(result);
         Assert.Equal(500, obj.StatusCode);
     }
 
-    [Fact]
-    public void DeleteProblem_Succeeds_ReturnsOk()
-    {
-        var dapper = new Mock<IDataContextDapper>();
-        dapper.Setup(d => d.LoadDataSingle<int?>(It.IsAny<string>(), It.IsAny<object>())).Returns(9);
-        dapper.Setup(d => d.ExecuteSql(It.IsAny<string>(), It.IsAny<object>())).Returns(true);
-        var controller = CreateController(dapper);
 
-        var result = controller.DeleteProblem(9);
-
-        Assert.IsType<OkObjectResult>(result);
-    }
 }
