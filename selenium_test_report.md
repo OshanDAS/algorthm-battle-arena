@@ -1,8 +1,8 @@
 # Selenium UI Test Cases Report
-**Generated on:** 2025-09-26 13:26:55
+**Generated on:** 2025-09-30 22:05:56
 
-**Total Selenium Test Cases:** 51
-**UI Test Classes:** 4
+**Total Selenium Test Cases:** 72
+**UI Test Classes:** 6
 
 ---
 
@@ -146,9 +146,350 @@
 
 ---
 
-## LoginPageTests
+## LobbyInstancePageTests
 
 ### Test Case #10
+
+**Test Case ID/Name:** LobbyInstancePage_ShouldDisplayLobbyHeader
+
+**Description/Objective:** LobbyInstancePage - shouldDisplayLobbyHeader
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   7. Verify expected results and element states
+
+**Expected Result:** All specified UI elements are visible and properly displayed
+
+---
+
+### Test Case #11
+
+**Test Case ID/Name:** LobbyInstancePage_ShouldDisplaySettingsSection
+
+**Description/Objective:** LobbyInstancePage - shouldDisplaySettingsSection
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   7. Verify expected results and element states
+
+**Expected Result:** All specified UI elements are visible and properly displayed
+
+---
+
+### Test Case #12
+
+**Test Case ID/Name:** LobbyInstancePage_ShouldDisplayLobbyCode
+
+**Description/Objective:** LobbyInstancePage - shouldDisplayLobbyCode
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   7. Verify expected results and element states
+
+**Expected Result:** All specified UI elements are visible and properly displayed
+
+---
+
+### Test Case #13
+
+**Test Case ID/Name:** LobbyInstancePage_ShouldDisplayParticipantsSection
+
+**Description/Objective:** LobbyInstancePage - shouldDisplayParticipantsSection
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   7. Verify expected results and element states
+
+**Expected Result:** All specified UI elements are visible and properly displayed
+
+---
+
+### Test Case #14
+
+**Test Case ID/Name:** LobbyInstancePage_ShouldDisplayModeAndDifficulty
+
+**Description/Objective:** LobbyInstancePage - shouldDisplayModeAndDifficulty
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   7. Verify expected results and element states
+
+**Expected Result:** All specified UI elements are visible and properly displayed
+
+---
+
+### Test Case #15
+
+**Test Case ID/Name:** LobbyInstancePage_ShouldDisplayJoinOrLeaveButton
+
+**Description/Objective:** LobbyInstancePage - shouldDisplayJoinOrLeaveButton
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   7. Verify expected results and element states
+
+**Expected Result:** All specified UI elements are visible and properly displayed
+
+---
+
+### Test Case #16
+
+**Test Case ID/Name:** LobbyInstancePage_CopyButton_ShouldWork
+
+**Description/Objective:** LobbyInstancePage - CopyButton - shouldWork
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   5. Click on interactive elements
+   7. Verify expected results and element states
+
+**Expected Result:** Test completes successfully with all assertions passing
+
+---
+
+### Test Case #17
+
+**Test Case ID/Name:** LobbyInstancePage_ShouldRedirectToLobbyOnError
+
+**Description/Objective:** LobbyInstancePage - shouldRedirectToLobbyOnError
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   7. Verify expected results and element states
+
+**Expected Result:** User is redirected to the correct page/URL
+
+---
+
+### Test Case #18
+
+**Test Case ID/Name:** LobbyInstancePage_ShouldRedirectToLoginWhenNotAuthenticated
+
+**Description/Objective:** LobbyInstancePage - shouldRedirectToLoginWhenNotAuthenticated
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   7. Verify expected results and element states
+
+**Expected Result:** User is redirected to the correct page/URL
+
+---
+
+### Test Case #19
+
+**Test Case ID/Name:** LobbyInstancePage_ResponsiveDesign_ShouldWork
+
+**Description/Objective:** LobbyInstancePage - ResponsiveDesign - shouldWork
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   6. Change browser window size for responsive testing
+   7. Verify expected results and element states
+
+**Expected Result:** Page layout adapts properly to different screen sizes
+
+---
+
+## LobbyPageTests
+
+### Test Case #20
+
+**Test Case ID/Name:** LobbyPage_ShouldLoadAfterLogin
+
+**Description/Objective:** LobbyPage - shouldLoadAfterLogin
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   7. Verify expected results and element states
+
+**Expected Result:** Page loads successfully without errors
+
+---
+
+### Test Case #21
+
+**Test Case ID/Name:** LobbyPage_ShouldDisplayCreateLobbyButton
+
+**Description/Objective:** LobbyPage - shouldDisplayCreateLobbyButton
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   7. Verify expected results and element states
+
+**Expected Result:** All specified UI elements are visible and properly displayed
+
+---
+
+### Test Case #22
+
+**Test Case ID/Name:** LobbyPage_ShouldDisplayDashboardButton
+
+**Description/Objective:** LobbyPage - shouldDisplayDashboardButton
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   7. Verify expected results and element states
+
+**Expected Result:** All specified UI elements are visible and properly displayed
+
+---
+
+### Test Case #23
+
+**Test Case ID/Name:** LobbyPage_ShouldDisplayJoinPrivateLobbySection
+
+**Description/Objective:** LobbyPage - shouldDisplayJoinPrivateLobbySection
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   7. Verify expected results and element states
+
+**Expected Result:** All specified UI elements are visible and properly displayed
+
+---
+
+### Test Case #24
+
+**Test Case ID/Name:** LobbyPage_ShouldDisplayAvailableLobbiesSection
+
+**Description/Objective:** LobbyPage - shouldDisplayAvailableLobbiesSection
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   7. Verify expected results and element states
+
+**Expected Result:** All specified UI elements are visible and properly displayed
+
+---
+
+### Test Case #25
+
+**Test Case ID/Name:** LobbyPage_JoinCodeInput_ShouldAcceptText
+
+**Description/Objective:** LobbyPage - JoinCodeInput - shouldAcceptText
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   4. Enter test data into input fields
+   7. Verify expected results and element states
+
+**Expected Result:** Form accepts valid input data correctly
+
+---
+
+### Test Case #26
+
+**Test Case ID/Name:** LobbyPage_CreateLobbyButton_ShouldOpenModal
+
+**Description/Objective:** LobbyPage - CreateLobbyButton - shouldOpenModal
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   5. Click on interactive elements
+   7. Verify expected results and element states
+
+**Expected Result:** Test completes successfully with all assertions passing
+
+---
+
+### Test Case #27
+
+**Test Case ID/Name:** LobbyPage_DashboardButton_ShouldNavigate
+
+**Description/Objective:** LobbyPage - DashboardButton - shouldNavigate
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   5. Click on interactive elements
+   7. Verify expected results and element states
+
+**Expected Result:** Navigation functions correctly and reaches target destination
+
+---
+
+### Test Case #28
+
+**Test Case ID/Name:** LobbyPage_ShouldDisplayLobbyItems
+
+**Description/Objective:** LobbyPage - shouldDisplayLobbyItems
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   7. Verify expected results and element states
+
+**Expected Result:** All specified UI elements are visible and properly displayed
+
+---
+
+### Test Case #29
+
+**Test Case ID/Name:** LobbyPage_ShouldRedirectToLoginWhenNotAuthenticated
+
+**Description/Objective:** LobbyPage - shouldRedirectToLoginWhenNotAuthenticated
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   7. Verify expected results and element states
+
+**Expected Result:** User is redirected to the correct page/URL
+
+---
+
+### Test Case #30
+
+**Test Case ID/Name:** LobbyPage_ResponsiveDesign_ShouldWork
+
+**Description/Objective:** LobbyPage - ResponsiveDesign - shouldWork
+
+**Steps/Procedure:**
+   1. Navigate to the target URL
+   2. Login as student user
+   3. Locate required UI elements on the page
+   6. Change browser window size for responsive testing
+   7. Verify expected results and element states
+
+**Expected Result:** Page layout adapts properly to different screen sizes
+
+---
+
+## LoginPageTests
+
+### Test Case #31
 
 **Test Case ID/Name:** LoginPage_ShouldLoadSuccessfully
 
@@ -163,7 +504,7 @@
 
 ---
 
-### Test Case #11
+### Test Case #32
 
 **Test Case ID/Name:** LoginPage_ShouldDisplayEmailField
 
@@ -178,7 +519,7 @@
 
 ---
 
-### Test Case #12
+### Test Case #33
 
 **Test Case ID/Name:** LoginPage_ShouldDisplayPasswordField
 
@@ -193,7 +534,7 @@
 
 ---
 
-### Test Case #13
+### Test Case #34
 
 **Test Case ID/Name:** LoginPage_ShouldDisplayLoginButton
 
@@ -208,7 +549,7 @@
 
 ---
 
-### Test Case #14
+### Test Case #35
 
 **Test Case ID/Name:** LoginPage_ShouldDisplaySignUpLink
 
@@ -223,7 +564,7 @@
 
 ---
 
-### Test Case #15
+### Test Case #36
 
 **Test Case ID/Name:** PasswordToggle_ShouldShowHidePassword
 
@@ -240,7 +581,7 @@
 
 ---
 
-### Test Case #16
+### Test Case #37
 
 **Test Case ID/Name:** LoginForm_ShouldValidateRequiredFields
 
@@ -256,7 +597,7 @@
 
 ---
 
-### Test Case #17
+### Test Case #38
 
 **Test Case ID/Name:** LoginForm_ShouldAcceptValidInput
 
@@ -272,7 +613,7 @@
 
 ---
 
-### Test Case #18
+### Test Case #39
 
 **Test Case ID/Name:** LoginForm_ShouldSubmitForm
 
@@ -289,7 +630,7 @@
 
 ---
 
-### Test Case #19
+### Test Case #40
 
 **Test Case ID/Name:** SignUpLink_ShouldNavigateToRegister
 
@@ -305,7 +646,7 @@
 
 ---
 
-### Test Case #20
+### Test Case #41
 
 **Test Case ID/Name:** LoginPage_ShouldDisplayCorrectLabels
 
@@ -320,7 +661,7 @@
 
 ---
 
-### Test Case #21
+### Test Case #42
 
 **Test Case ID/Name:** LoginPage_ShouldLoadAtDifferentScreenSizes
 
@@ -335,7 +676,7 @@
 
 ---
 
-### Test Case #22
+### Test Case #43
 
 **Test Case ID/Name:** LoginForm_ShouldHandleInvalidCredentials
 
@@ -352,7 +693,7 @@
 
 ---
 
-### Test Case #23
+### Test Case #44
 
 **Test Case ID/Name:** LoginPage_ShouldDisplayWelcomeMessage
 
@@ -367,7 +708,7 @@
 
 ---
 
-### Test Case #24
+### Test Case #45
 
 **Test Case ID/Name:** LoginPage_ShouldDisplaySecurityFeatures
 
@@ -384,7 +725,7 @@
 
 ## RegisterPageTests
 
-### Test Case #25
+### Test Case #46
 
 **Test Case ID/Name:** RegisterPage_ShouldLoadSuccessfully
 
@@ -399,7 +740,7 @@
 
 ---
 
-### Test Case #26
+### Test Case #47
 
 **Test Case ID/Name:** RegisterPage_ShouldDisplayRoleSelection
 
@@ -414,7 +755,7 @@
 
 ---
 
-### Test Case #27
+### Test Case #48
 
 **Test Case ID/Name:** RoleSelection_ShouldSelectStudent
 
@@ -430,7 +771,7 @@
 
 ---
 
-### Test Case #28
+### Test Case #49
 
 **Test Case ID/Name:** RoleSelection_ShouldSelectTeacher
 
@@ -446,7 +787,7 @@
 
 ---
 
-### Test Case #29
+### Test Case #50
 
 **Test Case ID/Name:** RegisterPage_ShouldDisplayFormFields
 
@@ -461,7 +802,7 @@
 
 ---
 
-### Test Case #30
+### Test Case #51
 
 **Test Case ID/Name:** RegisterForm_ShouldAcceptValidInput
 
@@ -477,7 +818,7 @@
 
 ---
 
-### Test Case #31
+### Test Case #52
 
 **Test Case ID/Name:** PasswordField_ShouldShowStrengthIndicator
 
@@ -493,7 +834,7 @@
 
 ---
 
-### Test Case #32
+### Test Case #53
 
 **Test Case ID/Name:** PasswordToggle_ShouldShowHidePassword
 
@@ -510,7 +851,7 @@
 
 ---
 
-### Test Case #33
+### Test Case #54
 
 **Test Case ID/Name:** RegisterPage_ShouldDisplayCreateAccountButton
 
@@ -525,7 +866,7 @@
 
 ---
 
-### Test Case #34
+### Test Case #55
 
 **Test Case ID/Name:** RegisterForm_ShouldShowLoadingState
 
@@ -542,7 +883,7 @@
 
 ---
 
-### Test Case #35
+### Test Case #56
 
 **Test Case ID/Name:** SignInLink_ShouldNavigateToLogin
 
@@ -558,7 +899,7 @@
 
 ---
 
-### Test Case #36
+### Test Case #57
 
 **Test Case ID/Name:** RegisterPage_ShouldDisplayCorrectLabels
 
@@ -573,7 +914,7 @@
 
 ---
 
-### Test Case #37
+### Test Case #58
 
 **Test Case ID/Name:** RegisterPage_ShouldLoadAtDifferentScreenSizes
 
@@ -588,7 +929,7 @@
 
 ---
 
-### Test Case #38
+### Test Case #59
 
 **Test Case ID/Name:** RegisterForm_ShouldValidatePasswordMatch
 
@@ -605,7 +946,7 @@
 
 ---
 
-### Test Case #39
+### Test Case #60
 
 **Test Case ID/Name:** RegisterPage_ShouldDisplayWelcomeMessage
 
@@ -620,7 +961,7 @@
 
 ---
 
-### Test Case #40
+### Test Case #61
 
 **Test Case ID/Name:** RegisterPage_ShouldDisplayFeatures
 
@@ -637,7 +978,7 @@
 
 ## StudentDashboardTests
 
-### Test Case #41
+### Test Case #62
 
 **Test Case ID/Name:** StudentDashboard_ShouldLoadAfterLogin
 
@@ -653,7 +994,7 @@
 
 ---
 
-### Test Case #42
+### Test Case #63
 
 **Test Case ID/Name:** StudentDashboard_ShouldDisplayUserProfile
 
@@ -669,7 +1010,7 @@
 
 ---
 
-### Test Case #43
+### Test Case #64
 
 **Test Case ID/Name:** StudentDashboard_ShouldDisplayStatCards
 
@@ -685,7 +1026,7 @@
 
 ---
 
-### Test Case #44
+### Test Case #65
 
 **Test Case ID/Name:** StudentDashboard_ShouldDisplayBattleOptions
 
@@ -701,7 +1042,7 @@
 
 ---
 
-### Test Case #45
+### Test Case #66
 
 **Test Case ID/Name:** StudentDashboard_ShouldDisplaySections
 
@@ -717,7 +1058,7 @@
 
 ---
 
-### Test Case #46
+### Test Case #67
 
 **Test Case ID/Name:** StudentDashboard_MultiplayerButton_ShouldBeClickable
 
@@ -734,7 +1075,7 @@
 
 ---
 
-### Test Case #47
+### Test Case #68
 
 **Test Case ID/Name:** StudentDashboard_ShouldHaveJoinButtons
 
@@ -750,7 +1091,7 @@
 
 ---
 
-### Test Case #48
+### Test Case #69
 
 **Test Case ID/Name:** StudentDashboard_ShouldRedirectToLoginWhenNotAuthenticated
 
@@ -764,7 +1105,7 @@
 
 ---
 
-### Test Case #49
+### Test Case #70
 
 **Test Case ID/Name:** StudentDashboard_ShouldDisplayLeaderboard
 
@@ -780,7 +1121,7 @@
 
 ---
 
-### Test Case #50
+### Test Case #71
 
 **Test Case ID/Name:** StudentDashboard_ShouldDisplayFriendsList
 
@@ -796,7 +1137,7 @@
 
 ---
 
-### Test Case #51
+### Test Case #72
 
 **Test Case ID/Name:** StudentDashboard_ResponsiveDesign_ShouldWork
 

@@ -1,320 +1,14 @@
 # Unit Test Cases Report
-**Generated on:** 2025-09-26 13:26:55
+**Generated on:** 2025-09-30 22:05:56
 
-**Total Unit Test Cases:** 197
-**Unit Test Classes:** 25
-
----
-
-## AdminOnlyAttributeTests
-
-### Test Case #1
-
-**Test Case ID/Name:** OnAuthorization_UnauthenticatedUser_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - UnauthenticatedUser - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #2
-
-**Test Case ID/Name:** OnAuthorization_AuthenticatedNonAdminUser_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - AuthenticatedNonAdminUser - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #3
-
-**Test Case ID/Name:** OnAuthorization_AuthenticatedAdminUser_AllowsAccess
-
-**Description/Objective:** OnAuthorization - AuthenticatedAdminUser - AllowsAccess
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #4
-
-**Test Case ID/Name:** OnAuthorization_UserWithNoRoleClaim_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - UserWithNoRoleClaim - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #5
-
-**Test Case ID/Name:** OnAuthorization_UserWithEmptyRoleClaim_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - UserWithEmptyRoleClaim - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #6
-
-**Test Case ID/Name:** OnAuthorization_AuthenticatedUserWithTeacherRole_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - AuthenticatedUserWithTeacherRole - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #7
-
-**Test Case ID/Name:** OnAuthorization_AuthenticatedUserWithStudentRole_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - AuthenticatedUserWithStudentRole - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-## StudentOnlyAttributeTests
-
-### Test Case #8
-
-**Test Case ID/Name:** OnAuthorization_UnauthenticatedUser_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - UnauthenticatedUser - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #9
-
-**Test Case ID/Name:** OnAuthorization_AuthenticatedNonStudentUser_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - AuthenticatedNonStudentUser - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #10
-
-**Test Case ID/Name:** OnAuthorization_AuthenticatedStudentUser_AllowsAccess
-
-**Description/Objective:** OnAuthorization - AuthenticatedStudentUser - AllowsAccess
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #11
-
-**Test Case ID/Name:** OnAuthorization_UserWithNoRoleClaim_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - UserWithNoRoleClaim - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #12
-
-**Test Case ID/Name:** OnAuthorization_UserWithEmptyRoleClaim_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - UserWithEmptyRoleClaim - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #13
-
-**Test Case ID/Name:** OnAuthorization_AuthenticatedUserWithAdminRole_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - AuthenticatedUserWithAdminRole - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #14
-
-**Test Case ID/Name:** OnAuthorization_AuthenticatedUserWithTeacherRole_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - AuthenticatedUserWithTeacherRole - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-## StudentOrAdminAttributeTests
-
-### Test Case #15
-
-**Test Case ID/Name:** OnAuthorization_UnauthenticatedUser_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - UnauthenticatedUser - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #16
-
-**Test Case ID/Name:** OnAuthorization_AuthenticatedStudentUser_AllowsAccess
-
-**Description/Objective:** OnAuthorization - AuthenticatedStudentUser - AllowsAccess
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #17
-
-**Test Case ID/Name:** OnAuthorization_AuthenticatedAdminUser_AllowsAccess
-
-**Description/Objective:** OnAuthorization - AuthenticatedAdminUser - AllowsAccess
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #18
-
-**Test Case ID/Name:** OnAuthorization_AuthenticatedTeacherUser_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - AuthenticatedTeacherUser - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #19
-
-**Test Case ID/Name:** OnAuthorization_UserWithNoRoleClaim_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - UserWithNoRoleClaim - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #20
-
-**Test Case ID/Name:** OnAuthorization_UserWithEmptyRoleClaim_ReturnsForbidden
-
-**Description/Objective:** OnAuthorization - UserWithEmptyRoleClaim - ReturnsForbidden
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
+**Total Unit Test Cases:** 146
+**Unit Test Classes:** 19
 
 ---
 
 ## AuthHelperTest
 
-### Test Case #21
+### Test Case #1
 
 **Test Case ID/Name:** GetPasswordSalt_ShouldGenerateUniqueSalts
 
@@ -329,7 +23,7 @@
 
 ---
 
-### Test Case #22
+### Test Case #2
 
 **Test Case ID/Name:** GetPasswordHash_WithValidConfig_ShouldGenerateHash
 
@@ -344,7 +38,7 @@
 
 ---
 
-### Test Case #23
+### Test Case #3
 
 **Test Case ID/Name:** VerifyPasswordHash_WithMatchingPasswords_ShouldReturnTrue
 
@@ -359,7 +53,7 @@
 
 ---
 
-### Test Case #24
+### Test Case #4
 
 **Test Case ID/Name:** VerifyPasswordHash_WithNonMatchingPasswords_ShouldReturnFalse
 
@@ -374,7 +68,7 @@
 
 ---
 
-### Test Case #25
+### Test Case #5
 
 **Test Case ID/Name:** CreateToken_WithValidInputs_ShouldCreateValidToken
 
@@ -389,7 +83,7 @@
 
 ---
 
-### Test Case #26
+### Test Case #6
 
 **Test Case ID/Name:** CreateToken_WithUserRole_ShouldIncludeCorrectClaims (Case 1)
 
@@ -404,7 +98,7 @@
 
 ---
 
-### Test Case #27
+### Test Case #7
 
 **Test Case ID/Name:** CreateToken_WithUserRole_ShouldIncludeCorrectClaims (Case 2)
 
@@ -419,7 +113,7 @@
 
 ---
 
-### Test Case #28
+### Test Case #8
 
 **Test Case ID/Name:** ValidateToken_WithInvalidToken_ShouldReturnNull
 
@@ -434,7 +128,7 @@
 
 ---
 
-### Test Case #29
+### Test Case #9
 
 **Test Case ID/Name:** GetClaimValue_WithExistingClaim_ShouldReturnValue
 
@@ -449,7 +143,7 @@
 
 ---
 
-### Test Case #30
+### Test Case #10
 
 **Test Case ID/Name:** GetClaimValue_WithMissingClaim_ShouldReturnNull
 
@@ -464,7 +158,7 @@
 
 ---
 
-### Test Case #31
+### Test Case #11
 
 **Test Case ID/Name:** GetUserIdFromClaims_WithValidStudentRole_ShouldReturnId
 
@@ -479,7 +173,7 @@
 
 ---
 
-### Test Case #32
+### Test Case #12
 
 **Test Case ID/Name:** ValidateAdminCredentials_WithConfiguration_ShouldUseConfig
 
@@ -496,7 +190,7 @@
 
 ## CompilationTest
 
-### Test Case #33
+### Test Case #13
 
 **Test Case ID/Name:** AllDtosCompile
 
@@ -511,7 +205,7 @@
 
 ---
 
-### Test Case #34
+### Test Case #14
 
 **Test Case ID/Name:** AllModelsCompile
 
@@ -526,7 +220,7 @@
 
 ---
 
-### Test Case #35
+### Test Case #15
 
 **Test Case ID/Name:** AuthHelperCompiles
 
@@ -543,7 +237,7 @@
 
 ## AuthControllerTests
 
-### Test Case #36
+### Test Case #16
 
 **Test Case ID/Name:** RegisterStudent_PasswordMismatch_ReturnsBadRequest
 
@@ -559,7 +253,7 @@
 
 ---
 
-### Test Case #37
+### Test Case #17
 
 **Test Case ID/Name:** RegisterStudent_UserExists_ReturnsBadRequest
 
@@ -575,7 +269,7 @@
 
 ---
 
-### Test Case #38
+### Test Case #18
 
 **Test Case ID/Name:** RegisterStudent_Success_ReturnsOk
 
@@ -591,7 +285,7 @@
 
 ---
 
-### Test Case #39
+### Test Case #19
 
 **Test Case ID/Name:** RegisterStudent_RepositoryFailure_ReturnsBadRequest
 
@@ -607,7 +301,7 @@
 
 ---
 
-### Test Case #40
+### Test Case #20
 
 **Test Case ID/Name:** RegisterTeacher_UserExists_ReturnsBadRequest
 
@@ -623,7 +317,7 @@
 
 ---
 
-### Test Case #41
+### Test Case #21
 
 **Test Case ID/Name:** RegisterTeacher_Success_ReturnsOk
 
@@ -639,7 +333,7 @@
 
 ---
 
-### Test Case #42
+### Test Case #22
 
 **Test Case ID/Name:** RegisterTeacher_RepositoryFailure_ReturnsBadRequest
 
@@ -655,7 +349,7 @@
 
 ---
 
-### Test Case #43
+### Test Case #23
 
 **Test Case ID/Name:** Login_InvalidCredentials_ReturnsUnauthorized
 
@@ -671,7 +365,7 @@
 
 ---
 
-### Test Case #44
+### Test Case #24
 
 **Test Case ID/Name:** Login_WithConfiguration_ShouldWork
 
@@ -687,7 +381,7 @@
 
 ---
 
-### Test Case #45
+### Test Case #25
 
 **Test Case ID/Name:** RefreshToken_Success_ReturnsToken
 
@@ -703,7 +397,7 @@
 
 ---
 
-### Test Case #46
+### Test Case #26
 
 **Test Case ID/Name:** Profile_MissingClaims_ReturnsUnauthorized
 
@@ -719,7 +413,7 @@
 
 ---
 
-### Test Case #47
+### Test Case #27
 
 **Test Case ID/Name:** Profile_StudentSuccess_ReturnsOkPayload
 
@@ -735,7 +429,7 @@
 
 ---
 
-### Test Case #48
+### Test Case #28
 
 **Test Case ID/Name:** Profile_StudentNotFound_Returns404
 
@@ -751,7 +445,7 @@
 
 ---
 
-### Test Case #49
+### Test Case #29
 
 **Test Case ID/Name:** Profile_TeacherSuccess_ReturnsOkPayload
 
@@ -767,7 +461,7 @@
 
 ---
 
-### Test Case #50
+### Test Case #30
 
 **Test Case ID/Name:** Profile_TeacherNotFound_Returns404
 
@@ -785,7 +479,7 @@
 
 ## DataContextDapperIntegrationTests
 
-### Test Case #51
+### Test Case #31
 
 **Test Case ID/Name:** LoadData_WithSimpleQuery_ShouldReturnResults
 
@@ -799,7 +493,7 @@
 
 ---
 
-### Test Case #52
+### Test Case #32
 
 **Test Case ID/Name:** LoadData_WithParameters_ShouldReturnParameterizedResults
 
@@ -814,7 +508,7 @@
 
 ---
 
-### Test Case #53
+### Test Case #33
 
 **Test Case ID/Name:** LoadDataSingle_WithSingleResult_ShouldReturnSingleItem
 
@@ -828,7 +522,7 @@
 
 ---
 
-### Test Case #54
+### Test Case #34
 
 **Test Case ID/Name:** LoadDataSingleOrDefault_WithNoResults_ShouldReturnNull
 
@@ -842,7 +536,7 @@
 
 ---
 
-### Test Case #55
+### Test Case #35
 
 **Test Case ID/Name:** LoadDataSingleOrDefault_WithSingleResult_ShouldReturnItem
 
@@ -856,7 +550,7 @@
 
 ---
 
-### Test Case #56
+### Test Case #36
 
 **Test Case ID/Name:** ExecuteSql_WithValidCommand_ShouldReturnTrue
 
@@ -870,7 +564,7 @@
 
 ---
 
-### Test Case #57
+### Test Case #37
 
 **Test Case ID/Name:** ExecuteSqlWithRowCount_WithValidCommand_ShouldReturnRowCount
 
@@ -884,7 +578,7 @@
 
 ---
 
-### Test Case #58
+### Test Case #38
 
 **Test Case ID/Name:** ExecuteTransaction_WithValidCommands_ShouldReturnTrue
 
@@ -899,7 +593,7 @@
 
 ---
 
-### Test Case #59
+### Test Case #39
 
 **Test Case ID/Name:** ExecuteTransaction_WithEmptyList_ShouldReturnTrue
 
@@ -914,7 +608,7 @@
 
 ---
 
-### Test Case #60
+### Test Case #40
 
 **Test Case ID/Name:** LoadData_WithInvalidSql_ShouldThrowException
 
@@ -928,7 +622,7 @@
 
 ---
 
-### Test Case #61
+### Test Case #41
 
 **Test Case ID/Name:** LoadDataSingle_WithMultipleResults_ShouldThrowException
 
@@ -942,7 +636,7 @@
 
 ---
 
-### Test Case #62
+### Test Case #42
 
 **Test Case ID/Name:** LoadDataSingle_WithNoResults_ShouldThrowException
 
@@ -956,7 +650,7 @@
 
 ---
 
-### Test Case #63
+### Test Case #43
 
 **Test Case ID/Name:** ExecuteTransaction_WithInvalidSql_ShouldReturnFalse
 
@@ -971,7 +665,7 @@
 
 ---
 
-### Test Case #64
+### Test Case #44
 
 **Test Case ID/Name:** ConnectionString_FromEnvironmentVariable_ShouldTakePrecedence
 
@@ -986,7 +680,7 @@
 
 ---
 
-### Test Case #65
+### Test Case #45
 
 **Test Case ID/Name:** LoadData_WithStronglyTypedModel_ShouldMapCorrectly
 
@@ -1000,7 +694,7 @@
 
 ---
 
-### Test Case #66
+### Test Case #46
 
 **Test Case ID/Name:** LoadData_WithComplexParameters_ShouldHandleComplexObjects
 
@@ -1015,476 +709,9 @@
 
 ---
 
-## DataContextDapperMockTests
-
-### Test Case #67
-
-**Test Case ID/Name:** Constructor_WithNullConfiguration_ShouldNotThrow
-
-**Description/Objective:** Constructor - WithNullConfiguration - shouldNotThrow
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #68
-
-**Test Case ID/Name:** Constructor_WithValidConfiguration_ShouldNotThrow
-
-**Description/Objective:** Constructor - WithValidConfiguration - shouldNotThrow
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #69
-
-**Test Case ID/Name:** CreateConnection_UsesEnvironmentVariable_WhenSet
-
-**Description/Objective:** CreateConnection - UsesEnvironmentVariable - WhenSet
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #70
-
-**Test Case ID/Name:** CreateConnection_UsesConfiguration_WhenEnvironmentVariableNotSet
-
-**Description/Objective:** CreateConnection - UsesConfiguration - WhenEnvironmentVariableNotSet
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #71
-
-**Test Case ID/Name:** LoadData_WithEmptySql_ShouldThrowSqlException
-
-**Description/Objective:** LoadData - WithEmptySql - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #72
-
-**Test Case ID/Name:** LoadData_WithNullSql_ShouldThrowSqlException
-
-**Description/Objective:** LoadData - WithNullSql - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #73
-
-**Test Case ID/Name:** LoadDataSingle_WithEmptySql_ShouldThrowSqlException
-
-**Description/Objective:** LoadDataSingle - WithEmptySql - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #74
-
-**Test Case ID/Name:** LoadDataSingle_WithNullSql_ShouldThrowSqlException
-
-**Description/Objective:** LoadDataSingle - WithNullSql - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #75
-
-**Test Case ID/Name:** LoadDataSingleOrDefault_WithEmptySql_ShouldThrowSqlException
-
-**Description/Objective:** LoadDataSingleOrDefault - WithEmptySql - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #76
-
-**Test Case ID/Name:** LoadDataSingleOrDefault_WithNullSql_ShouldThrowSqlException
-
-**Description/Objective:** LoadDataSingleOrDefault - WithNullSql - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #77
-
-**Test Case ID/Name:** ExecuteSql_WithEmptySql_ShouldThrowSqlException
-
-**Description/Objective:** ExecuteSql - WithEmptySql - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #78
-
-**Test Case ID/Name:** ExecuteSql_WithNullSql_ShouldThrowSqlException
-
-**Description/Objective:** ExecuteSql - WithNullSql - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #79
-
-**Test Case ID/Name:** ExecuteSqlWithRowCount_WithEmptySql_ShouldThrowSqlException
-
-**Description/Objective:** ExecuteSqlWithRowCount - WithEmptySql - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #80
-
-**Test Case ID/Name:** ExecuteSqlWithRowCount_WithNullSql_ShouldThrowSqlException
-
-**Description/Objective:** ExecuteSqlWithRowCount - WithNullSql - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #81
-
-**Test Case ID/Name:** ExecuteTransaction_WithNullCommands_ShouldThrowSqlException
-
-**Description/Objective:** ExecuteTransaction - WithNullCommands - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #82
-
-**Test Case ID/Name:** ExecuteTransaction_WithEmptyCommands_ShouldThrowSqlException
-
-**Description/Objective:** ExecuteTransaction - WithEmptyCommands - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #83
-
-**Test Case ID/Name:** ExecuteTransaction_WithCommandsContainingNullSql_ShouldThrowSqlException
-
-**Description/Objective:** ExecuteTransaction - WithCommandsContainingNullSql - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #84
-
-**Test Case ID/Name:** ExecuteTransaction_WithCommandsContainingEmptySql_ShouldThrowSqlException
-
-**Description/Objective:** ExecuteTransaction - WithCommandsContainingEmptySql - shouldThrowSqlException
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Method throws the expected exception
-
----
-
-### Test Case #85
-
-**Test Case ID/Name:** LoadData_WithValidSqlAndNullParameters_ShouldNotThrow
-
-**Description/Objective:** LoadData - WithValidSqlAndNullParameters - shouldNotThrow
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #86
-
-**Test Case ID/Name:** LoadData_WithValidSqlAndParameters_ShouldNotThrow
-
-**Description/Objective:** LoadData - WithValidSqlAndParameters - shouldNotThrow
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #87
-
-**Test Case ID/Name:** DataContextDapper_ImplementsIDataContextDapper_ShouldImplementInterface
-
-**Description/Objective:** DataContextDapper - ImplementsIDataContextDapper - shouldImplementInterface
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #88
-
-**Test Case ID/Name:** DataContextDapper_AllInterfaceMethods_ShouldBeImplemented
-
-**Description/Objective:** DataContextDapper - AllInterfaceMethods - shouldBeImplemented
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #89
-
-**Test Case ID/Name:** Methods_WithValidSqlStatements_ShouldAcceptDifferentSqlTypes (Case 1)
-
-**Description/Objective:** Methods - WithValidSqlStatements - shouldAcceptDifferentSqlTypes - Test case 1
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #90
-
-**Test Case ID/Name:** Methods_WithValidSqlStatements_ShouldAcceptDifferentSqlTypes (Case 2)
-
-**Description/Objective:** Methods - WithValidSqlStatements - shouldAcceptDifferentSqlTypes - Test case 2
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #91
-
-**Test Case ID/Name:** Methods_WithValidSqlStatements_ShouldAcceptDifferentSqlTypes (Case 3)
-
-**Description/Objective:** Methods - WithValidSqlStatements - shouldAcceptDifferentSqlTypes - Test case 3
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #92
-
-**Test Case ID/Name:** Methods_WithValidSqlStatements_ShouldAcceptDifferentSqlTypes (Case 4)
-
-**Description/Objective:** Methods - WithValidSqlStatements - shouldAcceptDifferentSqlTypes - Test case 4
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #93
-
-**Test Case ID/Name:** Methods_WithValidSqlStatements_ShouldAcceptDifferentSqlTypes (Case 5)
-
-**Description/Objective:** Methods - WithValidSqlStatements - shouldAcceptDifferentSqlTypes - Test case 5
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #94
-
-**Test Case ID/Name:** ExecuteTransaction_WithMixedValidCommands_ShouldAcceptValidCommands
-
-**Description/Objective:** ExecuteTransaction - WithMixedValidCommands - shouldAcceptValidCommands
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #95
-
-**Test Case ID/Name:** LoadData_WithComplexGenericType_ShouldSupportComplexTypes
-
-**Description/Objective:** LoadData - WithComplexGenericType - shouldSupportComplexTypes
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #96
-
-**Test Case ID/Name:** LoadDataSingle_WithComplexGenericType_ShouldSupportComplexTypes
-
-**Description/Objective:** LoadDataSingle - WithComplexGenericType - shouldSupportComplexTypes
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
-### Test Case #97
-
-**Test Case ID/Name:** LoadDataSingleOrDefault_WithComplexGenericType_ShouldSupportComplexTypes
-
-**Description/Objective:** LoadDataSingleOrDefault - WithComplexGenericType - shouldSupportComplexTypes
-
-**Steps/Procedure:**
-   1. Create test objects and initialize data
-   3. Execute the method under test
-   4. Verify the expected results
-
-**Expected Result:** Unit test passes with expected behavior
-
----
-
 ## DataContextDapperTests
 
-### Test Case #98
+### Test Case #47
 
 **Test Case ID/Name:** Constructor_WithValidConfiguration_ShouldInitialize
 
@@ -1499,7 +726,7 @@
 
 ---
 
-### Test Case #99
+### Test Case #48
 
 **Test Case ID/Name:** LoadData_WithValidSql_ShouldReturnEnumerable
 
@@ -1514,7 +741,7 @@
 
 ---
 
-### Test Case #100
+### Test Case #49
 
 **Test Case ID/Name:** LoadData_WithParameters_ShouldAcceptParameters
 
@@ -1529,7 +756,7 @@
 
 ---
 
-### Test Case #101
+### Test Case #50
 
 **Test Case ID/Name:** LoadDataSingle_WithValidSql_ShouldReturnSingleItem
 
@@ -1544,7 +771,7 @@
 
 ---
 
-### Test Case #102
+### Test Case #51
 
 **Test Case ID/Name:** LoadDataSingleOrDefault_WithValidSql_ShouldReturnNullableItem
 
@@ -1559,7 +786,7 @@
 
 ---
 
-### Test Case #103
+### Test Case #52
 
 **Test Case ID/Name:** ExecuteSql_WithValidSql_ShouldReturnBoolean
 
@@ -1574,7 +801,7 @@
 
 ---
 
-### Test Case #104
+### Test Case #53
 
 **Test Case ID/Name:** ExecuteSqlWithRowCount_WithValidSql_ShouldReturnInteger
 
@@ -1589,7 +816,7 @@
 
 ---
 
-### Test Case #105
+### Test Case #54
 
 **Test Case ID/Name:** ExecuteTransaction_WithValidCommands_ShouldReturnBoolean
 
@@ -1604,7 +831,7 @@
 
 ---
 
-### Test Case #106
+### Test Case #55
 
 **Test Case ID/Name:** ExecuteTransaction_WithEmptyList_ShouldHandleEmptyList
 
@@ -1619,7 +846,7 @@
 
 ---
 
-### Test Case #107
+### Test Case #56
 
 **Test Case ID/Name:** LoadData_WithDifferentSqlQueries_ShouldAcceptValidSql (Case 1)
 
@@ -1634,7 +861,7 @@
 
 ---
 
-### Test Case #108
+### Test Case #57
 
 **Test Case ID/Name:** LoadData_WithDifferentSqlQueries_ShouldAcceptValidSql (Case 2)
 
@@ -1649,7 +876,7 @@
 
 ---
 
-### Test Case #109
+### Test Case #58
 
 **Test Case ID/Name:** LoadData_WithDifferentSqlQueries_ShouldAcceptValidSql (Case 3)
 
@@ -1664,7 +891,7 @@
 
 ---
 
-### Test Case #110
+### Test Case #59
 
 **Test Case ID/Name:** ExecuteSql_WithDifferentSqlCommands_ShouldAcceptValidSql (Case 1)
 
@@ -1679,7 +906,7 @@
 
 ---
 
-### Test Case #111
+### Test Case #60
 
 **Test Case ID/Name:** ExecuteSql_WithDifferentSqlCommands_ShouldAcceptValidSql (Case 2)
 
@@ -1694,7 +921,7 @@
 
 ---
 
-### Test Case #112
+### Test Case #61
 
 **Test Case ID/Name:** ExecuteSql_WithDifferentSqlCommands_ShouldAcceptValidSql (Case 3)
 
@@ -1709,7 +936,7 @@
 
 ---
 
-### Test Case #113
+### Test Case #62
 
 **Test Case ID/Name:** CreateConnection_UsesEnvironmentVariable_WhenAvailable
 
@@ -1724,7 +951,7 @@
 
 ---
 
-### Test Case #114
+### Test Case #63
 
 **Test Case ID/Name:** CreateConnection_UsesConfigurationString_WhenEnvironmentVariableNotSet
 
@@ -1739,7 +966,7 @@
 
 ---
 
-### Test Case #115
+### Test Case #64
 
 **Test Case ID/Name:** LoadData_WithNullParameters_ShouldAcceptNullParameters
 
@@ -1754,7 +981,7 @@
 
 ---
 
-### Test Case #116
+### Test Case #65
 
 **Test Case ID/Name:** LoadDataSingle_WithNullParameters_ShouldAcceptNullParameters
 
@@ -1769,7 +996,7 @@
 
 ---
 
-### Test Case #117
+### Test Case #66
 
 **Test Case ID/Name:** LoadDataSingleOrDefault_WithNullParameters_ShouldAcceptNullParameters
 
@@ -1784,7 +1011,7 @@
 
 ---
 
-### Test Case #118
+### Test Case #67
 
 **Test Case ID/Name:** ExecuteSql_WithNullParameters_ShouldAcceptNullParameters
 
@@ -1799,7 +1026,7 @@
 
 ---
 
-### Test Case #119
+### Test Case #68
 
 **Test Case ID/Name:** ExecuteSqlWithRowCount_WithNullParameters_ShouldAcceptNullParameters
 
@@ -1814,7 +1041,7 @@
 
 ---
 
-### Test Case #120
+### Test Case #69
 
 **Test Case ID/Name:** ExecuteTransaction_WithNullParametersInCommands_ShouldHandleNullParameters
 
@@ -1829,7 +1056,7 @@
 
 ---
 
-### Test Case #121
+### Test Case #70
 
 **Test Case ID/Name:** LoadData_WithGenericType_ShouldSupportGenericTypes
 
@@ -1844,7 +1071,7 @@
 
 ---
 
-### Test Case #122
+### Test Case #71
 
 **Test Case ID/Name:** LoadDataSingle_WithGenericType_ShouldSupportGenericTypes
 
@@ -1859,7 +1086,7 @@
 
 ---
 
-### Test Case #123
+### Test Case #72
 
 **Test Case ID/Name:** LoadDataSingleOrDefault_WithGenericType_ShouldSupportGenericTypes
 
@@ -1874,7 +1101,7 @@
 
 ---
 
-### Test Case #124
+### Test Case #73
 
 **Test Case ID/Name:** DataContextDapper_ImplementsInterface_ShouldImplementIDataContextDapper
 
@@ -1889,7 +1116,7 @@
 
 ---
 
-### Test Case #125
+### Test Case #74
 
 **Test Case ID/Name:** Methods_WithEmptyOrWhitespaceSql_ShouldHandleInvalidSql (Case 1)
 
@@ -1904,7 +1131,7 @@
 
 ---
 
-### Test Case #126
+### Test Case #75
 
 **Test Case ID/Name:** Methods_WithEmptyOrWhitespaceSql_ShouldHandleInvalidSql (Case 2)
 
@@ -1919,7 +1146,7 @@
 
 ---
 
-### Test Case #127
+### Test Case #76
 
 **Test Case ID/Name:** ExecuteTransaction_WithSingleCommand_ShouldHandleSingleCommand
 
@@ -1934,7 +1161,7 @@
 
 ---
 
-### Test Case #128
+### Test Case #77
 
 **Test Case ID/Name:** ExecuteTransaction_WithMultipleCommands_ShouldHandleMultipleCommands
 
@@ -1951,7 +1178,7 @@
 
 ## DataContextDapperUnitTests
 
-### Test Case #129
+### Test Case #78
 
 **Test Case ID/Name:** Constructor_WithValidConfiguration_ShouldNotThrow
 
@@ -1966,7 +1193,7 @@
 
 ---
 
-### Test Case #130
+### Test Case #79
 
 **Test Case ID/Name:** Constructor_WithNullConfiguration_ShouldNotThrow
 
@@ -1981,7 +1208,7 @@
 
 ---
 
-### Test Case #131
+### Test Case #80
 
 **Test Case ID/Name:** DataContextDapper_ImplementsInterface_ShouldImplementIDataContextDapper
 
@@ -1996,7 +1223,7 @@
 
 ---
 
-### Test Case #132
+### Test Case #81
 
 **Test Case ID/Name:** EnvironmentVariable_TakesPrecedence_OverConfiguration
 
@@ -2011,7 +1238,7 @@
 
 ---
 
-### Test Case #133
+### Test Case #82
 
 **Test Case ID/Name:** LoadData_MethodExists_ShouldHaveCorrectSignature
 
@@ -2026,7 +1253,7 @@
 
 ---
 
-### Test Case #134
+### Test Case #83
 
 **Test Case ID/Name:** LoadDataSingle_MethodExists_ShouldHaveCorrectSignature
 
@@ -2041,7 +1268,7 @@
 
 ---
 
-### Test Case #135
+### Test Case #84
 
 **Test Case ID/Name:** LoadDataSingleOrDefault_MethodExists_ShouldHaveCorrectSignature
 
@@ -2056,7 +1283,7 @@
 
 ---
 
-### Test Case #136
+### Test Case #85
 
 **Test Case ID/Name:** ExecuteSql_MethodExists_ShouldHaveCorrectSignature
 
@@ -2071,7 +1298,7 @@
 
 ---
 
-### Test Case #137
+### Test Case #86
 
 **Test Case ID/Name:** ExecuteSqlWithRowCount_MethodExists_ShouldHaveCorrectSignature
 
@@ -2086,7 +1313,7 @@
 
 ---
 
-### Test Case #138
+### Test Case #87
 
 **Test Case ID/Name:** ExecuteTransaction_MethodExists_ShouldHaveCorrectSignature
 
@@ -2101,7 +1328,7 @@
 
 ---
 
-### Test Case #139
+### Test Case #88
 
 **Test Case ID/Name:** AllInterfaceMethods_AreImplemented_ShouldImplementAllMethods
 
@@ -2116,7 +1343,7 @@
 
 ---
 
-### Test Case #140
+### Test Case #89
 
 **Test Case ID/Name:** InterfaceMethods_ExistInImplementation_ShouldBeImplemented (Case 1)
 
@@ -2131,7 +1358,7 @@
 
 ---
 
-### Test Case #141
+### Test Case #90
 
 **Test Case ID/Name:** InterfaceMethods_ExistInImplementation_ShouldBeImplemented (Case 2)
 
@@ -2146,7 +1373,7 @@
 
 ---
 
-### Test Case #142
+### Test Case #91
 
 **Test Case ID/Name:** InterfaceMethods_ExistInImplementation_ShouldBeImplemented (Case 3)
 
@@ -2161,7 +1388,7 @@
 
 ---
 
-### Test Case #143
+### Test Case #92
 
 **Test Case ID/Name:** InterfaceMethods_ExistInImplementation_ShouldBeImplemented (Case 4)
 
@@ -2176,7 +1403,7 @@
 
 ---
 
-### Test Case #144
+### Test Case #93
 
 **Test Case ID/Name:** InterfaceMethods_ExistInImplementation_ShouldBeImplemented (Case 5)
 
@@ -2191,7 +1418,7 @@
 
 ---
 
-### Test Case #145
+### Test Case #94
 
 **Test Case ID/Name:** InterfaceMethods_ExistInImplementation_ShouldBeImplemented (Case 6)
 
@@ -2206,7 +1433,7 @@
 
 ---
 
-### Test Case #146
+### Test Case #95
 
 **Test Case ID/Name:** DataContextDapper_HasCorrectNamespace_ShouldBeInCorrectNamespace
 
@@ -2221,7 +1448,7 @@
 
 ---
 
-### Test Case #147
+### Test Case #96
 
 **Test Case ID/Name:** DataContextDapper_IsPublicClass_ShouldBePublic
 
@@ -2235,7 +1462,7 @@
 
 ---
 
-### Test Case #148
+### Test Case #97
 
 **Test Case ID/Name:** IDataContextDapper_IsPublicInterface_ShouldBePublic
 
@@ -2249,7 +1476,7 @@
 
 ---
 
-### Test Case #149
+### Test Case #98
 
 **Test Case ID/Name:** Configuration_IsRequired_ShouldRequireConfiguration
 
@@ -2263,7 +1490,7 @@
 
 ---
 
-### Test Case #150
+### Test Case #99
 
 **Test Case ID/Name:** GenericMethods_SupportTypeParameters_ShouldSupportGenerics
 
@@ -2278,7 +1505,7 @@
 
 ---
 
-### Test Case #151
+### Test Case #100
 
 **Test Case ID/Name:** ParameterTypes_AreCorrect_ShouldHaveCorrectParameterTypes
 
@@ -2295,7 +1522,7 @@
 
 ## DataContextEFTests
 
-### Test Case #152
+### Test Case #101
 
 **Test Case ID/Name:** Constructor_SetsConfiguration
 
@@ -2310,7 +1537,7 @@
 
 ---
 
-### Test Case #153
+### Test Case #102
 
 **Test Case ID/Name:** DbSets_AreInitialized
 
@@ -2323,7 +1550,7 @@
 
 ---
 
-### Test Case #154
+### Test Case #103
 
 **Test Case ID/Name:** ModelBuilder_ConfiguresCorrectSchema
 
@@ -2337,7 +1564,7 @@
 
 ---
 
-### Test Case #155
+### Test Case #104
 
 **Test Case ID/Name:** ModelBuilder_ConfiguresCorrectTableNames
 
@@ -2351,7 +1578,7 @@
 
 ---
 
-### Test Case #156
+### Test Case #105
 
 **Test Case ID/Name:** ModelBuilder_ConfiguresCorrectPrimaryKeys
 
@@ -2367,7 +1594,7 @@
 
 ## ControllerHelperTests
 
-### Test Case #157
+### Test Case #106
 
 **Test Case ID/Name:** ValidateJson_ValidArrayWithPredicate_ReturnsTrue
 
@@ -2382,7 +1609,7 @@
 
 ---
 
-### Test Case #158
+### Test Case #107
 
 **Test Case ID/Name:** ValidateJson_ValidArrayFailsPredicate_ReturnsFalse
 
@@ -2397,7 +1624,7 @@
 
 ---
 
-### Test Case #159
+### Test Case #108
 
 **Test Case ID/Name:** ValidateJson_InvalidJson_ReturnsFalse
 
@@ -2412,7 +1639,7 @@
 
 ---
 
-### Test Case #160
+### Test Case #109
 
 **Test Case ID/Name:** ValidateJson_NullArray_ReturnsFalse
 
@@ -2427,7 +1654,7 @@
 
 ---
 
-### Test Case #161
+### Test Case #110
 
 **Test Case ID/Name:** HandleError_LogsErrorAndReturns500
 
@@ -2442,7 +1669,7 @@
 
 ---
 
-### Test Case #162
+### Test Case #111
 
 **Test Case ID/Name:** SafeExecute_ActionSucceeds_ReturnsActionResult
 
@@ -2457,7 +1684,7 @@
 
 ---
 
-### Test Case #163
+### Test Case #112
 
 **Test Case ID/Name:** SafeExecute_ActionThrows_ReturnsErrorResult
 
@@ -2474,7 +1701,7 @@
 
 ## PagedResultTests
 
-### Test Case #164
+### Test Case #113
 
 **Test Case ID/Name:** Constructor_DefaultValues_SetsEmptyItemsAndZeroTotal
 
@@ -2489,7 +1716,7 @@
 
 ---
 
-### Test Case #165
+### Test Case #114
 
 **Test Case ID/Name:** Items_SetValue_ReturnsSetValue
 
@@ -2504,7 +1731,7 @@
 
 ---
 
-### Test Case #166
+### Test Case #115
 
 **Test Case ID/Name:** Total_SetValue_ReturnsSetValue
 
@@ -2519,7 +1746,7 @@
 
 ---
 
-### Test Case #167
+### Test Case #116
 
 **Test Case ID/Name:** PagedResult_WithIntegerType_WorksCorrectly
 
@@ -2534,7 +1761,7 @@
 
 ---
 
-### Test Case #168
+### Test Case #117
 
 **Test Case ID/Name:** PagedResult_WithCustomObject_WorksCorrectly
 
@@ -2549,7 +1776,7 @@
 
 ---
 
-### Test Case #169
+### Test Case #118
 
 **Test Case ID/Name:** Items_SetToNull_AcceptsNullValue
 
@@ -2564,7 +1791,7 @@
 
 ---
 
-### Test Case #170
+### Test Case #119
 
 **Test Case ID/Name:** Total_SetNegativeValue_AcceptsNegativeValue
 
@@ -2579,7 +1806,7 @@
 
 ---
 
-### Test Case #171
+### Test Case #120
 
 **Test Case ID/Name:** PagedResult_EmptyItems_WithPositiveTotal_IsValid
 
@@ -2596,7 +1823,7 @@
 
 ## IDataContextDapperUnitTests
 
-### Test Case #172
+### Test Case #121
 
 **Test Case ID/Name:** LoadData_WithValidSql_ShouldReturnData
 
@@ -2612,7 +1839,7 @@
 
 ---
 
-### Test Case #173
+### Test Case #122
 
 **Test Case ID/Name:** LoadDataSingle_WithValidSql_ShouldReturnSingleItem
 
@@ -2628,7 +1855,7 @@
 
 ---
 
-### Test Case #174
+### Test Case #123
 
 **Test Case ID/Name:** LoadDataSingleOrDefault_WithNoData_ShouldReturnNull
 
@@ -2644,7 +1871,7 @@
 
 ---
 
-### Test Case #175
+### Test Case #124
 
 **Test Case ID/Name:** ExecuteSql_WithValidSql_ShouldReturnTrue
 
@@ -2660,7 +1887,7 @@
 
 ---
 
-### Test Case #176
+### Test Case #125
 
 **Test Case ID/Name:** ExecuteSqlWithRowCount_WithValidSql_ShouldReturnRowCount
 
@@ -2676,7 +1903,7 @@
 
 ---
 
-### Test Case #177
+### Test Case #126
 
 **Test Case ID/Name:** ExecuteTransaction_WithValidCommands_ShouldReturnTrue
 
@@ -2692,7 +1919,7 @@
 
 ---
 
-### Test Case #178
+### Test Case #127
 
 **Test Case ID/Name:** ExecuteTransaction_WithFailure_ShouldReturnFalse
 
@@ -2708,7 +1935,7 @@
 
 ---
 
-### Test Case #179
+### Test Case #128
 
 **Test Case ID/Name:** ExecuteTransaction_WithEmptyList_ShouldReturnTrue
 
@@ -2724,7 +1951,7 @@
 
 ---
 
-### Test Case #180
+### Test Case #129
 
 **Test Case ID/Name:** LoadData_WithComplexType_ShouldReturnComplexType
 
@@ -2740,7 +1967,7 @@
 
 ---
 
-### Test Case #181
+### Test Case #130
 
 **Test Case ID/Name:** ExecuteSqlWithRowCount_WithNoAffectedRows_ShouldReturnZero
 
@@ -2756,7 +1983,7 @@
 
 ---
 
-### Test Case #182
+### Test Case #131
 
 **Test Case ID/Name:** ExecuteTransaction_WithMixedCommands_ShouldHandleMixedOperations
 
@@ -2774,7 +2001,7 @@
 
 ## TestWebApplicationFactory
 
-### Test Case #183
+### Test Case #132
 
 **Test Case ID/Name:** Program_ServiceRegistration_RegistersAllRequiredServices
 
@@ -2788,7 +2015,7 @@
 
 ---
 
-### Test Case #184
+### Test Case #133
 
 **Test Case ID/Name:** Program_AuthenticationService_IsConfigured
 
@@ -2802,7 +2029,7 @@
 
 ---
 
-### Test Case #185
+### Test Case #134
 
 **Test Case ID/Name:** Program_JwtBearerOptions_AreConfigured
 
@@ -2816,7 +2043,7 @@
 
 ---
 
-### Test Case #186
+### Test Case #135
 
 **Test Case ID/Name:** Program_CorsPolicy_IsConfigured
 
@@ -2830,7 +2057,7 @@
 
 ---
 
-### Test Case #187
+### Test Case #136
 
 **Test Case ID/Name:** Program_SignalRService_IsConfigured
 
@@ -2844,7 +2071,7 @@
 
 ---
 
-### Test Case #188
+### Test Case #137
 
 **Test Case ID/Name:** Program_ControllerServices_AreConfigured
 
@@ -2858,7 +2085,7 @@
 
 ---
 
-### Test Case #189
+### Test Case #138
 
 **Test Case ID/Name:** Program_AuthHelper_IsSingleton
 
@@ -2872,7 +2099,7 @@
 
 ---
 
-### Test Case #190
+### Test Case #139
 
 **Test Case ID/Name:** Program_RepositoryServices_AreScoped
 
@@ -2886,7 +2113,7 @@
 
 ---
 
-### Test Case #191
+### Test Case #140
 
 **Test Case ID/Name:** Program_DataContextServices_AreScoped
 
@@ -2902,7 +2129,7 @@
 
 ## AuthRepositoryTests
 
-### Test Case #192
+### Test Case #141
 
 **Test Case ID/Name:** UserExists_ReturnsTrue_WhenCountGreaterThanZero
 
@@ -2918,7 +2145,7 @@
 
 ---
 
-### Test Case #193
+### Test Case #142
 
 **Test Case ID/Name:** GetAuthByEmail_ReturnsRecord_WhenFound
 
@@ -2934,7 +2161,7 @@
 
 ---
 
-### Test Case #194
+### Test Case #143
 
 **Test Case ID/Name:** RegisterStudent_UsesTransaction_ReturnsTrue_OnSuccess
 
@@ -2950,7 +2177,7 @@
 
 ---
 
-### Test Case #195
+### Test Case #144
 
 **Test Case ID/Name:** RegisterTeacher_UsesTransaction_ReturnsTrue_OnSuccess
 
@@ -2966,7 +2193,7 @@
 
 ---
 
-### Test Case #196
+### Test Case #145
 
 **Test Case ID/Name:** GetUserRole_ReturnsStudent_WhenStudentFound
 
@@ -2982,7 +2209,7 @@
 
 ---
 
-### Test Case #197
+### Test Case #146
 
 **Test Case ID/Name:** RegisterStudent_WithConfiguration_ShouldWork
 
