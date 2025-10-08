@@ -1,6 +1,9 @@
 CREATE DATABASE AlgorithmBattleArina;
 GO
 
+USE master;
+GO
+
 USE AlgorithmBattleArina;
 GO
 
@@ -284,4 +287,23 @@ CREATE TABLE AlgorithmBattleArinaSchema.Submissions (
         REFERENCES AlgorithmBattleArinaSchema.Auth(Email)
 );
 
+------------------------------------------------------------------------------------------
+-- STUDENT-TEACHER REQUESTS
+CREATE TABLE AlgorithmBattleArinaSchema.StudentTeacherRequests (
+    RequestId INT IDENTITY(1,1) PRIMARY KEY,
+    StudentId INT NOT NULL,
+    TeacherId INT NOT NULL,
+    Status NVARCHAR(20) CHECK (Status IN ('Pending', 'Accepted', 'Rejected')) NOT NULL DEFAULT 'Pending',
+    RequestedAt DATETIME2 DEFAULT GETDATE(),
 
+    CONSTRAINT FK_StudentTeacherRequests_Student FOREIGN KEY (StudentId)
+        REFERENCES AlgorithmBattleArinaSchema.Student(StudentId)
+        ON DELETE CASCADE,
+
+    CONSTRAINT FK_StudentTeacherRequests_Teacher FOREIGN KEY (TeacherId)
+        REFERENCES AlgorithmBattleArinaSchema.Teachers(TeacherId)
+        ON DELETE CASCADE,
+
+    CONSTRAINT UQ_Student_Teacher_Request UNIQUE (StudentId, TeacherId)
+);
+GO
