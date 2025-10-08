@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AlgorithmBattleArina.Data;
 using AlgorithmBattleArina.Models;
 using Dapper;
+using AlgorithmBattleArina.Dtos;
 
 namespace AlgorithmBattleArina.Repositories
 {
@@ -36,15 +37,18 @@ namespace AlgorithmBattleArina.Repositories
             await _dapper.ExecuteSqlAsync(sql, new { RequestId = requestId, TeacherId = teacherId });
         }
 
-        public async Task<IEnumerable<Student>> GetStudentsByStatus(int teacherId, string status)
+        public async Task<IEnumerable<StudentRequestDto>> GetStudentsByStatus(int teacherId, string status)
         {
-            string sql = @"SELECT s.* FROM AlgorithmBattleArinaSchema.Student s JOIN AlgorithmBattleArinaSchema.StudentTeacherRequests r ON s.StudentId = r.StudentId WHERE r.TeacherId = @TeacherId AND r.Status = @Status";
             if (status.ToLower() == "accepted")
             {
-                sql = @"SELECT * FROM AlgorithmBattleArinaSchema.Student WHERE TeacherId = @TeacherId";
-                return await _dapper.LoadDataAsync<Student>(sql, new { TeacherId = teacherId });
+                string sql = @"SELECT 0 AS RequestId, s.StudentId, s.FirstName, s.LastName, s.Email, s.Email AS Username FROM AlgorithmBattleArinaSchema.Student s WHERE s.TeacherId = @TeacherId";
+                return await _dapper.LoadDataAsync<StudentRequestDto>(sql, new { TeacherId = teacherId });
             }
-            return await _dapper.LoadDataAsync<Student>(sql, new { TeacherId = teacherId, Status = status });
+            else
+            {
+                string sql = @"SELECT r.RequestId, s.StudentId, s.FirstName, s.LastName, s.Email, s.Email AS Username FROM AlgorithmBattleArinaSchema.Student s JOIN AlgorithmBattleArinaSchema.StudentTeacherRequests r ON s.StudentId = r.StudentId WHERE r.TeacherId = @TeacherId AND r.Status = @Status";
+                return await _dapper.LoadDataAsync<StudentRequestDto>(sql, new { TeacherId = teacherId, Status = status });
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AlgorithmBattleArina.Models;
+using AlgorithmBattleArina.Dtos;
 
 namespace AlgorithmBattleArina.Repositories
 {
@@ -9,6 +10,6 @@ namespace AlgorithmBattleArina.Repositories
         Task<int> CreateRequest(int studentId, int teacherId);
         Task AcceptRequest(int requestId, int teacherId);
         Task RejectRequest(int requestId, int teacherId);
-        Task<IEnumerable<Student>> GetStudentsByStatus(int teacherId, string status);
+        Task<IEnumerable<StudentRequestDto>> GetStudentsByStatus(int teacherId, string status);
     }
 }

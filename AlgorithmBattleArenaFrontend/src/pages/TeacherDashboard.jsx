@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Crown, Users, BookOpen, Plus, Trophy, Sword } from 'lucide-react';
 import { useAuth } from '../services/auth';
 
@@ -54,14 +55,14 @@ export default function TeacherDashboard() {
               </button>
             </div>
             
-            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:border-blue-500/50 transition-all">
+            <Link to="/manage-students" className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:border-blue-500/50 transition-all block">
               <Users className="w-12 h-12 text-blue-400 mb-4" />
               <h3 className="text-xl font-bold mb-2">Manage Warriors</h3>
               <p className="text-gray-300 mb-4">Guide your students</p>
-              <button className="w-full py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all">
+              <div className="w-full py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all text-center">
                 Manage
-              </button>
-            </div>
+              </div>
+            </Link>
 
             <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:border-green-500/50 transition-all">
               <Sword className="w-12 h-12 text-green-400 mb-4" />
@@ -73,7 +74,7 @@ export default function TeacherDashboard() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
-  );
-}
+        </main>
+      </div>
+    );
+  }
