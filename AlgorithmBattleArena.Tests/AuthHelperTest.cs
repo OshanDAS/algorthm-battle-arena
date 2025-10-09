@@ -96,12 +96,20 @@ public class AuthHelperTest : IDisposable
     {
         var auth = new AuthHelper(CreateConfiguration());
         var token = auth.CreateToken("test@test.com", role, 1);
+        
+        Assert.NotNull(token);
+        Assert.NotEmpty(token);
+        
         var principal = auth.ValidateToken(token);
-
         Assert.NotNull(principal);
-        Assert.Equal("test@test.com", auth.GetEmailFromClaims(principal));
-        Assert.Equal(role, auth.GetRoleFromClaims(principal));
-        Assert.Equal("1", principal.FindFirst(expectedClaimType)?.Value);
+        
+        var email = auth.GetEmailFromClaims(principal);
+        var userRole = auth.GetRoleFromClaims(principal);
+        var claimValue = principal.FindFirst(expectedClaimType)?.Value;
+        
+        Assert.Equal("test@test.com", email);
+        Assert.Equal(role, userRole);
+        Assert.Equal("1", claimValue);
     }
 
     [Fact]

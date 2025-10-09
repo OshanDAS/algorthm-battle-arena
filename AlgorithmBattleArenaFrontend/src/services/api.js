@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getToken } from './tokenStorage';
 
 // Automatically detect environment and use appropriate API URL
 const BASE_URL = window.location.hostname === 'localhost' 
@@ -11,6 +12,12 @@ class ApiService {
       baseURL: BASE_URL,
       headers: { 'Content-Type': 'application/json' }
     });
+    
+    // Set token on initialization if available
+    const token = getToken();
+    if (token) {
+      this.setAuthToken(token);
+    }
   }
 
   setAuthToken(token) {
@@ -30,7 +37,9 @@ class ApiService {
   };
 
   matches = {
-    start: (lobbyId, data) => this.client.post(`/api/Matches/${lobbyId}/start`, data)
+    start: (lobbyId, data) => this.client.post(`/api/Matches/${lobbyId}/start`, data),
+    getLeaderboard: (matchId) => this.client.get(`/api/Matches/${matchId}/leaderboard`),
+    getGlobalLeaderboard: () => this.client.get('/api/Matches/leaderboard/global')
   };
 
   problems = {
@@ -43,7 +52,8 @@ class ApiService {
   };
 
   submissions = {
-    create: (data) => this.client.post('/api/Submissions', data)
+    create: (data) => this.client.post('/api/Submissions', data),
+    getUserSubmissions: (matchId) => this.client.get(`/api/Submissions/match/${matchId}/user`)
   };
 
   students = {
@@ -55,6 +65,11 @@ class ApiService {
 
   teachers = {
     getAll: () => this.client.get('/api/Teachers')
+  };
+
+  statistics = {
+    getLeaderboard: () => this.client.get('/api/statistics/leaderboard'),
+    getUserStatistics: () => this.client.get('/api/statistics/user')
   };
 
   lobbies = {

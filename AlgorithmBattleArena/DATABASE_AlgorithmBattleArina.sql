@@ -274,6 +274,7 @@ CREATE TABLE AlgorithmBattleArinaSchema.Submissions (
     Language NVARCHAR(50) NOT NULL,
     Code NVARCHAR(MAX) NOT NULL,
     Status NVARCHAR(20) NOT NULL DEFAULT 'Submitted',
+    Score INT NULL,
     SubmittedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
 
     CONSTRAINT FK_Submission_Match FOREIGN KEY (MatchId)
