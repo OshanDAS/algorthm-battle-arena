@@ -33,6 +33,10 @@ namespace AlgorithmBattleArina.Models
         
         public string Tags { get; set; } = null!; 
         
+        public bool IsPublic { get; set; } = true; // Controls if problem is visible to students
+        
+        public bool IsActive { get; set; } = true; // Controls if problem can be used in matches
+        
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }

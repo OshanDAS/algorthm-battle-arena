@@ -5,8 +5,11 @@ using AlgorithmBattleArina.Data;
 using AlgorithmBattleArina.Dtos;
 using AlgorithmBattleArina.Helpers;
 using AlgorithmBattleArina.Models;
+using AlgorithmBattleArina.Services;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Globalization;
+using CsvHelper;
 
 namespace AlgorithmBattleArina.Controllers
 {
@@ -224,6 +227,152 @@ namespace AlgorithmBattleArina.Controllers
             {
                 _logger.LogError(ex, "Failed to create audit log entry");
             }
+        }
+
+        [HttpPost("problems/import")]
+        public async Task<IActionResult> ImportProblems()
+        {
+            try
+            {
+                var correlationId = HttpContext.Request.Headers["X-Correlation-Id"].FirstOrDefault() ?? Guid.NewGuid().ToString();
+                HttpContext.Items["CorrelationId"] = correlationId;
+
+                List<ImportProblemDto> problems;
+
+                if (Request.HasFormContentType && Request.Form.Files.Count > 0)
+                {
+                    var file = Request.Form.Files[0];
+                    if (file.Length > 10 * 1024 * 1024) // 10MB limit
+                        return StatusCode(413, "File too large");
+
+                    problems = await ParseFileAsync(file);
+                }
+                else
+                {
+                    using var reader = new StreamReader(Request.Body);
+                    var json = await reader.ReadToEndAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    problems = JsonSerializer.Deserialize<List<ImportProblemDto>>(json, options) ?? new List<ImportProblemDto>();
+                }
+
+                if (problems.Count > 1000)
+                    return StatusCode(413, "Too many rows. Maximum 1000 allowed.");
+
+                var validator = new ProblemImportValidator();
+                var errors = validator.ValidateProblems(problems);
+
+                // Check for existing slugs in database
+                var slugs = problems.Select(p => p.Slug).ToList();
+                var existingSlugs = await _context.Problems
+                    .Where(p => slugs.Contains(p.Title)) // Using Title as slug equivalent
+                    .Select(p => p.Title)
+                    .ToListAsync();
+
+                for (int i = 0; i < problems.Count; i++)
+                {
+                    if (existingSlugs.Contains(problems[i].Slug))
+                    {
+                        errors.Add(new ImportErrorDto { Row = i + 1, Field = "slug", Message = "Slug already exists in database" });
+                    }
+                }
+
+                if (errors.Any())
+                {
+                    return BadRequest(new ImportResultDto { Ok = false, Errors = errors.ToArray() });
+                }
+
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
+                {
+                    var insertedSlugs = new List<string>();
+
+                    foreach (var dto in problems)
+                    {
+                        var problem = new Problem
+                        {
+                            Title = dto.Title,
+                            Description = dto.Description,
+                            DifficultyLevel = dto.Difficulty,
+                            Category = "Imported",
+                            IsPublic = dto.IsPublic,
+                            IsActive = dto.IsActive,
+                            TimeLimit = dto.TimeLimitMs,
+                            MemoryLimit = dto.MemoryLimitMb,
+                            Tags = JsonSerializer.Serialize(dto.Tags),
+                            CreatedBy = "Admin",
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        _context.Problems.Add(problem);
+                        await _context.SaveChangesAsync();
+
+                        foreach (var testCase in dto.TestCases)
+                        {
+                            var tc = new ProblemTestCase
+                            {
+                                ProblemId = problem.ProblemId,
+                                InputData = testCase.Input,
+                                ExpectedOutput = testCase.ExpectedOutput,
+                                IsSample = testCase.IsSample
+                            };
+                            _context.ProblemTestCases.Add(tc);
+                        }
+
+                        insertedSlugs.Add(dto.Slug);
+                    }
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    _logger.LogInformation("Imported {Count} problems. CorrelationId: {CorrelationId}", problems.Count, correlationId);
+
+                    return Ok(new ImportResultDto
+                    {
+                        Ok = true,
+                        Inserted = problems.Count,
+                        Slugs = insertedSlugs.ToArray()
+                    });
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    _logger.LogError(ex, "Failed to import problems. CorrelationId: {CorrelationId}", correlationId);
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error importing problems");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        private async Task<List<ImportProblemDto>> ParseFileAsync(IFormFile file)
+        {
+            var extension = Path.GetExtension(file.FileName).ToLower();
+            using var stream = file.OpenReadStream();
+            using var reader = new StreamReader(stream);
+            var content = await reader.ReadToEndAsync();
+
+            return extension switch
+            {
+                ".json" => ParseJson(content),
+                ".csv" => ParseCsv(content),
+                _ => throw new ArgumentException($"Unsupported file format: {extension}")
+            };
+        }
+
+        private List<ImportProblemDto> ParseJson(string content)
+        {
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            return JsonSerializer.Deserialize<List<ImportProblemDto>>(content, options) ?? new List<ImportProblemDto>();
+        }
+
+        private List<ImportProblemDto> ParseCsv(string content)
+        {
+            using var reader = new StringReader(content);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            return csv.GetRecords<ImportProblemDto>().ToList();
         }
 
         private string GetActorUserId(ClaimsPrincipal user)

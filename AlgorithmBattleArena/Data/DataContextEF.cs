@@ -22,6 +22,8 @@ namespace AlgorithmBattleArina.Data
         public virtual DbSet<Teacher> Teachers { get; set; }
         public virtual DbSet<Auth> Auth { get; set; }
         public virtual DbSet<AuditLog> AuditLogs { get; set; }
+        public virtual DbSet<Problem> Problems { get; set; }
+        public virtual DbSet<ProblemTestCase> ProblemTestCases { get; set; }
         
         
 
@@ -66,6 +68,18 @@ namespace AlgorithmBattleArina.Data
 
             modelBuilder.Entity<AuditLog>().ToTable("AuditLogs", "AlgorithmBattleArinaSchema")
                                        .HasKey(a => a.Id);
+
+            modelBuilder.Entity<Problem>().ToTable("Problems", "AlgorithmBattleArinaSchema")
+                                       .HasKey(p => p.ProblemId);
+
+            modelBuilder.Entity<ProblemTestCase>().ToTable("ProblemTestCases", "AlgorithmBattleArinaSchema")
+                                       .HasKey(tc => tc.TestCaseId);
+
+            modelBuilder.Entity<ProblemTestCase>()
+                .HasOne(tc => tc.Problem)
+                .WithMany()
+                .HasForeignKey(tc => tc.ProblemId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
         
     }       
