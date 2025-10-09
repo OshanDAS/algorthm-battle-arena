@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Shield, Users, Trophy, Settings, BarChart3, Crown } from 'lucide-react';
+import { Shield, Users, Trophy, Settings, BarChart3, Crown, FileText } from 'lucide-react';
 import { useAuth } from '../services/auth';
 import AdminUsersPanel from '../components/AdminUsersPanel';
+import AdminProblemsPanel from '../components/AdminProblemsPanel';
 
 export default function AdminDashboard() {
   const { logout } = useAuth();
@@ -49,6 +50,16 @@ export default function AdminDashboard() {
               }`}
             >
               Manage Users
+            </button>
+            <button
+              onClick={() => setActiveTab('problems')}
+              className={`px-4 py-2 rounded-lg transition-all ${
+                activeTab === 'problems' 
+                  ? 'bg-red-600 text-white' 
+                  : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
+              }`}
+            >
+              Manage Problems
             </button>
           </div>
 
@@ -101,11 +112,14 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:border-blue-500/50 transition-all">
-                  <Settings className="w-12 h-12 text-blue-400 mb-4" />
-                  <h3 className="text-xl font-bold mb-2">System Config</h3>
-                  <p className="text-gray-300 mb-4">Arena settings and rules</p>
-                  <button className="w-full py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all">
-                    Configure
+                  <FileText className="w-12 h-12 text-blue-400 mb-4" />
+                  <h3 className="text-xl font-bold mb-2">Problem Library</h3>
+                  <p className="text-gray-300 mb-4">Import and manage challenges</p>
+                  <button 
+                    onClick={() => setActiveTab('problems')}
+                    className="w-full py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all"
+                  >
+                    Manage
                   </button>
                 </div>
               </div>
@@ -113,6 +127,7 @@ export default function AdminDashboard() {
           )}
 
           {activeTab === 'users' && <AdminUsersPanel />}
+          {activeTab === 'problems' && <AdminProblemsPanel />}
         </div>
       </main>
     </div>

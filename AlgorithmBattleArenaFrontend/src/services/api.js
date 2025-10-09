@@ -74,7 +74,14 @@ class ApiService {
     getUsers: ({ q, role, page = 1, pageSize = 25 }) => 
       this.client.get('/api/Admin/users', { params: { q, role, page, pageSize } }),
     toggleUserActive: (prefixedId, deactivate) => 
-      this.client.put(`/api/Admin/users/${encodeURIComponent(prefixedId)}/deactivate`, { deactivate })
+      this.client.put(`/api/Admin/users/${encodeURIComponent(prefixedId)}/deactivate`, { deactivate }),
+    importProblems: (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return this.client.post('/api/Admin/problems/import', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }
   };
 }
 
