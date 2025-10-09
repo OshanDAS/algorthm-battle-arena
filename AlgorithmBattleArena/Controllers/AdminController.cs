@@ -6,6 +6,7 @@ using AlgorithmBattleArina.Dtos;
 using AlgorithmBattleArina.Helpers;
 using AlgorithmBattleArina.Models;
 using AlgorithmBattleArina.Services;
+using AlgorithmBattleArina.Exceptions;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Globalization;
@@ -20,11 +21,13 @@ namespace AlgorithmBattleArina.Controllers
     {
         private readonly DataContextEF _context;
         private readonly ILogger<AdminController> _logger;
+        private readonly ProblemImportService _importService;
 
-        public AdminController(DataContextEF context, ILogger<AdminController> logger)
+        public AdminController(DataContextEF context, ILogger<AdminController> logger, ProblemImportService importService)
         {
             _context = context;
             _logger = logger;
+            _importService = importService;
         }
 
         [HttpGet("users")]
@@ -261,88 +264,25 @@ namespace AlgorithmBattleArina.Controllers
                 var validator = new ProblemImportValidator();
                 var errors = validator.ValidateBatch(problems);
 
-                // Check for existing slugs in database
-                var slugs = problems.Select(p => p.Slug).ToList();
-                var existingSlugs = await _context.Problems
-                    .Where(p => slugs.Contains(p.Title)) // Using Title as slug equivalent
-                    .Select(p => p.Title)
-                    .ToListAsync();
-
-                for (int i = 0; i < problems.Count; i++)
-                {
-                    if (existingSlugs.Contains(problems[i].Slug))
-                    {
-                        errors.Add(new ImportErrorDto { Row = i + 1, Field = "slug", Message = "Slug already exists in database" });
-                    }
-                }
-
                 if (errors.Any())
                 {
                     return BadRequest(new ImportResultDto { Ok = false, Errors = errors.ToArray() });
                 }
 
-                using var transaction = await _context.Database.BeginTransactionAsync();
-                try
-                {
-                    var insertedSlugs = new List<string>();
-
-                    foreach (var dto in problems)
-                    {
-                        var problem = new Problem
-                        {
-                            Title = dto.Title,
-                            Description = dto.Description,
-                            DifficultyLevel = dto.Difficulty,
-                            Category = "Imported",
-                            IsPublic = dto.IsPublic,
-                            IsActive = dto.IsActive,
-                            TimeLimit = dto.TimeLimitMs,
-                            MemoryLimit = dto.MemoryLimitMb,
-                            Tags = JsonSerializer.Serialize(dto.Tags),
-                            CreatedBy = "Admin",
-                            CreatedAt = DateTime.UtcNow
-                        };
-
-                        _context.Problems.Add(problem);
-                        await _context.SaveChangesAsync();
-
-                        foreach (var testCase in dto.TestCases)
-                        {
-                            var tc = new ProblemTestCase
-                            {
-                                ProblemId = problem.ProblemId,
-                                InputData = testCase.Input,
-                                ExpectedOutput = testCase.ExpectedOutput,
-                                IsSample = testCase.IsSample
-                            };
-                            _context.ProblemTestCases.Add(tc);
-                        }
-
-                        insertedSlugs.Add(dto.Slug);
-                    }
-
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-
-                    _logger.LogInformation("Imported {Count} problems. CorrelationId: {CorrelationId}", problems.Count, correlationId);
-
-                    return Ok(new ImportResultDto
-                    {
-                        Ok = true,
-                        Inserted = problems.Count,
-                        Slugs = insertedSlugs.ToArray()
-                    });
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    _logger.LogError(ex, "Failed to import problems. CorrelationId: {CorrelationId}", correlationId);
-                    throw;
-                }
+                var result = await _importService.ImportProblemsAsync(problems);
+                _logger.LogInformation("Imported {Count} problems. CorrelationId: {CorrelationId}", result.Inserted, correlationId);
+                return Ok(result);
+            }
+            catch (ImportException ex)
+            {
+                var correlationId = HttpContext.Items["CorrelationId"]?.ToString() ?? "unknown";
+                _logger.LogWarning("Import validation failed. CorrelationId: {CorrelationId}", correlationId);
+                return BadRequest(new ImportResultDto { Ok = false, Errors = ex.Errors.ToArray() });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error importing problems");
+                var correlationId = HttpContext.Items["CorrelationId"]?.ToString() ?? "unknown";
+                _logger.LogError(ex, "Error importing problems. CorrelationId: {CorrelationId}", correlationId);
                 return StatusCode(500, "Internal server error");
             }
         }

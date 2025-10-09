@@ -35,7 +35,8 @@ public class AdminControllerTests : IDisposable
 
         _context = new TestDataContextEF(config, options);
         _logger = new TestLogger<AdminController>();
-        _controller = new AdminController(_context, _logger);
+        var importService = new AlgorithmBattleArina.Services.ProblemImportService(_context);
+        _controller = new AdminController(_context, _logger, importService);
 
         // Set up admin claims
         var identity = new ClaimsIdentity(new[]
