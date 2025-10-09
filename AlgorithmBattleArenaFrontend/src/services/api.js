@@ -29,17 +29,6 @@ class ApiService {
     getProfile: () => this.client.get('/api/Auth/profile')
   };
 
-  lobbies = {
-    getAll: () => this.client.get('/api/Lobbies'),
-    getById: (id) => this.client.get(`/api/Lobbies/${id}`),
-    create: (data) => this.client.post('/api/Lobbies', data),
-    join: (lobbyCode) => this.client.post(`/api/Lobbies/${lobbyCode}/join`),
-    leave: (id) => this.client.post(`/api/Lobbies/${id}/leave`),
-    close: (id) => this.client.post(`/api/Lobbies/${id}/close`),
-    kickParticipant: (id, email) => this.client.delete(`/api/Lobbies/${id}/participants/${email}`),
-    delete: (id) => this.client.delete(`/api/Lobbies/${id}`)
-  };
-
   matches = {
     start: (lobbyId, data) => this.client.post(`/api/Matches/${lobbyId}/start`, data)
   };
@@ -55,6 +44,17 @@ class ApiService {
 
   submissions = {
     create: (data) => this.client.post('/api/Submissions', data)
+  };
+
+  students = {
+    getByStatus: (status) => this.client.get(`/api/Students?status=${status}`),
+    acceptRequest: (requestId) => this.client.put(`/api/Students/${requestId}/accept`),
+    rejectRequest: (requestId) => this.client.put(`/api/Students/${requestId}/reject`),
+    requestTeacher: (teacherId) => this.client.post('/api/Students/request', teacherId)
+  };
+
+  teachers = {
+    getAll: () => this.client.get('/api/Teachers')
   };
 
   lobbies = {

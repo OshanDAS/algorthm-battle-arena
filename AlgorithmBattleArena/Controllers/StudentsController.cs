@@ -1,0 +1,76 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using AlgorithmBattleArina.Repositories;
+using AlgorithmBattleArina.Helpers;
+using System.Threading.Tasks;
+using System.Security.Claims;
+
+namespace AlgorithmBattleArina.Controllers
+{
+    [Authorize]
+    [ApiController]
+    [Route("api/[controller]")]
+    public class StudentsController : ControllerBase
+    {
+        private readonly IStudentRepository _studentRepository;
+        private readonly AuthHelper _authHelper;
+
+        public StudentsController(IStudentRepository studentRepository, AuthHelper authHelper)
+        {
+            _studentRepository = studentRepository;
+            _authHelper = authHelper;
+        }
+
+        [HttpPost("request")]
+        public async Task<IActionResult> RequestTeacher([FromBody] int teacherId)
+        {
+            var studentId = _authHelper.GetUserIdFromClaims(User, "Student");
+            if (studentId == null)
+            {
+                return Unauthorized("User not found or not a student");
+            }
+
+            var requestId = await _studentRepository.CreateRequest(studentId.Value, teacherId);
+            return Ok(new { RequestId = requestId });
+        }
+
+        [HttpPut("{requestId}/accept")]
+        public async Task<IActionResult> AcceptRequest(int requestId)
+        {
+            var teacherId = _authHelper.GetUserIdFromClaims(User, "Teacher");
+            if (teacherId == null)
+            {
+                return Unauthorized("User not found or not a teacher");
+            }
+
+            await _studentRepository.AcceptRequest(requestId, teacherId.Value);
+            return Ok();
+        }
+
+        [HttpPut("{requestId}/reject")]
+        public async Task<IActionResult> RejectRequest(int requestId)
+        {
+            var teacherId = _authHelper.GetUserIdFromClaims(User, "Teacher");
+            if (teacherId == null)
+            {
+                return Unauthorized("User not found or not a teacher");
+            }
+
+            await _studentRepository.RejectRequest(requestId, teacherId.Value);
+            return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetStudents([FromQuery] string status)
+        {
+            var teacherId = _authHelper.GetUserIdFromClaims(User, "Teacher");
+            if (teacherId == null)
+            {
+                return Unauthorized("User not found or not a teacher");
+            }
+
+            var students = await _studentRepository.GetStudentsByStatus(teacherId.Value, status);
+            return Ok(students);
+        }
+    }
+}
