@@ -2,6 +2,7 @@ using AlgorithmBattleArina.Data;
 using AlgorithmBattleArina.Repositories;
 using AlgorithmBattleArina.Helpers;
 using AlgorithmBattleArina.Hubs;
+using AlgorithmBattleArina.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -135,6 +136,7 @@ else
 
 // Authentication and Authorization come after CORS
 app.UseAuthentication();
+app.UseAuditLogging();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -69,6 +69,13 @@ class ApiService {
     updateDifficulty: (id, difficulty) => this.client.put(`/api/Lobbies/${id}/difficulty`, { difficulty }),
     delete: (id) => this.client.delete(`/api/Lobbies/${id}`)
   };
+
+  admin = {
+    getUsers: ({ q, role, page = 1, pageSize = 25 }) => 
+      this.client.get('/api/Admin/users', { params: { q, role, page, pageSize } }),
+    toggleUserActive: (prefixedId, deactivate) => 
+      this.client.put(`/api/Admin/users/${encodeURIComponent(prefixedId)}/deactivate`, { deactivate })
+  };
 }
 
 export default new ApiService();

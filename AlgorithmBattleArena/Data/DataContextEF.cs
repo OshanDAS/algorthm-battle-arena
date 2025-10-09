@@ -21,6 +21,7 @@ namespace AlgorithmBattleArina.Data
         public virtual DbSet<Student> Student { get; set; }
         public virtual DbSet<Teacher> Teachers { get; set; }
         public virtual DbSet<Auth> Auth { get; set; }
+        public virtual DbSet<AuditLog> AuditLogs { get; set; }
         
         
 
@@ -61,10 +62,10 @@ namespace AlgorithmBattleArina.Data
                 .HasOne(t => t.Auth)
                 .WithOne(a => a.Teacher)
                 .HasForeignKey<Teacher>(t => t.Email)
-                .HasPrincipalKey<Auth>(a => a.Email);  
+                .HasPrincipalKey<Auth>(a => a.Email);
 
-            
-                                    
+            modelBuilder.Entity<AuditLog>().ToTable("AuditLogs", "AlgorithmBattleArinaSchema")
+                                       .HasKey(a => a.Id);
         }
         
     }       
