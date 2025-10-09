@@ -237,7 +237,7 @@ namespace AlgorithmBattleArina.Controllers
                 var correlationId = HttpContext.Request.Headers["X-Correlation-Id"].FirstOrDefault() ?? Guid.NewGuid().ToString();
                 HttpContext.Items["CorrelationId"] = correlationId;
 
-                List<ImportProblemDto> problems;
+                List<ImportedProblemDto> problems;
 
                 if (Request.HasFormContentType && Request.Form.Files.Count > 0)
                 {
@@ -252,14 +252,14 @@ namespace AlgorithmBattleArina.Controllers
                     using var reader = new StreamReader(Request.Body);
                     var json = await reader.ReadToEndAsync();
                     var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                    problems = JsonSerializer.Deserialize<List<ImportProblemDto>>(json, options) ?? new List<ImportProblemDto>();
+                    problems = JsonSerializer.Deserialize<List<ImportedProblemDto>>(json, options) ?? new List<ImportedProblemDto>();
                 }
 
                 if (problems.Count > 1000)
                     return StatusCode(413, "Too many rows. Maximum 1000 allowed.");
 
                 var validator = new ProblemImportValidator();
-                var errors = validator.ValidateProblems(problems);
+                var errors = validator.ValidateBatch(problems);
 
                 // Check for existing slugs in database
                 var slugs = problems.Select(p => p.Slug).ToList();
@@ -347,7 +347,7 @@ namespace AlgorithmBattleArina.Controllers
             }
         }
 
-        private async Task<List<ImportProblemDto>> ParseFileAsync(IFormFile file)
+        private async Task<List<ImportedProblemDto>> ParseFileAsync(IFormFile file)
         {
             var extension = Path.GetExtension(file.FileName).ToLower();
             using var stream = file.OpenReadStream();
@@ -362,17 +362,17 @@ namespace AlgorithmBattleArina.Controllers
             };
         }
 
-        private List<ImportProblemDto> ParseJson(string content)
+        private List<ImportedProblemDto> ParseJson(string content)
         {
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            return JsonSerializer.Deserialize<List<ImportProblemDto>>(content, options) ?? new List<ImportProblemDto>();
+            return JsonSerializer.Deserialize<List<ImportedProblemDto>>(content, options) ?? new List<ImportedProblemDto>();
         }
 
-        private List<ImportProblemDto> ParseCsv(string content)
+        private List<ImportedProblemDto> ParseCsv(string content)
         {
             using var reader = new StringReader(content);
             using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-            return csv.GetRecords<ImportProblemDto>().ToList();
+            return csv.GetRecords<ImportedProblemDto>().ToList();
         }
 
         private string GetActorUserId(ClaimsPrincipal user)

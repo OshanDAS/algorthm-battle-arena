@@ -1,6 +1,6 @@
 namespace AlgorithmBattleArina.Dtos;
 
-public class ImportProblemDto
+public class ImportedProblemDto
 {
     public string Slug { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;

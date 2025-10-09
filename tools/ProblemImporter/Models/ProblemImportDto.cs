@@ -1,6 +1,6 @@
 namespace ProblemImporter.Models;
 
-public class ProblemImportDto
+public class ImportedProblemDto
 {
     public string Slug { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;

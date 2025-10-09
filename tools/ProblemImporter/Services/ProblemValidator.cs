@@ -4,7 +4,7 @@ namespace ProblemImporter.Services;
 
 public class ProblemValidator
 {
-    public List<ValidationError> ValidateProblems(List<ProblemImportDto> problems)
+    public List<ValidationError> ValidateBatch(List<ImportedProblemDto> problems)
     {
         var errors = new List<ValidationError>();
         var slugs = new HashSet<string>();

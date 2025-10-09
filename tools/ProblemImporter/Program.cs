@@ -37,7 +37,7 @@ rootCommand.SetHandler(async (file, format, confirm, maxRows, connectionString) 
         }
 
         var validator = new ProblemValidator();
-        var errors = validator.ValidateProblems(problems);
+        var errors = validator.ValidateBatch(problems);
 
         if (errors.Any())
         {
@@ -68,7 +68,7 @@ rootCommand.SetHandler(async (file, format, confirm, maxRows, connectionString) 
 
 return await rootCommand.InvokeAsync(args);
 
-static async Task ImportProblems(List<ProblemImportDto> problems, string? connectionString)
+static async Task ImportProblems(List<ImportedProblemDto> problems, string? connectionString)
 {
     var config = new ConfigurationBuilder()
         .AddInMemoryCollection(new Dictionary<string, string?>
