@@ -2,7 +2,9 @@ using AlgorithmBattleArina.Data;
 using AlgorithmBattleArina.Repositories;
 using AlgorithmBattleArina.Helpers;
 using AlgorithmBattleArina.Hubs;
-using Microsoft.EntityFrameworkCore;
+using AlgorithmBattleArina.Middleware;
+using AlgorithmBattleArina.Services;
+// using Microsoft.EntityFrameworkCore; // Removed - using Dapper only
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -28,9 +30,7 @@ builder.Services.AddSignalR();
 var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION") ??
                        builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddDbContext<DataContextEF>(options =>
-    options.UseSqlServer(connectionString)
-);
+// EF Core removed - using Dapper only
 
 builder.Services.AddScoped<IDataContextDapper, DataContextDapper>();
 builder.Services.AddScoped<ILobbyRepository, LobbyRepository>();
@@ -38,6 +38,11 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IProblemRepository, ProblemRepository>();
 builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<ProblemImportService>();
+builder.Services.AddScoped<ProblemImportValidator>();
 builder.Services.AddSingleton<AuthHelper>();
 
 // JWT Authentication configuration
@@ -133,6 +138,7 @@ else
 
 // Authentication and Authorization come after CORS
 app.UseAuthentication();
+app.UseAuditLogging();
 app.UseAuthorization();
 
 app.MapControllers();

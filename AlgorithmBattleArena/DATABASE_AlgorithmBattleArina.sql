@@ -1,6 +1,9 @@
 CREATE DATABASE AlgorithmBattleArina;
 GO
 
+USE master;
+GO
+
 USE AlgorithmBattleArina;
 GO
 
@@ -271,6 +274,7 @@ CREATE TABLE AlgorithmBattleArinaSchema.Submissions (
     Language NVARCHAR(50) NOT NULL,
     Code NVARCHAR(MAX) NOT NULL,
     Status NVARCHAR(20) NOT NULL DEFAULT 'Submitted',
+    Score INT NULL,
     SubmittedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
 
     CONSTRAINT FK_Submission_Match FOREIGN KEY (MatchId)
@@ -284,4 +288,35 @@ CREATE TABLE AlgorithmBattleArinaSchema.Submissions (
         REFERENCES AlgorithmBattleArinaSchema.Auth(Email)
 );
 
+------------------------------------------------------------------------------------------
+-- STUDENT-TEACHER REQUESTS
+CREATE TABLE AlgorithmBattleArinaSchema.StudentTeacherRequests (
+    RequestId INT IDENTITY(1,1) PRIMARY KEY,
+    StudentId INT NOT NULL,
+    TeacherId INT NOT NULL,
+    Status NVARCHAR(20) CHECK (Status IN ('Pending', 'Accepted', 'Rejected')) NOT NULL DEFAULT 'Pending',
+    RequestedAt DATETIME2 DEFAULT GETDATE(),
 
+    CONSTRAINT FK_StudentTeacherRequests_Student FOREIGN KEY (StudentId)
+        REFERENCES AlgorithmBattleArinaSchema.Student(StudentId)
+        ON DELETE CASCADE,
+
+    CONSTRAINT FK_StudentTeacherRequests_Teacher FOREIGN KEY (TeacherId)
+        REFERENCES AlgorithmBattleArinaSchema.Teachers(TeacherId)
+        ON DELETE CASCADE,
+
+    CONSTRAINT UQ_Student_Teacher_Request UNIQUE (StudentId, TeacherId)
+);
+GO
+
+CREATE TABLE AlgorithmBattleArinaSchema.AuditLog (
+    AuditLogId INT IDENTITY(1,1) PRIMARY KEY,
+    UserId NVARCHAR(100),
+    Action NVARCHAR(100),
+    EntityType NVARCHAR(100),
+    EntityId NVARCHAR(100),
+    BeforeState NVARCHAR(MAX),
+    AfterState NVARCHAR(MAX),
+    CorrelationId NVARCHAR(100),
+    Timestamp DATETIME2 DEFAULT GETDATE()
+);

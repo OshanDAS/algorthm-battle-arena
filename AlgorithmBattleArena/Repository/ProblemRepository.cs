@@ -143,5 +143,78 @@ namespace AlgorithmBattleArina.Repositories
 
             return await _dapper.LoadDataAsync<Problem>(sql, parameters);
         }
+
+        public async Task<int> ImportProblemsAsync(IEnumerable<Problem> problems)
+        {
+            using var connection = _dapper.CreateConnection();
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                int importedCount = 0;
+                foreach (var problem in problems)
+                {
+                    var problemId = await InsertProblemAsync(connection, transaction, problem);
+                    await InsertTestCasesAsync(connection, transaction, problemId, problem.TestCases);
+                    importedCount++;
+                }
+
+                transaction.Commit();
+                return importedCount;
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+
+        private async Task<int> InsertProblemAsync(IDbConnection connection, IDbTransaction transaction, Problem problem)
+        {
+            const string sql = @"
+                INSERT INTO AlgorithmBattleArinaSchema.Problems 
+                (Title, Description, DifficultyLevel, Category, TimeLimit, MemoryLimit, CreatedBy, Tags)
+                VALUES (@Title, @Description, @DifficultyLevel, @Category, @TimeLimit, @MemoryLimit, @CreatedBy, @Tags);
+                SELECT CAST(SCOPE_IDENTITY() as int);";
+
+            return await connection.QuerySingleAsync<int>(sql, new
+            {
+                problem.Title,
+                problem.Description,
+                problem.DifficultyLevel,
+                problem.Category,
+                problem.TimeLimit,
+                problem.MemoryLimit,
+                problem.CreatedBy,
+                problem.Tags
+            }, transaction);
+        }
+
+        private async Task InsertTestCasesAsync(IDbConnection connection, IDbTransaction transaction, int problemId, ICollection<ProblemTestCase> testCases)
+        {
+            const string sql = @"
+                INSERT INTO AlgorithmBattleArinaSchema.ProblemTestCases 
+                (ProblemId, InputData, ExpectedOutput, IsSample)
+                VALUES (@ProblemId, @InputData, @ExpectedOutput, @IsSample)";
+
+            foreach (var testCase in testCases)
+            {
+                await connection.ExecuteAsync(sql, new
+                {
+                    ProblemId = problemId,
+                    InputData = testCase.InputData,
+                    testCase.ExpectedOutput,
+                    testCase.IsSample
+                }, transaction);
+            }
+        }
+
+        public async Task<bool> SlugExistsAsync(string slug)
+        {
+            const string sql = "SELECT COUNT(1) FROM AlgorithmBattleArinaSchema.Problems WHERE Slug = @Slug";
+            var count = await _dapper.LoadDataSingleAsync<int>(sql, new { Slug = slug });
+            return count > 0;
+        }
     }
 }
