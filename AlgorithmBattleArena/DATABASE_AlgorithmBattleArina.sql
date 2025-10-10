@@ -53,21 +53,37 @@ SELECT *FROM AlgorithmBattleArinaSchema.ProblemTestCases;
 
 --------------------------------------------------------------------------------------
 
-CREATE TABLE AlgorithmBattleArinaSchema.Problems (
-    ProblemId INT IDENTITY(1,1) PRIMARY KEY,
-    Slug NVARCHAR(100) UNIQUE NOT NULL,
-    Title NVARCHAR(255) NOT NULL,
-    Description NVARCHAR(MAX) NOT NULL,
-    DifficultyLevel NVARCHAR(50),
-    Category NVARCHAR(100),
-    TimeLimit INT,          -- in ms
-    MemoryLimit INT,        -- in MB
-    CreatedBy NVARCHAR(100),
-    Tags NVARCHAR(MAX),     -- store as JSON string or comma-separated
-    IsPublic BIT DEFAULT 1,
-    IsActive BIT DEFAULT 1,
-    CreatedAt DATETIME DEFAULT GETDATE()
-);
+-- Check if Problems table exists and add missing columns
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Problems' AND schema_id = SCHEMA_ID('AlgorithmBattleArinaSchema'))
+BEGIN
+    CREATE TABLE AlgorithmBattleArinaSchema.Problems (
+        ProblemId INT IDENTITY(1,1) PRIMARY KEY,
+        Slug NVARCHAR(100) UNIQUE NOT NULL,
+        Title NVARCHAR(255) NOT NULL,
+        Description NVARCHAR(MAX) NOT NULL,
+        DifficultyLevel NVARCHAR(50),
+        Category NVARCHAR(100),
+        TimeLimit INT,          -- in ms
+        MemoryLimit INT,        -- in MB
+        CreatedBy NVARCHAR(100),
+        Tags NVARCHAR(MAX),     -- store as JSON string or comma-separated
+        IsPublic BIT DEFAULT 1,
+        IsActive BIT DEFAULT 1,
+        CreatedAt DATETIME DEFAULT GETDATE()
+    );
+END
+ELSE
+BEGIN
+    -- Add missing columns if they don't exist
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('AlgorithmBattleArinaSchema.Problems') AND name = 'Slug')
+        ALTER TABLE AlgorithmBattleArinaSchema.Problems ADD Slug NVARCHAR(100);
+    
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('AlgorithmBattleArinaSchema.Problems') AND name = 'IsPublic')
+        ALTER TABLE AlgorithmBattleArinaSchema.Problems ADD IsPublic BIT DEFAULT 1;
+    
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('AlgorithmBattleArinaSchema.Problems') AND name = 'IsActive')
+        ALTER TABLE AlgorithmBattleArinaSchema.Problems ADD IsActive BIT DEFAULT 1;
+END
 
 CREATE TABLE AlgorithmBattleArinaSchema.ProblemTestCases (
     TestCaseId INT IDENTITY(1,1) PRIMARY KEY,

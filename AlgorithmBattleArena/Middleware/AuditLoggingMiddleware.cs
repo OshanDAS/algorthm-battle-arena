@@ -1,7 +1,7 @@
 using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Models;
 using System.Security.Claims;
 using System.Text.Json;
+using Dapper;
 
 namespace AlgorithmBattleArina.Middleware
 {
@@ -47,7 +47,7 @@ namespace AlgorithmBattleArina.Middleware
             try
             {
                 using var scope = _scopeFactory.CreateScope();
-                var dbContext = scope.ServiceProvider.GetRequiredService<DataContextEF>();
+                var dapper = scope.ServiceProvider.GetRequiredService<IDataContextDapper>();
 
                 var user = context.User;
                 var actorUserId = GetActorUserId(user);
@@ -56,22 +56,21 @@ namespace AlgorithmBattleArina.Middleware
                 var requestBody = await GetSanitizedRequestBodyAsync(context);
                 var sourceIp = GetSourceIp(context);
 
-                var auditLog = new AuditLog
-                {
-                    ActorUserId = actorUserId,
-                    ActorEmail = actorEmail,
-                    Action = context.Request.Method,
-                    ResourceType = ExtractResourceType(context.Request.Path),
-                    ResourceId = ExtractResourceId(context.Request.Path),
-                    Details = requestBody,
-                    TimestampUtc = DateTime.UtcNow,
-                    SourceIp = sourceIp,
-                    Route = $"{context.Request.Method} {context.Request.Path}",
-                    CorrelationId = correlationId
-                };
+                const string sql = @"
+                    INSERT INTO AlgorithmBattleArinaSchema.AuditLog 
+                    (UserId, Action, EntityType, EntityId, BeforeState, AfterState, CorrelationId)
+                    VALUES (@UserId, @Action, @EntityType, @EntityId, @BeforeState, @AfterState, @CorrelationId)";
 
-                dbContext.AuditLogs.Add(auditLog);
-                await dbContext.SaveChangesAsync();
+                await dapper.ExecuteSqlAsync(sql, new
+                {
+                    UserId = actorUserId,
+                    Action = context.Request.Method,
+                    EntityType = ExtractResourceType(context.Request.Path),
+                    EntityId = ExtractResourceId(context.Request.Path),
+                    BeforeState = "",
+                    AfterState = requestBody,
+                    CorrelationId = correlationId
+                });
             }
             catch (Exception ex)
             {
