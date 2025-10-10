@@ -86,14 +86,26 @@ namespace AlgorithmBattleArina.Controllers
 
                 string userRole = _authRepository.GetUserRole(loginDto.Email);
                 int? userId = null;
+                bool isActive = false;
 
                 if (userRole == "Student")
-                    userId = _authRepository.GetStudentByEmail(loginDto.Email)?.StudentId;
+                {
+                    var student = _authRepository.GetStudentByEmail(loginDto.Email);
+                    userId = student?.StudentId;
+                    isActive = student?.Active ?? false;
+                }
                 else if (userRole == "Teacher")
-                    userId = _authRepository.GetTeacherByEmail(loginDto.Email)?.TeacherId;
+                {
+                    var teacher = _authRepository.GetTeacherByEmail(loginDto.Email);
+                    userId = teacher?.TeacherId;
+                    isActive = teacher?.Active ?? false;
+                }
 
                 if (userId == null)
                     return Unauthorized("User not found");
+
+                if (!isActive)
+                    return Unauthorized("Account has been deactivated");
 
                 string userToken = _authHelper.CreateToken(loginDto.Email, userRole, userId);
                 return Ok(new { token = userToken, role = userRole, email = loginDto.Email });
