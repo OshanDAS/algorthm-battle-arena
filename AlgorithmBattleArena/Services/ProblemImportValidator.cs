@@ -19,12 +19,7 @@ public class ProblemImportValidator
     {
         var errors = new List<ImportErrorDto>();
 
-        if (string.IsNullOrWhiteSpace(problem.Slug))
-            errors.Add(new ImportErrorDto { Row = row, Field = "slug", Message = "Slug is required" });
-        else if (!SlugPattern.IsMatch(problem.Slug))
-            errors.Add(new ImportErrorDto { Row = row, Field = "slug", Message = "Slug must match pattern ^[a-z0-9\\-_.]{2,100}$" });
-        else if (await _problemRepository.SlugExistsAsync(problem.Slug))
-            errors.Add(new ImportErrorDto { Row = row, Field = "slug", Message = "Slug already exists" });
+        // Skip slug validation - auto-generated from title
 
         if (string.IsNullOrWhiteSpace(problem.Title))
             errors.Add(new ImportErrorDto { Row = row, Field = "title", Message = "Title is required" });

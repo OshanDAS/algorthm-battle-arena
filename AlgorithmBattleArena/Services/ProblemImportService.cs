@@ -36,7 +36,7 @@ public class ProblemImportService
         // Convert DTOs to entities
         var problemEntities = problemList.Select(dto => new Problem
         {
-            Slug = dto.Slug,
+            Slug = dto.Slug ?? GenerateSlug(dto.Title),
             Title = dto.Title,
             Description = dto.Description,
             DifficultyLevel = dto.Difficulty,
@@ -62,7 +62,20 @@ public class ProblemImportService
         {
             Ok = true,
             Inserted = importedCount,
-            Slugs = problemList.Select(p => p.Slug).ToArray()
+            Slugs = problemList.Select(p => p.Slug ?? GenerateSlug(p.Title)).ToArray()
         };
+    }
+
+    private static string GenerateSlug(string title)
+    {
+        return title.ToLower()
+            .Replace(" ", "-")
+            .Replace("'", "")
+            .Replace("(", "")
+            .Replace(")", "")
+            .Replace("[", "")
+            .Replace("]", "")
+            .Replace("{", "")
+            .Replace("}", "");
     }
 }
