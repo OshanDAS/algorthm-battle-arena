@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import StudentDashboard from './pages/StudentDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
+import AdminDashboard from './pages/AdminDashboard';
 import ManageStudentsPage from './pages/ManageStudentsPage';
 import LobbyPage from './pages/LobbyPage';
 import LobbyInstancePage from './pages/LobbyInstancePage';

@@ -308,3 +308,15 @@ CREATE TABLE AlgorithmBattleArinaSchema.StudentTeacherRequests (
     CONSTRAINT UQ_Student_Teacher_Request UNIQUE (StudentId, TeacherId)
 );
 GO
+
+CREATE TABLE AlgorithmBattleArinaSchema.AuditLog (
+    AuditLogId INT IDENTITY(1,1) PRIMARY KEY,
+    UserId NVARCHAR(100),
+    Action NVARCHAR(100),
+    EntityType NVARCHAR(100),
+    EntityId NVARCHAR(100),
+    BeforeState NVARCHAR(MAX),
+    AfterState NVARCHAR(MAX),
+    CorrelationId NVARCHAR(100),
+    Timestamp DATETIME2 DEFAULT GETDATE()
+);
