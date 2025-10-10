@@ -85,6 +85,17 @@ class ApiService {
     delete: (id) => this.client.delete(`/api/Lobbies/${id}`)
   };
 
+  friends = {
+    getFriends: () => this.client.get('/api/Friends'),
+    searchStudents: (query) => this.client.get('/api/Friends/search', { params: { query } }),
+    sendFriendRequest: (receiverId) => this.client.post('/api/Friends/request', { receiverId }),
+    getReceivedRequests: () => this.client.get('/api/Friends/requests/received'),
+    getSentRequests: () => this.client.get('/api/Friends/requests/sent'),
+    acceptFriendRequest: (requestId) => this.client.put(`/api/Friends/requests/${requestId}/accept`),
+    rejectFriendRequest: (requestId) => this.client.put(`/api/Friends/requests/${requestId}/reject`),
+    removeFriend: (friendId) => this.client.delete(`/api/Friends/${friendId}`)
+  };
+
   admin = {
     getUsers: ({ q, role, page = 1, pageSize = 25 }) => 
       this.client.get('/api/Admin/users', { params: { q, role, page, pageSize } }),

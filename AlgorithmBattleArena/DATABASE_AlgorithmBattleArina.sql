@@ -320,3 +320,37 @@ CREATE TABLE AlgorithmBattleArinaSchema.AuditLog (
     CorrelationId NVARCHAR(100),
     Timestamp DATETIME2 DEFAULT GETDATE()
 );
+GO
+
+
+CREATE TABLE AlgorithmBattleArinaSchema.Friends (
+    FriendshipId INT IDENTITY(1,1) PRIMARY KEY,
+    StudentId1 INT NOT NULL,
+    StudentId2 INT NOT NULL,
+    CreatedAt DATETIME2 DEFAULT GETDATE(),
+    
+    CONSTRAINT FK_Friends_Student1 FOREIGN KEY (StudentId1) 
+        REFERENCES AlgorithmBattleArinaSchema.Student(StudentId),
+    CONSTRAINT FK_Friends_Student2 FOREIGN KEY (StudentId2) 
+        REFERENCES AlgorithmBattleArinaSchema.Student(StudentId),
+    CONSTRAINT UQ_Friendship UNIQUE (StudentId1, StudentId2)
+);
+GO
+-- ===========================================
+-- FRIEND REQUESTS
+-- ===========================================
+CREATE TABLE AlgorithmBattleArinaSchema.FriendRequests (
+    RequestId INT IDENTITY(1,1) PRIMARY KEY,
+    SenderId INT NOT NULL,
+    ReceiverId INT NOT NULL,
+    Status NVARCHAR(20) CHECK (Status IN ('Pending', 'Accepted', 'Rejected')) DEFAULT 'Pending',
+    RequestedAt DATETIME2 DEFAULT GETDATE(),
+    RespondedAt DATETIME2 NULL,
+    
+    CONSTRAINT FK_FriendRequests_Sender FOREIGN KEY (SenderId) 
+        REFERENCES AlgorithmBattleArinaSchema.Student(StudentId),
+    CONSTRAINT FK_FriendRequests_Receiver FOREIGN KEY (ReceiverId) 
+        REFERENCES AlgorithmBattleArinaSchema.Student(StudentId),
+    CONSTRAINT UQ_Friend_Request UNIQUE (SenderId, ReceiverId)
+);
+GO
