@@ -16,23 +16,36 @@ namespace AlgorithmBattleArina.Repositories
 
         public async Task<PagedResult<AdminUserDto>> GetUsersAsync(string? q, string? role, int page, int pageSize)
         {
+            var whereClause = "";
+            var parameters = new DynamicParameters();
+            
+            if (!string.IsNullOrEmpty(q))
+            {
+                whereClause = " WHERE FirstName LIKE @Search OR LastName LIKE @Search OR Email LIKE @Search";
+                parameters.Add("@Search", $"%{q}%");
+            }
+
+            var offset = (page - 1) * pageSize;
+            parameters.Add("@Offset", offset);
+            parameters.Add("@PageSize", pageSize);
+
             var users = new List<AdminUserDto>();
+            int totalCount = 0;
 
             // Get students if no role filter or role is "Student"
             if (string.IsNullOrEmpty(role) || role == "Student")
             {
-                var studentSql = @"
-                    SELECT StudentId, FirstName, LastName, Email, Active 
-                    FROM AlgorithmBattleArinaSchema.Student";
-                
-                var studentParams = new DynamicParameters();
-                if (!string.IsNullOrEmpty(q))
-                {
-                    studentSql += " WHERE FirstName LIKE @Search OR LastName LIKE @Search OR Email LIKE @Search";
-                    studentParams.Add("@Search", $"%{q}%");
-                }
+                var countSql = $"SELECT COUNT(*) FROM AlgorithmBattleArinaSchema.Student{whereClause}";
+                var studentCount = await _dapper.LoadDataSingleAsync<int>(countSql, parameters);
+                totalCount += studentCount;
 
-                var students = await _dapper.LoadDataAsync<dynamic>(studentSql, studentParams);
+                var studentSql = $@"
+                    SELECT StudentId, FirstName, LastName, Email, Active 
+                    FROM AlgorithmBattleArinaSchema.Student{whereClause}
+                    ORDER BY StudentId
+                    OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+
+                var students = await _dapper.LoadDataAsync<dynamic>(studentSql, parameters);
                 users.AddRange(students.Select(s => new AdminUserDto
                 {
                     Id = $"Student:{s.StudentId}",
@@ -47,18 +60,17 @@ namespace AlgorithmBattleArina.Repositories
             // Get teachers if no role filter or role is "Teacher"
             if (string.IsNullOrEmpty(role) || role == "Teacher")
             {
-                var teacherSql = @"
-                    SELECT TeacherId, FirstName, LastName, Email, Active 
-                    FROM AlgorithmBattleArinaSchema.Teachers";
-                
-                var teacherParams = new DynamicParameters();
-                if (!string.IsNullOrEmpty(q))
-                {
-                    teacherSql += " WHERE FirstName LIKE @Search OR LastName LIKE @Search OR Email LIKE @Search";
-                    teacherParams.Add("@Search", $"%{q}%");
-                }
+                var countSql = $"SELECT COUNT(*) FROM AlgorithmBattleArinaSchema.Teachers{whereClause}";
+                var teacherCount = await _dapper.LoadDataSingleAsync<int>(countSql, parameters);
+                totalCount += teacherCount;
 
-                var teachers = await _dapper.LoadDataAsync<dynamic>(teacherSql, teacherParams);
+                var teacherSql = $@"
+                    SELECT TeacherId, FirstName, LastName, Email, Active 
+                    FROM AlgorithmBattleArinaSchema.Teachers{whereClause}
+                    ORDER BY TeacherId
+                    OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+
+                var teachers = await _dapper.LoadDataAsync<dynamic>(teacherSql, parameters);
                 users.AddRange(teachers.Select(t => new AdminUserDto
                 {
                     Id = $"Teacher:{t.TeacherId}",
@@ -70,15 +82,10 @@ namespace AlgorithmBattleArina.Repositories
                 }));
             }
 
-            // Sort and paginate
-            var sortedUsers = users.OrderByDescending(u => u.CreatedAt).ToList();
-            var total = sortedUsers.Count;
-            var pagedUsers = sortedUsers.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
             return new PagedResult<AdminUserDto>
             {
-                Items = pagedUsers,
-                Total = total
+                Items = users.OrderBy(u => u.Role).ThenBy(u => u.Name).ToList(),
+                Total = totalCount
             };
         }
 

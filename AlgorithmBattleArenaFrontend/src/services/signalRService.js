@@ -13,17 +13,18 @@ class SignalRService {
         };
     }
 
-    start() {
+    async start() {
         if (this.connectionState !== 'disconnected') {
-            return;
+            return Promise.resolve();
         }
 
         const token = getToken();
         if (!token) {
             console.log("No token, SignalR connection not started.");
-            return;
+            return Promise.reject('No token');
         }
 
+        this.connectionState = 'connecting';
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${apiService.client.defaults.baseURL}/lobbyHub`, {
                 accessTokenFactory: () => getToken(),
@@ -38,26 +39,30 @@ class SignalRService {
         });
 
         this.connection.on('LobbyUpdated', (lobby) => {
+            console.log('SignalR: LobbyUpdated received', lobby);
             this.callbacks.LobbyUpdated.forEach(callback => callback(lobby));
         });
 
         this.connection.on('MatchStarted', (match) => {
+            console.log('SignalR: MatchStarted received', match);
             this.callbacks.MatchStarted.forEach(callback => callback(match));
         });
 
         this.connection.on('LobbyDeleted', () => {
+            console.log('SignalR: LobbyDeleted received');
             this.callbacks.LobbyDeleted.forEach(callback => callback());
         });
 
-        this.connection.start()
-            .then(() => {
-                console.log('SignalR connected successfully.');
-                this.connectionState = 'connected';
-            })
-            .catch(err => {
-                console.error('SignalR connection failed: ', err);
-                this.connectionState = 'disconnected';
-            });
+        try {
+            await this.connection.start();
+            console.log('SignalR connected successfully.');
+            this.connectionState = 'connected';
+            return Promise.resolve();
+        } catch (err) {
+            console.error('SignalR connection failed: ', err);
+            this.connectionState = 'disconnected';
+            return Promise.reject(err);
+        }
     }
 
     stop() {
@@ -66,15 +71,30 @@ class SignalRService {
         }
     }
 
-    joinLobby(lobbyId) {
+    async joinLobby(lobbyId) {
+        if (this.connectionState === 'disconnected') {
+            await this.start();
+        }
+        
         if (this.connection && this.connectionState === 'connected') {
-            this.connection.invoke('JoinLobby', lobbyId).catch(err => console.error(err));
+            console.log('SignalR: Joining lobby', lobbyId);
+            try {
+                await this.connection.invoke('JoinLobby', lobbyId.toString());
+                console.log('SignalR: Successfully joined lobby', lobbyId);
+            } catch (err) {
+                console.error('SignalR: Failed to join lobby', err);
+            }
+        } else {
+            console.log('SignalR: Cannot join lobby - connection not ready', this.connectionState);
         }
     }
 
     leaveLobby(lobbyId) {
         if (this.connection && this.connectionState === 'connected') {
-            this.connection.invoke('LeaveLobby', lobbyId).catch(err => console.error(err));
+            console.log('SignalR: Leaving lobby', lobbyId);
+            this.connection.invoke('LeaveLobby', lobbyId.toString()).catch(err => {
+                console.error('SignalR: Failed to leave lobby', err);
+            });
         }
     }
 

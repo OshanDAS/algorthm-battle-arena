@@ -40,6 +40,8 @@ builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+builder.Services.AddScoped<IStatisticsRepository, StatisticsRepository>();
+
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<ProblemImportService>();
 builder.Services.AddScoped<ProblemImportValidator>();
@@ -144,7 +146,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 // SignalR hubs
-app.MapHub<MatchHub>("/matchhub");
 app.MapHub<MatchHub>("/lobbyHub");
 
 app.Run();

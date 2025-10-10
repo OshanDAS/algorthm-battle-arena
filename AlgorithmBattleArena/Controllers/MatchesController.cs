@@ -2,6 +2,7 @@ using AlgorithmBattleArina.Hubs;
 using AlgorithmBattleArina.Models;
 using AlgorithmBattleArina.Repositories;
 using AlgorithmBattleArina.Dtos;
+using AlgorithmBattleArina.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -35,6 +36,7 @@ namespace AlgorithmBattleArina.Controllers
         /// The caller must be the host for that lobby (IsHost check).
         /// Broadcasts a single MatchStarted DTO to the lobby group.
         /// </summary>
+        [StudentOrAdmin]
         [HttpPost("{lobbyId:int}/start")]
         public async Task<IActionResult> StartMatch(int lobbyId, [FromBody] StartMatchRequest request)
         {
@@ -58,11 +60,27 @@ namespace AlgorithmBattleArina.Controllers
                 SentAtUtc = DateTime.UtcNow
             };
 
-            await _hubContext.Clients.All.SendAsync("MatchStarted", dto);
+            Console.WriteLine($"Broadcasting MatchStarted to lobby group {lobbyId} with {dto.ProblemIds.Count} problems");
+            await _hubContext.Clients.Group(lobbyId.ToString()).SendAsync("MatchStarted", dto);
+            Console.WriteLine($"MatchStarted broadcast sent to lobby group {lobbyId}");
 
             await _lobbyRepository.UpdateLobbyStatus(lobbyId, "InProgress");
 
             return Ok(dto);
+        }
+
+        [HttpGet("{matchId:int}/leaderboard")]
+        public async Task<IActionResult> GetMatchLeaderboard(int matchId)
+        {
+            var leaderboard = await _matchRepository.GetMatchLeaderboard(matchId);
+            return Ok(leaderboard);
+        }
+
+        [HttpGet("leaderboard/global")]
+        public async Task<IActionResult> GetGlobalLeaderboard()
+        {
+            var leaderboard = await _matchRepository.GetGlobalLeaderboard();
+            return Ok(leaderboard);
         }
     }
 }
