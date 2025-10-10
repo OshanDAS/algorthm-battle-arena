@@ -1,5 +1,4 @@
 using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Services;
 using AlgorithmBattleArina.Repositories;
 using AlgorithmBattleArina.Helpers;
 using AlgorithmBattleArina.Models;
@@ -7,14 +6,14 @@ using Xunit;
 
 namespace AlgorithmBattleArena.Tests;
 
-public class ProblemImportValidatorTests
+public class ProblemImportValidationTests
 {
-    private readonly ProblemImportValidator _validator;
+    private readonly ProblemImportRepository _repository;
 
-    public ProblemImportValidatorTests()
+    public ProblemImportValidationTests()
     {
         var mockRepository = new MockProblemRepository();
-        _validator = new ProblemImportValidator(mockRepository);
+        _repository = new ProblemImportRepository(mockRepository);
     }
 
     [Fact]
@@ -34,7 +33,7 @@ public class ProblemImportValidatorTests
             }
         };
 
-        var errors = await _validator.ValidateAsync(problem, 1);
+        var errors = await _repository.ValidateAsync(problem, 1);
 
         Assert.Empty(errors);
     }
@@ -50,7 +49,7 @@ public class ProblemImportValidatorTests
         var problem = CreateValidProblem();
         problem.Slug = slug;
 
-        var errors = await _validator.ValidateAsync(problem, 1);
+        var errors = await _repository.ValidateAsync(problem, 1);
 
         // Note: Current implementation skips slug validation, so this test may pass
         Assert.True(errors.Count >= 0);
@@ -62,7 +61,7 @@ public class ProblemImportValidatorTests
         var problem = CreateValidProblem();
         problem.Title = "";
 
-        var errors = await _validator.ValidateAsync(problem, 1);
+        var errors = await _repository.ValidateAsync(problem, 1);
 
         Assert.Contains(errors, e => e.Field == "title" && e.Message == "Title is required");
     }
@@ -73,7 +72,7 @@ public class ProblemImportValidatorTests
         var problem = CreateValidProblem();
         problem.Title = new string('a', 201);
 
-        var errors = await _validator.ValidateAsync(problem, 1);
+        var errors = await _repository.ValidateAsync(problem, 1);
 
         Assert.Contains(errors, e => e.Field == "title" && e.Message.Contains("200 characters"));
     }
@@ -84,7 +83,7 @@ public class ProblemImportValidatorTests
         var problem = CreateValidProblem();
         problem.Description = "";
 
-        var errors = await _validator.ValidateAsync(problem, 1);
+        var errors = await _repository.ValidateAsync(problem, 1);
 
         Assert.Contains(errors, e => e.Field == "description" && e.Message == "Description is required");
     }
@@ -99,7 +98,7 @@ public class ProblemImportValidatorTests
         var problem = CreateValidProblem();
         problem.Difficulty = difficulty;
 
-        var errors = await _validator.ValidateAsync(problem, 1);
+        var errors = await _repository.ValidateAsync(problem, 1);
 
         if (string.IsNullOrEmpty(difficulty))
             Assert.Contains(errors, e => e.Field == "difficulty" && e.Message == "Difficulty is required");
@@ -119,7 +118,7 @@ public class ProblemImportValidatorTests
         var problem = CreateValidProblem();
         problem.Difficulty = difficulty;
 
-        var errors = await _validator.ValidateAsync(problem, 1);
+        var errors = await _repository.ValidateAsync(problem, 1);
 
         Assert.Empty(errors);
     }
@@ -130,7 +129,7 @@ public class ProblemImportValidatorTests
         var problem = CreateValidProblem();
         problem.TestCases = Array.Empty<ImportTestCaseDto>();
 
-        var errors = await _validator.ValidateAsync(problem, 1);
+        var errors = await _repository.ValidateAsync(problem, 1);
 
         Assert.Contains(errors, e => e.Field == "testCases" && e.Message == "At least one test case required");
     }
@@ -141,7 +140,7 @@ public class ProblemImportValidatorTests
         var problem = CreateValidProblem();
         problem.TestCases[0].Input = "";
 
-        var errors = await _validator.ValidateAsync(problem, 1);
+        var errors = await _repository.ValidateAsync(problem, 1);
 
         Assert.Contains(errors, e => e.Field == "testCases[0].input" && e.Message.Contains("cannot be empty"));
     }
@@ -152,7 +151,7 @@ public class ProblemImportValidatorTests
         var problem = CreateValidProblem();
         problem.TestCases[0].ExpectedOutput = "";
 
-        var errors = await _validator.ValidateAsync(problem, 1);
+        var errors = await _repository.ValidateAsync(problem, 1);
 
         Assert.Contains(errors, e => e.Field == "testCases[0].expectedOutput" && e.Message.Contains("cannot be empty"));
     }
@@ -169,7 +168,7 @@ public class ProblemImportValidatorTests
         var allErrors = new List<ImportErrorDto>();
         for (int i = 0; i < problems.Length; i++)
         {
-            var errors = await _validator.ValidateAsync(problems[i], i + 1);
+            var errors = await _repository.ValidateAsync(problems[i], i + 1);
             allErrors.AddRange(errors);
         }
 
@@ -185,7 +184,7 @@ public class ProblemImportValidatorTests
             new ImportedProblemDto { Slug = "invalid", Title = "", Description = "desc", Difficulty = "Easy" }
         };
 
-        var errors = await _validator.ValidateAsync(problems[1], 2);
+        var errors = await _repository.ValidateAsync(problems[1], 2);
 
         Assert.Contains(errors, e => e.Row == 2 && e.Field == "title");
     }

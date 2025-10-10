@@ -3,7 +3,6 @@ using AlgorithmBattleArina.Repositories;
 using AlgorithmBattleArina.Helpers;
 using AlgorithmBattleArina.Hubs;
 using AlgorithmBattleArina.Middleware;
-using AlgorithmBattleArina.Services;
 // using Microsoft.EntityFrameworkCore; // Removed - using Dapper only
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -43,8 +42,7 @@ builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
 builder.Services.AddScoped<IStatisticsRepository, StatisticsRepository>();
 
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
-builder.Services.AddScoped<ProblemImportService>();
-builder.Services.AddScoped<ProblemImportValidator>();
+builder.Services.AddScoped<IProblemImportRepository, ProblemImportRepository>();
 builder.Services.AddSingleton<AuthHelper>();
 
 // JWT Authentication configuration
