@@ -73,6 +73,10 @@
 }
 ```
 
+**Error Responses:**
+- `401 Unauthorized` - Invalid credentials
+- `401 Unauthorized` - Account has been deactivated
+
 ### Refresh Token
 
 **Endpoint:** `GET /api/Auth/refresh/token`  
@@ -303,9 +307,9 @@
 
 ## Problems
 
-### Create or Update Problem
+### Create Problem
 
-**Endpoint:** `POST /api/Problems/UpsertProblem`  
+**Endpoint:** `POST /api/Problems`  
 **Authorization:** Admin Only
 
 **Request Body:**
@@ -313,22 +317,52 @@
 {
   "title": "string",
   "description": "string",
-  "difficultyLevel": "string",
+  "difficulty": "string",
   "category": "string",
-  "timeLimit": 0,
-  "memoryLimit": 0,
-  "createdBy": "string",
-  "tags": "string",
-  "testCases": "string",
-  "solutions": "string"
+  "isPublic": true,
+  "isActive": true,
+  "testCases": [
+    {
+      "input": "string",
+      "expectedOutput": "string",
+      "isSample": true
+    }
+  ]
+}
+```
+
+**Response:** `201 Created`
+```json
+{
+  "problemId": 123,
+  "message": "Problem created successfully"
+}
+```
+
+### Update Problem
+
+**Endpoint:** `PUT /api/Problems/{id}`  
+**Authorization:** Admin Only
+
+**Path Parameters:**
+- `id` (integer) - Problem ID
+
+**Request Body:**
+```json
+{
+  "title": "string",
+  "description": "string",
+  "difficulty": "string",
+  "category": "string",
+  "isPublic": true,
+  "isActive": true
 }
 ```
 
 **Response:** `200 OK`
 ```json
 {
-  "message": "Problem upserted successfully.",
-  "problemId": 0
+  "message": "Problem updated successfully"
 }
 ```
 
@@ -454,6 +488,195 @@
 }
 ```
 
+## Admin
+
+### Get Users
+
+**Endpoint:** `GET /api/Admin/users`  
+**Authorization:** Admin Only
+
+**Query Parameters:**
+- `q` (string, optional) - Search by name or email
+- `role` (string, optional) - Filter by role ("Student" or "Teacher")
+- `page` (integer, optional, default: 1) - Page number
+- `pageSize` (integer, optional, default: 25) - Items per page
+
+**Response:** `200 OK`
+```json
+{
+  "items": [
+    {
+      "id": "Student:123",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "role": "Student",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "total": 100
+}
+```
+
+### Toggle User Active Status
+
+**Endpoint:** `PUT /api/Admin/users/{id}/deactivate`  
+**Authorization:** Admin Only
+
+**Path Parameters:**
+- `id` (string) - User ID in format "Role:UserId" (e.g., "Student:123")
+
+**Request Body:**
+```json
+{
+  "deactivate": true
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "id": "Student:123",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "role": "Student",
+  "isActive": false,
+  "createdAt": "2024-01-01T00:00:00Z"
+}
+```
+
+### Import Problems
+
+**Endpoint:** `POST /api/Admin/problems/import`  
+**Authorization:** Admin Only
+
+**Request Body:** 
+- **File Upload:** `multipart/form-data` with JSON or CSV file
+- **JSON Body:** Array of problem objects
+
+**JSON Format:**
+```json
+[
+  {
+    "title": "Two Sum",
+    "description": "Given an array of integers...",
+    "difficulty": "Easy",
+    "isPublic": true,
+    "isActive": true,
+    "testCases": [
+      {
+        "input": "[2,7,11,15]\n9",
+        "expectedOutput": "[0,1]",
+        "isSample": true
+      }
+    ]
+  }
+]
+```
+
+**Response:** `200 OK`
+```json
+{
+  "ok": true,
+  "inserted": 5,
+  "message": "Successfully imported 5 problems"
+}
+```
+
+**Error Response:** `400 Bad Request`
+```json
+{
+  "ok": false,
+  "errors": [
+    "Row 1, title: Title is required",
+    "Row 2, difficulty: Invalid difficulty level"
+  ]
+}
+```
+
+## Students
+
+### Request Teacher
+
+**Endpoint:** `POST /api/Students/request`  
+**Authorization:** Student Only
+
+**Request Body:**
+```json
+123
+```
+
+**Response:** `200 OK`
+```json
+{
+  "requestId": 456
+}
+```
+
+### Accept Student Request
+
+**Endpoint:** `PUT /api/Students/{requestId}/accept`  
+**Authorization:** Teacher Only
+
+**Path Parameters:**
+- `requestId` (integer) - The student request ID
+
+**Response:** `200 OK`
+
+### Reject Student Request
+
+**Endpoint:** `PUT /api/Students/{requestId}/reject`  
+**Authorization:** Teacher Only
+
+**Path Parameters:**
+- `requestId` (integer) - The student request ID
+
+**Response:** `200 OK`
+
+### Get Students by Status
+
+**Endpoint:** `GET /api/Students`  
+**Authorization:** Teacher Only
+
+**Query Parameters:**
+- `status` (string, required) - Filter by status ("Pending", "Accepted", etc.)
+
+**Response:** `200 OK`
+```json
+{
+  "data": [
+    {
+      "requestId": 456,
+      "studentId": 123,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "status": "Pending"
+    }
+  ]
+}
+```
+
+## Teachers
+
+### Get All Teachers
+
+**Endpoint:** `GET /api/Teachers`  
+**Authorization:** Bearer Token Required
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "teacherId": 1,
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "fullName": "Jane Smith",
+    "email": "jane.smith@example.com",
+    "active": true
+  }
+]
+```
+
 ## SignalR Hub
 
 ### Hub Endpoint
@@ -513,6 +736,8 @@
 
 - **Anonymous:** No authentication required
 - **Bearer Token Required:** Valid JWT token required
+- **Student Only:** Student role required
+- **Teacher Only:** Teacher role required
 - **Student or Admin:** Student or Admin role required
 - **Admin Only:** Admin role required
 - **Host Only:** Must be the lobby host
@@ -533,6 +758,18 @@
 }
 ```
 
+```json
+{
+  "message": "Account has been deactivated"
+}
+```
+
+```json
+{
+  "message": "User not found or not a student"
+}
+```
+
 ### 403 Forbidden
 ```json
 {
@@ -544,6 +781,19 @@
 ```json
 {
   "message": "Resource not found"
+}
+```
+
+### 413 Payload Too Large
+```json
+{
+  "message": "File too large"
+}
+```
+
+```json
+{
+  "message": "Too many rows. Maximum 1000 allowed."
 }
 ```
 
