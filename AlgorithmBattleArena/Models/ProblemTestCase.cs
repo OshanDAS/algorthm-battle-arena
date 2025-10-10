@@ -17,7 +17,7 @@ namespace AlgorithmBattleArina.Models
         [Required]
         public string ExpectedOutput { get; set; } = null!;
         
-        public bool IsSample { get; set; }
+        public bool IsSample { get; set; } = false;
         
         
         public virtual Problem? Problem { get; set; }

@@ -42,10 +42,16 @@ public class ProblemImportService
             DifficultyLevel = dto.Difficulty,
             IsPublic = dto.IsPublic,
             IsActive = dto.IsActive,
+            Category = "Imported",
+            TimeLimit = dto.TimeLimitMs > 0 ? dto.TimeLimitMs : 1000,
+            MemoryLimit = dto.MemoryLimitMb > 0 ? dto.MemoryLimitMb : 128,
+            CreatedBy = "System",
+            Tags = dto.Tags?.Length > 0 ? System.Text.Json.JsonSerializer.Serialize(dto.Tags) : "[]",
             TestCases = dto.TestCases.Select(tc => new ProblemTestCase
             {
                 InputData = tc.Input,
-                ExpectedOutput = tc.ExpectedOutput
+                ExpectedOutput = tc.ExpectedOutput,
+                IsSample = tc.IsSample
             }).ToList()
         }).ToList();
 

@@ -174,8 +174,8 @@ namespace AlgorithmBattleArina.Repositories
         {
             const string sql = @"
                 INSERT INTO AlgorithmBattleArinaSchema.Problems 
-                (Slug, Title, Description, DifficultyLevel, IsPublic, IsActive)
-                VALUES (@Slug, @Title, @Description, @Difficulty, @IsPublic, @IsActive);
+                (Slug, Title, Description, DifficultyLevel, IsPublic, IsActive, Category, TimeLimit, MemoryLimit, CreatedBy, Tags)
+                VALUES (@Slug, @Title, @Description, @DifficultyLevel, @IsPublic, @IsActive, @Category, @TimeLimit, @MemoryLimit, @CreatedBy, @Tags);
                 SELECT CAST(SCOPE_IDENTITY() as int);";
 
             return await connection.QuerySingleAsync<int>(sql, new
@@ -183,9 +183,14 @@ namespace AlgorithmBattleArina.Repositories
                 problem.Slug,
                 problem.Title,
                 problem.Description,
-                problem.Difficulty,
+                problem.DifficultyLevel,
                 problem.IsPublic,
-                problem.IsActive
+                problem.IsActive,
+                problem.Category,
+                problem.TimeLimit,
+                problem.MemoryLimit,
+                problem.CreatedBy,
+                problem.Tags
             }, transaction);
         }
 
@@ -193,16 +198,17 @@ namespace AlgorithmBattleArina.Repositories
         {
             const string sql = @"
                 INSERT INTO AlgorithmBattleArinaSchema.ProblemTestCases 
-                (ProblemId, Input, ExpectedOutput)
-                VALUES (@ProblemId, @Input, @ExpectedOutput)";
+                (ProblemId, Input, ExpectedOutput, IsSample)
+                VALUES (@ProblemId, @Input, @ExpectedOutput, @IsSample)";
 
             foreach (var testCase in testCases)
             {
                 await connection.ExecuteAsync(sql, new
                 {
                     ProblemId = problemId,
-                    testCase.Input,
-                    testCase.ExpectedOutput
+                    Input = testCase.InputData,
+                    testCase.ExpectedOutput,
+                    testCase.IsSample
                 }, transaction);
             }
         }
