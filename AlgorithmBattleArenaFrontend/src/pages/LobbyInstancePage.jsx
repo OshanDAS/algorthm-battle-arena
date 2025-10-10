@@ -60,7 +60,15 @@ export default function LobbyInstancePage() {
 
         fetchLobby();
 
-        signalRService.joinLobby(lobbyId);
+        // Ensure SignalR connection and join lobby
+        const joinLobbyAsync = async () => {
+            try {
+                await signalRService.joinLobby(lobbyId);
+            } catch (error) {
+                console.error('Failed to join SignalR lobby:', error);
+            }
+        };
+        joinLobbyAsync();
 
         const unsubscribeLobbyUpdated = signalRService.onLobbyUpdated(updatedLobby => {
             if (updatedLobby.lobbyId.toString() === lobbyId) {
@@ -69,8 +77,9 @@ export default function LobbyInstancePage() {
         });
 
         const unsubscribeMatchStarted = signalRService.onMatchStarted(match => {
+            console.log('MatchStarted event received:', match);
             alert('MatchStarted event received!');
-            navigate('/match', { state: { match } });
+            navigate(`/match/${match.matchId}`, { state: { match } });
         });
 
         const unsubscribeLobbyDeleted = signalRService.onLobbyDeleted(() => {
@@ -86,12 +95,36 @@ export default function LobbyInstancePage() {
     }, [lobbyId, navigate, signalRService]);
 
     const handleStartGame = async () => {
-        if (!isHost || selectedProblems.length === 0) return;
+        if (!isHost) {
+            console.log('Not host, cannot start game');
+            return;
+        }
+        if (selectedProblems.length === 0) {
+            console.log('No problems selected');
+            alert('Please select problems before starting the match');
+            return;
+        }
+        
+        console.log('Starting match with:', { 
+            lobbyId, 
+            problemIds: selectedProblems.map(p => p.problemId), 
+            durationSec 
+        });
+        
         try {
-            await apiService.matches.start(lobbyId, { problemIds: selectedProblems.map(p => p.problemId), durationSec });
+            const response = await apiService.matches.start(lobbyId, { 
+                problemIds: selectedProblems.map(p => p.problemId), 
+                durationSec,
+                preparationBufferSec: 5
+            });
+            console.log('Match start response:', response.data);
+            
+            // Navigate directly to match page with the match data
+            navigate(`/match/${response.data.matchId}`, { state: { match: response.data } });
         } catch (error) {
             console.error('Failed to start match:', error);
-            alert('Failed to start match: ' + (error.response?.data?.message || error.message));
+            const errorMessage = error.response?.data?.message || error.response?.data || error.message;
+            alert('Failed to start match: ' + errorMessage);
         }
     };
 
@@ -121,13 +154,15 @@ export default function LobbyInstancePage() {
             await apiService.lobbies.join(lobby.lobbyCode);
         } catch (error) {
             console.error('Failed to join lobby:', error);
+            const errorMessage = error.response?.data?.message || error.response?.data || 'Failed to join lobby';
+            alert(errorMessage);
         }
     };
 
     const handleLeaveLobby = async () => {
         try {
             await apiService.lobbies.leave(lobbyId);
-            navigate('/lobby');
+            navigate('/lobby', { replace: true });
         } catch (error) {
             console.error('Failed to leave lobby:', error);
         }

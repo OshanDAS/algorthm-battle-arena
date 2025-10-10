@@ -7,6 +7,7 @@ using System.Security.Claims;
 using AlgorithmBattleArina.Dtos;
 using System.Threading.Tasks;
 using System;
+using System.Linq;
 using Microsoft.AspNetCore.SignalR;
 using AlgorithmBattleArina.Hubs;
 
@@ -49,13 +50,25 @@ namespace AlgorithmBattleArina.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateLobby([FromBody] LobbyCreateDto request)
         {
-            var hostEmail = _authHelper.GetEmailFromClaims(User);
-            if (string.IsNullOrEmpty(hostEmail)) return Unauthorized();
+            try
+            {
+                var hostEmail = _authHelper.GetEmailFromClaims(User);
+                if (string.IsNullOrEmpty(hostEmail)) return Unauthorized();
 
-            var lobbyCode = GenerateLobbyCode();
-            var lobby = await _lobbyRepository.CreateLobby(request.Name, request.MaxPlayers, request.Mode, request.Difficulty, hostEmail, lobbyCode);
-            
-            return CreatedAtAction(nameof(GetLobby), new { lobbyId = lobby.LobbyId }, lobby);
+                var lobbyCode = GenerateLobbyCode();
+                var lobby = await _lobbyRepository.CreateLobby(request.Name, request.MaxPlayers, request.Mode, request.Difficulty, hostEmail, lobbyCode);
+                
+                if (lobby == null)
+                {
+                    return StatusCode(500, new { message = "Failed to create lobby" });
+                }
+                
+                return CreatedAtAction(nameof(GetLobby), new { lobbyId = lobby.LobbyId }, lobby);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Failed to create lobby", error = ex.Message });
+            }
         }
 
         [StudentOrAdmin]

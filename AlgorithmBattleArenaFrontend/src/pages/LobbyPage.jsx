@@ -41,16 +41,40 @@ export default function LobbyPage() {
 
   useEffect(() => {
     const fetchLobbies = async () => {
+      setIsLoading(true);
+      console.log('Fetching lobbies...');
       try {
         const response = await apiService.lobbies.getAll();
+        console.log('Lobbies fetched successfully:', response.data);
         setLobbies(response.data);
       } catch (error) {
         console.error('Failed to fetch lobbies:', error);
+        console.error('Error details:', error.response);
       }
       setIsLoading(false);
     };
 
     fetchLobbies();
+  }, []);
+
+  // Refresh lobbies when component becomes visible again
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        const fetchLobbies = async () => {
+          try {
+            const response = await apiService.lobbies.getAll();
+            setLobbies(response.data);
+          } catch (error) {
+            console.error('Failed to fetch lobbies:', error);
+          }
+        };
+        fetchLobbies();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   const handleCreateLobby = async (lobbyData) => {
@@ -60,15 +84,22 @@ export default function LobbyPage() {
       navigate(`/lobby/${response.data.lobbyId}?new=true`);
     } catch (error) {
       console.error('Failed to create lobby:', error);
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to create lobby';
+      alert(errorMessage);
     }
   };
 
   const handleJoinLobby = async (lobbyCode) => {
+    console.log('Attempting to join lobby with code:', lobbyCode);
     try {
       const response = await apiService.lobbies.join(lobbyCode);
+      console.log('Join lobby response:', response.data);
       navigate(`/lobby/${response.data.lobbyId}`);
     } catch (error) {
       console.error('Failed to join lobby:', error);
+      console.error('Error details:', error.response);
+      const errorMessage = error.response?.data?.message || error.response?.data || 'Failed to join lobby';
+      alert(errorMessage);
     }
   };
 
