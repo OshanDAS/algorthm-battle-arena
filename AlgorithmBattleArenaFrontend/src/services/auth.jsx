@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import jwtDecode from "jwt-decode";
 import { getToken, setToken as saveToken, clearToken } from "./tokenStorage";
 import apiService from "./api";
@@ -16,6 +17,7 @@ const parseUserFromToken = (token) => {
 }
 
 export function AuthProvider({ children }) {
+  const navigate = useNavigate();
   const [token, setTokenState] = useState(() => getToken());
   const [user, setUser] = useState(() => parseUserFromToken(getToken()));
 
@@ -67,6 +69,7 @@ export function AuthProvider({ children }) {
     setTokenState(null);
     setUser(null);
     apiService.setAuthToken(null);
+    navigate('/login');
   };
 
   return (

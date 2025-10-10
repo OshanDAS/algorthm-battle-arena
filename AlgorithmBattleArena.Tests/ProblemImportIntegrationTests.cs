@@ -7,9 +7,6 @@ using AlgorithmBattleArina.Controllers;
 using AlgorithmBattleArina.Data;
 using AlgorithmBattleArina.Dtos;
 using AlgorithmBattleArina.Services;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -41,11 +38,8 @@ public class ProblemImportIntegrationTests : IDisposable
 
         _context = new TestDataContextEF(config, options);
         var logger = new TestLogger<AdminController>();
-        var mockProblemRepo = new MockProblemRepository();
-        var validator = new ProblemImportValidator(mockProblemRepo);
-        var importService = new ProblemImportService(mockProblemRepo, validator);
-        var mockAdminRepo = new MockAdminRepository(_context);
-        _controller = new AdminController(mockAdminRepo, logger, importService);
+        var importService = new ProblemImportService(_context);
+        _controller = new AdminController(_context, logger, importService);
 
         // Set up admin authentication
         SetupAdminAuth();
@@ -78,7 +72,7 @@ public class ProblemImportIntegrationTests : IDisposable
         // Check if it's a success response (200) or error (500)
         if (objectResult.StatusCode == 500)
         {
-            Assert.Fail("Import failed with 500 error - check controller implementation");
+            Assert.True(false, "Import failed with 500 error - check controller implementation");
             return;
         }
         
@@ -86,7 +80,19 @@ public class ProblemImportIntegrationTests : IDisposable
         var importResult = Assert.IsType<ImportResultDto>(objectResult.Value);
         
         Assert.True(importResult.Ok);
-        Assert.True(importResult.Inserted > 0);
+        Assert.Equal(2, importResult.Inserted);
+        Assert.Contains("test-problem-1", importResult.Slugs);
+        Assert.Contains("test-problem-2", importResult.Slugs);
+
+        // Verify database contains inserted problems
+        var dbProblems = await _context.Problems.ToListAsync();
+        Assert.Equal(2, dbProblems.Count);
+        Assert.Contains(dbProblems, p => p.Title == "Test Problem 1");
+        Assert.Contains(dbProblems, p => p.Title == "Test Problem 2");
+
+        // Verify test cases were created
+        var testCases = await _context.ProblemTestCases.ToListAsync();
+        Assert.Equal(2, testCases.Count);
     }
 
     [Fact]
@@ -108,10 +114,17 @@ public class ProblemImportIntegrationTests : IDisposable
         Assert.False(importResult.Ok);
         Assert.NotEmpty(importResult.Errors);
 
-        // Verify validation errors exist
+        // Verify specific validation errors
         var errors = importResult.Errors;
-        Assert.Contains(errors, e => e.Field == "title" && e.Message == "Title is required");
-        Assert.Contains(errors, e => e.Field == "testCases" && e.Message == "At least one test case required");
+        Assert.Contains(errors, e => e.Row == 1 && e.Field == "slug" && e.Message == "Slug is required");
+        Assert.Contains(errors, e => e.Row == 1 && e.Field == "title" && e.Message == "Title is required");
+        Assert.Contains(errors, e => e.Row == 1 && e.Field == "difficulty" && e.Message.Contains("Easy, Medium, Hard"));
+        Assert.Contains(errors, e => e.Row == 1 && e.Field == "timeLimitMs" && e.Message == "Time limit must be positive");
+        Assert.Contains(errors, e => e.Row == 1 && e.Field == "testCases" && e.Message == "At least one test case required");
+
+        // Verify no data was inserted due to validation failure
+        var dbProblems = await _context.Problems.ToListAsync();
+        Assert.Empty(dbProblems);
     }
 
     [Fact]
@@ -244,30 +257,5 @@ public class ProblemImportIntegrationTests : IDisposable
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
         public bool IsEnabled(LogLevel logLevel) => false;
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) { }
-    }
-
-    private class MockProblemRepository : IProblemRepository
-    {
-        public Task<int> UpsertProblem(ProblemUpsertDto dto) => Task.FromResult(1);
-        public Task<PagedResult<ProblemListDto>> GetProblems(ProblemFilterDto filter) => Task.FromResult(new PagedResult<ProblemListDto>());
-        public Task<ProblemResponseDto?> GetProblem(int id) => Task.FromResult<ProblemResponseDto?>(null);
-        public Task<bool> DeleteProblem(int id) => Task.FromResult(true);
-        public Task<IEnumerable<string>> GetCategories() => Task.FromResult(Enumerable.Empty<string>());
-        public Task<IEnumerable<string>> GetDifficultyLevels() => Task.FromResult(Enumerable.Empty<string>());
-        public Task<IEnumerable<Problem>> GetRandomProblems(string language, string difficulty, int maxProblems) => Task.FromResult(Enumerable.Empty<Problem>());
-        public Task<int> ImportProblemsAsync(IEnumerable<Problem> problems) => Task.FromResult(problems.Count());
-        public Task<bool> SlugExistsAsync(string slug) => Task.FromResult(false);
-    }
-
-    private class MockAdminRepository : IAdminRepository
-    {
-        private readonly DataContextEF _context;
-        public MockAdminRepository(DataContextEF context) => _context = context;
-        
-        public Task<PagedResult<AdminUserDto>> GetUsersAsync(string? q, string? role, int page, int pageSize) => 
-            Task.FromResult(new PagedResult<AdminUserDto>());
-        
-        public Task<AdminUserDto?> ToggleUserActiveAsync(string id, bool deactivate) => 
-            Task.FromResult<AdminUserDto?>(null);
     }
 }

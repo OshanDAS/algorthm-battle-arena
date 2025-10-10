@@ -48,7 +48,9 @@ namespace AlgorithmBattleArina.Hubs
             if (string.IsNullOrEmpty(userEmail))
                 throw new HubException("User not authenticated");
 
+            Console.WriteLine($"SignalR: User {userEmail} joining lobby group {lobbyId}");
             await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId);
+            Console.WriteLine($"SignalR: User {userEmail} successfully joined lobby group {lobbyId}");
             await BroadcastLobbyUpdate(lobbyIdInt);
         }
 

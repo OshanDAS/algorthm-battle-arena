@@ -38,12 +38,26 @@ namespace AlgorithmBattleArina.Controllers
                 ParticipantEmail = userEmail,
                 Language = dto.Language,
                 Code = dto.Code,
-                Status = "Submitted"
+                Status = dto.Status,
+                Score = dto.Score
             };
 
             var submissionId = await _submissionRepository.CreateSubmission(submission);
 
             return Ok(new { SubmissionId = submissionId });
+        }
+
+        [HttpGet("match/{matchId}/user")]
+        public async Task<IActionResult> GetUserSubmissions(int matchId)
+        {
+            var userEmail = _authHelper.GetEmailFromClaims(User);
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return Unauthorized();
+            }
+
+            var submissions = await _submissionRepository.GetSubmissionsByMatchAndUser(matchId, userEmail);
+            return Ok(submissions);
         }
     }
 }

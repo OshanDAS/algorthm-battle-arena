@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BarChart, User, Users, Trophy, Swords, PlayCircle } from 'lucide-react';
+import apiService from '../services/api';
+import { useAuth } from '../services/auth';
 
 const StatCard = ({ icon, label, value }) => (
   <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-2xl flex items-center space-x-4 transform hover:scale-105 transition-transform duration-300">
@@ -38,6 +40,29 @@ const LobbyContestItem = ({ name, participants, buttonText }) => (
 );
 
 export default function StudentDashboard() {
+  const { user } = useAuth();
+  const [stats, setStats] = useState({ rank: 0, matchesPlayed: 0, winRate: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUserStats();
+  }, []);
+
+  const fetchUserStats = async () => {
+    try {
+      const response = await apiService.statistics.getUserStatistics();
+      setStats({
+        rank: response.data.rank || 0,
+        matchesPlayed: response.data.matchesPlayed || 0,
+        winRate: Math.round(response.data.winRate || 0)
+      });
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 relative text-white">
       <div className="absolute inset-0 overflow-hidden">
@@ -51,17 +76,17 @@ export default function StudentDashboard() {
           <div className="flex items-center space-x-4">
             <img src="/src/assets/react.svg" alt="Profile" className="h-12 w-12 rounded-full bg-white/10 border border-white/20" />
             <div>
-              <p className="font-semibold">Student Name</p>
-              <p className="text-sm text-gray-400">student@example.com</p>
+              <p className="font-semibold">{user?.email || 'Student'}</p>
+              <p className="text-sm text-gray-400">{user?.email}</p>
             </div>
           </div>
         </header>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <StatCard icon={<Trophy className="h-10 w-10 text-yellow-400" />} label="Rank" value="#1,234" />
-          <StatCard icon={<BarChart className="h-10 w-10 text-blue-400" />} label="Matches Played" value="88" />
-          <StatCard icon={<Swords className="h-10 w-10 text-red-400" />} label="Win Rate" value="56%" />
+          <StatCard icon={<Trophy className="h-10 w-10 text-yellow-400" />} label="Rank" value={loading ? "..." : `#${stats.rank}`} />
+          <StatCard icon={<BarChart className="h-10 w-10 text-blue-400" />} label="Matches Played" value={loading ? "..." : stats.matchesPlayed} />
+          <StatCard icon={<Swords className="h-10 w-10 text-red-400" />} label="Win Rate" value={loading ? "..." : `${stats.winRate}%`} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -117,11 +142,18 @@ export default function StudentDashboard() {
 
             {/* Leaderboard */}
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 shadow-2xl rounded-2xl p-6">
-              <h3 className="text-xl font-semibold mb-4">Leaderboard</h3>
-               <div className="space-y-3">
-                  <p className="text-gray-300">1. TopPlayer</p>
-                  <p className="text-gray-300">2. CodeMaster</p>
-                  <p className="text-gray-300">3. AlgoQueen</p>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold">Leaderboard</h3>
+                <Link to="/leaderboard" className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                  View All
+                </Link>
+              </div>
+              <div className="space-y-3">
+                <p className="text-gray-300">Check your ranking</p>
+                <p className="text-gray-300">against other students</p>
+                <Link to="/leaderboard" className="inline-block mt-3 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors">
+                  View Leaderboard
+                </Link>
               </div>
             </div>
           </div>

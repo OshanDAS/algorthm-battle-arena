@@ -43,7 +43,7 @@ export default function ManageStudentsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white p-6">
       <div className="max-w-4xl mx-auto">
-        <Link to="/teacher-dashboard" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 mb-6">
+        <Link to="/teacher" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 mb-6">
           <ArrowLeft className="w-5 h-5" />
           Back to Dashboard
         </Link>
