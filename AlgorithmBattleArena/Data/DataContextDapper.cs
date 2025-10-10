@@ -17,7 +17,7 @@ namespace AlgorithmBattleArina.Data
             _config = config;
         }
 
-        private IDbConnection CreateConnection()
+        public IDbConnection CreateConnection()
         {
             var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION") ?? 
                                   _config.GetConnectionString("DefaultConnection");

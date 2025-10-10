@@ -16,8 +16,8 @@ namespace AlgorithmBattleArina.Repositories
 
         public async Task<int> CreateSubmission(Submission submission)
         {
-            var sql = @"INSERT INTO AlgorithmBattleArinaSchema.Submissions (MatchId, ProblemId, ParticipantEmail, Language, Code, Status) 
-                        VALUES (@MatchId, @ProblemId, @ParticipantEmail, @Language, @Code, @Status);
+            var sql = @"INSERT INTO AlgorithmBattleArinaSchema.Submissions (MatchId, ProblemId, ParticipantEmail, Language, Code, Status, Score) 
+                        VALUES (@MatchId, @ProblemId, @ParticipantEmail, @Language, @Code, @Status, @Score);
                         SELECT CAST(SCOPE_IDENTITY() as int)";
             
             var parameters = new DynamicParameters();
@@ -27,8 +27,22 @@ namespace AlgorithmBattleArina.Repositories
             parameters.Add("@Language", submission.Language);
             parameters.Add("@Code", submission.Code);
             parameters.Add("@Status", submission.Status);
+            parameters.Add("@Score", submission.Score);
 
             return await _dapper.LoadDataSingleAsync<int>(sql, parameters);
+        }
+
+        public async Task<IEnumerable<Submission>> GetSubmissionsByMatchAndUser(int matchId, string userEmail)
+        {
+            var sql = @"SELECT * FROM AlgorithmBattleArinaSchema.Submissions 
+                        WHERE MatchId = @MatchId AND ParticipantEmail = @ParticipantEmail 
+                        ORDER BY SubmittedAt DESC";
+            
+            var parameters = new DynamicParameters();
+            parameters.Add("@MatchId", matchId);
+            parameters.Add("@ParticipantEmail", userEmail);
+
+            return await _dapper.LoadDataAsync<Submission>(sql, parameters);
         }
     }
 }

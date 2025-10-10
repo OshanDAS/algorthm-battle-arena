@@ -1,4 +1,4 @@
-# CSP- Project - Algorithm Battle Arena
+# CSP_Project - Algorithm Battle Arena
 
 A **real-time competitive coding platform** built with modern .NET and web technologies.  
 Players face off head-to-head, solving algorithm problems while **live leaderboards** update in real-time.  

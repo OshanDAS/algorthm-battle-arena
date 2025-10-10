@@ -20,38 +20,67 @@ namespace AlgorithmBattleArina.Repositories
 
         public async Task<Lobby> CreateLobby(string lobbyName, int maxPlayers, string mode, string difficulty, string hostEmail, string lobbyCode)
         {
-            var sql = @"
-                INSERT INTO AlgorithmBattleArinaSchema.Lobbies (LobbyName, MaxPlayers, Mode, Difficulty, HostEmail, LobbyCode, Status)
-                VALUES (@LobbyName, @MaxPlayers, @Mode, @Difficulty, @HostEmail, @LobbyCode, 'Open');
-                SELECT CAST(SCOPE_IDENTITY() as int)";
-            
-            var parameters = new DynamicParameters();
-            parameters.Add("@LobbyName", lobbyName, DbType.String);
-            parameters.Add("@MaxPlayers", maxPlayers, DbType.Int32);
-            parameters.Add("@Mode", mode, DbType.String);
-            parameters.Add("@Difficulty", difficulty, DbType.String);
-            parameters.Add("@HostEmail", hostEmail, DbType.String);
-            parameters.Add("@LobbyCode", lobbyCode, DbType.String);
+            try
+            {
+                var sql = @"
+                    INSERT INTO AlgorithmBattleArinaSchema.Lobbies (LobbyName, MaxPlayers, Mode, Difficulty, HostEmail, LobbyCode, Status, IsPublic)
+                    VALUES (@LobbyName, @MaxPlayers, @Mode, @Difficulty, @HostEmail, @LobbyCode, 'Open', 1);
+                    SELECT CAST(SCOPE_IDENTITY() as int)";
+                
+                var parameters = new DynamicParameters();
+                parameters.Add("@LobbyName", lobbyName, DbType.String);
+                parameters.Add("@MaxPlayers", maxPlayers, DbType.Int32);
+                parameters.Add("@Mode", mode, DbType.String);
+                parameters.Add("@Difficulty", difficulty, DbType.String);
+                parameters.Add("@HostEmail", hostEmail, DbType.String);
+                parameters.Add("@LobbyCode", lobbyCode, DbType.String);
 
-            var lobbyId = await _dapper.LoadDataSingleAsync<int>(sql, parameters);
+                var lobbyId = await _dapper.LoadDataSingleAsync<int>(sql, parameters);
 
-            var participantSql = @"
-                INSERT INTO AlgorithmBattleArinaSchema.LobbyParticipants (LobbyId, ParticipantEmail, Role)
-                VALUES (@LobbyId, @ParticipantEmail, 'Host')";
-            
-            var participantParams = new DynamicParameters();
-            participantParams.Add("@LobbyId", lobbyId, DbType.Int32);
-            participantParams.Add("@ParticipantEmail", hostEmail, DbType.String);
+                if (lobbyId <= 0)
+                {
+                    throw new Exception("Failed to create lobby - invalid lobby ID returned");
+                }
 
-            await _dapper.ExecuteSqlAsync(participantSql, participantParams);
+                var participantSql = @"
+                    INSERT INTO AlgorithmBattleArinaSchema.LobbyParticipants (LobbyId, ParticipantEmail, Role)
+                    VALUES (@LobbyId, @ParticipantEmail, 'Host')";
+                
+                var participantParams = new DynamicParameters();
+                participantParams.Add("@LobbyId", lobbyId, DbType.Int32);
+                participantParams.Add("@ParticipantEmail", hostEmail, DbType.String);
 
-            return (await GetLobbyById(lobbyId))!;
+                var participantAdded = await _dapper.ExecuteSqlAsync(participantSql, participantParams);
+                
+                if (!participantAdded)
+                {
+                    throw new Exception("Failed to add host as participant");
+                }
+
+                var createdLobby = await GetLobbyById(lobbyId);
+                if (createdLobby == null)
+                {
+                    throw new Exception("Failed to retrieve created lobby");
+                }
+                
+                return createdLobby;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error creating lobby: {ex.Message}", ex);
+            }
         }
 
         public async Task<bool> JoinLobby(int lobbyId, string participantEmail)
         {
             var lobby = await GetLobbyById(lobbyId);
             if (lobby == null || lobby.Status != "Open" || lobby.Participants.Count >= lobby.MaxPlayers)
+            {
+                return false;
+            }
+
+            // Check if user is already a participant
+            if (lobby.Participants.Any(p => p.ParticipantEmail == participantEmail))
             {
                 return false;
             }

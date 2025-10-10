@@ -41,6 +41,7 @@ public class MatchesControllerTests
 
         _mockHubContext.Setup(h => h.Clients).Returns(_mockClients.Object);
         _mockClients.Setup(c => c.All).Returns(_mockClientProxy.Object);
+        _mockClients.Setup(c => c.Group(It.IsAny<string>())).Returns(_mockClientProxy.Object);
     }
 
     private MatchesController CreateController(string email = "test@test.com")

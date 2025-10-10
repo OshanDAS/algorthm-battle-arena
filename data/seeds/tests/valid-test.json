@@ -1,0 +1,38 @@
+[
+  {
+    "slug": "test-problem-1",
+    "title": "Test Problem 1",
+    "description": "A simple test problem for integration testing",
+    "difficulty": "Easy",
+    "isPublic": true,
+    "isActive": true,
+    "timeLimitMs": 1000,
+    "memoryLimitMb": 128,
+    "tags": ["test", "integration"],
+    "testCases": [
+      {
+        "input": "5",
+        "expectedOutput": "5",
+        "isSample": true
+      }
+    ]
+  },
+  {
+    "slug": "test-problem-2",
+    "title": "Test Problem 2",
+    "description": "Another test problem",
+    "difficulty": "Medium",
+    "isPublic": true,
+    "isActive": true,
+    "timeLimitMs": 2000,
+    "memoryLimitMb": 256,
+    "tags": ["test"],
+    "testCases": [
+      {
+        "input": "10",
+        "expectedOutput": "10",
+        "isSample": true
+      }
+    ]
+  }
+]

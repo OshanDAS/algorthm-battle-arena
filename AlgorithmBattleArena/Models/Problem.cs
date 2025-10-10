@@ -7,6 +7,10 @@ namespace AlgorithmBattleArina.Models
         public int ProblemId { get; set; }
         
         [Required]
+        [MaxLength(100)]
+        public string Slug { get; set; } = null!;
+        
+        [Required]
         [MaxLength(255)]
         public string Title { get; set; } = null!;
         
@@ -16,6 +20,8 @@ namespace AlgorithmBattleArina.Models
         [Required]
         [MaxLength(50)]
         public string DifficultyLevel { get; set; } = null!;
+        
+        public string Difficulty => DifficultyLevel;
         
         [Required]
         [MaxLength(100)]
@@ -33,7 +39,13 @@ namespace AlgorithmBattleArina.Models
         
         public string Tags { get; set; } = null!; 
         
+        public bool IsPublic { get; set; } = true; // Controls if problem is visible to students
+        
+        public bool IsActive { get; set; } = true; // Controls if problem can be used in matches
+        
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        
+        public virtual ICollection<ProblemTestCase> TestCases { get; set; } = new List<ProblemTestCase>();
     }
 }
