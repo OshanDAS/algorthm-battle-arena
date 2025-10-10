@@ -15,5 +15,7 @@ namespace AlgorithmBattleArina.Repositories
         Task<IEnumerable<string>> GetCategories();
         Task<IEnumerable<string>> GetDifficultyLevels();
         Task<IEnumerable<Problem>> GetRandomProblems(string language, string difficulty, int maxProblems);
+        Task<int> ImportProblemsAsync(IEnumerable<Problem> problems);
+        Task<bool> SlugExistsAsync(string slug);
     }
 }
