@@ -12,6 +12,8 @@ namespace AlgorithmBattleArina.Models
         [Required]
         public string InputData { get; set; } = null!;
         
+        public string Input => InputData;
+        
         [Required]
         public string ExpectedOutput { get; set; } = null!;
         

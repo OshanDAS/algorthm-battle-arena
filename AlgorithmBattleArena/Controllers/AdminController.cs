@@ -261,14 +261,7 @@ namespace AlgorithmBattleArina.Controllers
                 if (problems.Count > 1000)
                     return StatusCode(413, "Too many rows. Maximum 1000 allowed.");
 
-                var validator = new ProblemImportValidator();
-                var errors = validator.ValidateBatch(problems);
-
-                if (errors.Any())
-                {
-                    return BadRequest(new ImportResultDto { Ok = false, Errors = errors.ToArray() });
-                }
-
+                // Validation is now handled inside the import service
                 var result = await _importService.ImportProblemsAsync(problems);
                 _logger.LogInformation("Imported {Count} problems. CorrelationId: {CorrelationId}", result.Inserted, correlationId);
                 return Ok(result);

@@ -55,6 +55,7 @@ SELECT *FROM AlgorithmBattleArinaSchema.ProblemTestCases;
 
 CREATE TABLE AlgorithmBattleArinaSchema.Problems (
     ProblemId INT IDENTITY(1,1) PRIMARY KEY,
+    Slug NVARCHAR(100) UNIQUE NOT NULL,
     Title NVARCHAR(255) NOT NULL,
     Description NVARCHAR(MAX) NOT NULL,
     DifficultyLevel NVARCHAR(50),
@@ -63,16 +64,33 @@ CREATE TABLE AlgorithmBattleArinaSchema.Problems (
     MemoryLimit INT,        -- in MB
     CreatedBy NVARCHAR(100),
     Tags NVARCHAR(MAX),     -- store as JSON string or comma-separated
+    IsPublic BIT DEFAULT 1,
+    IsActive BIT DEFAULT 1,
     CreatedAt DATETIME DEFAULT GETDATE()
 );
 
 CREATE TABLE AlgorithmBattleArinaSchema.ProblemTestCases (
     TestCaseId INT IDENTITY(1,1) PRIMARY KEY,
     ProblemId INT NOT NULL,
-    InputData NVARCHAR(MAX),
+    Input NVARCHAR(MAX),
     ExpectedOutput NVARCHAR(MAX),
     IsSample BIT DEFAULT 0,
     FOREIGN KEY (ProblemId) REFERENCES AlgorithmBattleArinaSchema.Problems(ProblemId) ON DELETE CASCADE
+);
+
+-- ===========================================
+-- AUDIT LOG
+-- ===========================================
+CREATE TABLE AlgorithmBattleArinaSchema.AuditLog (
+    AuditLogId INT IDENTITY(1,1) PRIMARY KEY,
+    UserId NVARCHAR(100),
+    Action NVARCHAR(100),
+    EntityType NVARCHAR(100),
+    EntityId NVARCHAR(100),
+    BeforeState NVARCHAR(MAX),
+    AfterState NVARCHAR(MAX),
+    CorrelationId NVARCHAR(100),
+    Timestamp DATETIME2 DEFAULT GETDATE()
 );
 
 CREATE TABLE AlgorithmBattleArinaSchema.ProblemSolutions (

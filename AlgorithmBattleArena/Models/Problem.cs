@@ -7,6 +7,10 @@ namespace AlgorithmBattleArina.Models
         public int ProblemId { get; set; }
         
         [Required]
+        [MaxLength(100)]
+        public string Slug { get; set; } = null!;
+        
+        [Required]
         [MaxLength(255)]
         public string Title { get; set; } = null!;
         
@@ -16,6 +20,8 @@ namespace AlgorithmBattleArina.Models
         [Required]
         [MaxLength(50)]
         public string DifficultyLevel { get; set; } = null!;
+        
+        public string Difficulty => DifficultyLevel;
         
         [Required]
         [MaxLength(100)]
@@ -39,5 +45,7 @@ namespace AlgorithmBattleArina.Models
         
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        
+        public virtual ICollection<ProblemTestCase> TestCases { get; set; } = new List<ProblemTestCase>();
     }
 }
