@@ -24,6 +24,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/teacher" element={<TeacherDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/manage-students" element={<ManageStudentsPage />} />
           <Route path="/lobby" element={<LobbyPage />} />
           <Route path="/lobby/:lobbyId" element={<LobbyInstancePage />} />
