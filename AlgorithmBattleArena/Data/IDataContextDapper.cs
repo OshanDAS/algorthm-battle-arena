@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 
 namespace AlgorithmBattleArina.Data
@@ -16,5 +17,6 @@ namespace AlgorithmBattleArina.Data
         bool ExecuteSql(string sql, object? parameters = null);
         int ExecuteSqlWithRowCount(string sql, object? parameters = null);
         bool ExecuteTransaction(List<(string sql, object? parameters)> sqlCommands);
+        IDbConnection CreateConnection();
     }
 }
