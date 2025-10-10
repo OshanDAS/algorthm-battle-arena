@@ -34,6 +34,10 @@ export default function AdminUsersPanel() {
     loadUsers();
   }, [search, role, page]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [search, role]);
+
   const handleToggleActive = async (user) => {
     const action = user.isActive ? 'deactivate' : 'activate';
     if (!window.confirm(`Are you sure you want to ${action} ${user.name}?`)) {
