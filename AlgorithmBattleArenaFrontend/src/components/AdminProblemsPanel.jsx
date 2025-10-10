@@ -124,14 +124,21 @@ export default function AdminProblemsPanel() {
         <pre className="text-xs bg-black/30 p-3 rounded overflow-x-auto text-gray-400">
 {`[
   {
-    "slug": "two-sum",
     "title": "Two Sum",
-    "description": "Find two numbers that add up to target",
+    "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
     "difficulty": "Easy",
+    "isPublic": true,
+    "isActive": true,
     "testCases": [
       {
-        "input": "[2,7,11,15], 9",
-        "expectedOutput": "[0,1]"
+        "input": "[2,7,11,15]\n9",
+        "expectedOutput": "[0,1]",
+        "isSample": true
+      },
+      {
+        "input": "[3,2,4]\n6", 
+        "expectedOutput": "[1,2]",
+        "isSample": false
       }
     ]
   }

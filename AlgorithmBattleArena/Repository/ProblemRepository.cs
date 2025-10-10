@@ -174,18 +174,15 @@ namespace AlgorithmBattleArina.Repositories
         {
             const string sql = @"
                 INSERT INTO AlgorithmBattleArinaSchema.Problems 
-                (Slug, Title, Description, DifficultyLevel, IsPublic, IsActive, Category, TimeLimit, MemoryLimit, CreatedBy, Tags)
-                VALUES (@Slug, @Title, @Description, @DifficultyLevel, @IsPublic, @IsActive, @Category, @TimeLimit, @MemoryLimit, @CreatedBy, @Tags);
+                (Title, Description, DifficultyLevel, Category, TimeLimit, MemoryLimit, CreatedBy, Tags)
+                VALUES (@Title, @Description, @DifficultyLevel, @Category, @TimeLimit, @MemoryLimit, @CreatedBy, @Tags);
                 SELECT CAST(SCOPE_IDENTITY() as int);";
 
             return await connection.QuerySingleAsync<int>(sql, new
             {
-                problem.Slug,
                 problem.Title,
                 problem.Description,
                 problem.DifficultyLevel,
-                problem.IsPublic,
-                problem.IsActive,
                 problem.Category,
                 problem.TimeLimit,
                 problem.MemoryLimit,
@@ -198,15 +195,15 @@ namespace AlgorithmBattleArina.Repositories
         {
             const string sql = @"
                 INSERT INTO AlgorithmBattleArinaSchema.ProblemTestCases 
-                (ProblemId, Input, ExpectedOutput, IsSample)
-                VALUES (@ProblemId, @Input, @ExpectedOutput, @IsSample)";
+                (ProblemId, InputData, ExpectedOutput, IsSample)
+                VALUES (@ProblemId, @InputData, @ExpectedOutput, @IsSample)";
 
             foreach (var testCase in testCases)
             {
                 await connection.ExecuteAsync(sql, new
                 {
                     ProblemId = problemId,
-                    Input = testCase.InputData,
+                    InputData = testCase.InputData,
                     testCase.ExpectedOutput,
                     testCase.IsSample
                 }, transaction);

@@ -53,60 +53,26 @@ SELECT *FROM AlgorithmBattleArinaSchema.ProblemTestCases;
 
 --------------------------------------------------------------------------------------
 
--- Check if Problems table exists and add missing columns
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Problems' AND schema_id = SCHEMA_ID('AlgorithmBattleArinaSchema'))
-BEGIN
-    CREATE TABLE AlgorithmBattleArinaSchema.Problems (
-        ProblemId INT IDENTITY(1,1) PRIMARY KEY,
-        Slug NVARCHAR(100) UNIQUE NOT NULL,
-        Title NVARCHAR(255) NOT NULL,
-        Description NVARCHAR(MAX) NOT NULL,
-        DifficultyLevel NVARCHAR(50),
-        Category NVARCHAR(100),
-        TimeLimit INT,          -- in ms
-        MemoryLimit INT,        -- in MB
-        CreatedBy NVARCHAR(100),
-        Tags NVARCHAR(MAX),     -- store as JSON string or comma-separated
-        IsPublic BIT DEFAULT 1,
-        IsActive BIT DEFAULT 1,
-        CreatedAt DATETIME DEFAULT GETDATE()
-    );
-END
-ELSE
-BEGIN
-    -- Add missing columns if they don't exist
-    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('AlgorithmBattleArinaSchema.Problems') AND name = 'Slug')
-        ALTER TABLE AlgorithmBattleArinaSchema.Problems ADD Slug NVARCHAR(100);
-    
-    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('AlgorithmBattleArinaSchema.Problems') AND name = 'IsPublic')
-        ALTER TABLE AlgorithmBattleArinaSchema.Problems ADD IsPublic BIT DEFAULT 1;
-    
-    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('AlgorithmBattleArinaSchema.Problems') AND name = 'IsActive')
-        ALTER TABLE AlgorithmBattleArinaSchema.Problems ADD IsActive BIT DEFAULT 1;
-END
+CREATE TABLE AlgorithmBattleArinaSchema.Problems (
+    ProblemId INT IDENTITY(1,1) PRIMARY KEY,
+    Title NVARCHAR(255) NOT NULL,
+    Description NVARCHAR(MAX) NOT NULL,
+    DifficultyLevel NVARCHAR(50),
+    Category NVARCHAR(100),
+    TimeLimit INT,          -- in ms
+    MemoryLimit INT,        -- in MB
+    CreatedBy NVARCHAR(100),
+    Tags NVARCHAR(MAX),     -- store as JSON string or comma-separated
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
 
 CREATE TABLE AlgorithmBattleArinaSchema.ProblemTestCases (
     TestCaseId INT IDENTITY(1,1) PRIMARY KEY,
     ProblemId INT NOT NULL,
-    Input NVARCHAR(MAX),
+    InputData NVARCHAR(MAX),
     ExpectedOutput NVARCHAR(MAX),
     IsSample BIT DEFAULT 0,
     FOREIGN KEY (ProblemId) REFERENCES AlgorithmBattleArinaSchema.Problems(ProblemId) ON DELETE CASCADE
-);
-
--- ===========================================
--- AUDIT LOG
--- ===========================================
-CREATE TABLE AlgorithmBattleArinaSchema.AuditLog (
-    AuditLogId INT IDENTITY(1,1) PRIMARY KEY,
-    UserId NVARCHAR(100),
-    Action NVARCHAR(100),
-    EntityType NVARCHAR(100),
-    EntityId NVARCHAR(100),
-    BeforeState NVARCHAR(MAX),
-    AfterState NVARCHAR(MAX),
-    CorrelationId NVARCHAR(100),
-    Timestamp DATETIME2 DEFAULT GETDATE()
 );
 
 CREATE TABLE AlgorithmBattleArinaSchema.ProblemSolutions (
@@ -308,6 +274,7 @@ CREATE TABLE AlgorithmBattleArinaSchema.Submissions (
     Language NVARCHAR(50) NOT NULL,
     Code NVARCHAR(MAX) NOT NULL,
     Status NVARCHAR(20) NOT NULL DEFAULT 'Submitted',
+    Score INT NULL,
     SubmittedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
 
     CONSTRAINT FK_Submission_Match FOREIGN KEY (MatchId)
@@ -341,3 +308,15 @@ CREATE TABLE AlgorithmBattleArinaSchema.StudentTeacherRequests (
     CONSTRAINT UQ_Student_Teacher_Request UNIQUE (StudentId, TeacherId)
 );
 GO
+
+CREATE TABLE AlgorithmBattleArinaSchema.AuditLog (
+    AuditLogId INT IDENTITY(1,1) PRIMARY KEY,
+    UserId NVARCHAR(100),
+    Action NVARCHAR(100),
+    EntityType NVARCHAR(100),
+    EntityId NVARCHAR(100),
+    BeforeState NVARCHAR(MAX),
+    AfterState NVARCHAR(MAX),
+    CorrelationId NVARCHAR(100),
+    Timestamp DATETIME2 DEFAULT GETDATE()
+);
