@@ -93,7 +93,8 @@ public class SubmissionsControllerTests
             MatchId = 1,
             ProblemId = 2,
             Language = "Python",
-            Code = "print('Hello World')"
+            Code = "print('Hello World')",
+            Status = "Submitted"
         };
 
         SetupAuthenticatedUser(userEmail);
@@ -111,7 +112,7 @@ public class SubmissionsControllerTests
             s.ParticipantEmail == userEmail &&
             s.Language == submissionDto.Language &&
             s.Code == submissionDto.Code &&
-            s.Status == "Submitted"
+            s.Status == submissionDto.Status
         )), Times.Once);
     }
 
