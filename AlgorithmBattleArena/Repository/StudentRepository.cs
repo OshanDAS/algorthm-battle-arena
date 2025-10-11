@@ -50,5 +50,14 @@ namespace AlgorithmBattleArina.Repositories
                 return await _dapper.LoadDataAsync<StudentRequestDto>(sql, new { TeacherId = teacherId, Status = status });
             }
         }
+
+        public async Task<IEnumerable<TeacherDto>> GetAcceptedTeachers(int studentId)
+        {
+            string sql = @"SELECT t.TeacherId, t.FirstName, t.LastName, t.Email 
+                          FROM AlgorithmBattleArinaSchema.Teachers t 
+                          JOIN AlgorithmBattleArinaSchema.Student s ON t.TeacherId = s.TeacherId 
+                          WHERE s.StudentId = @StudentId";
+            return await _dapper.LoadDataAsync<TeacherDto>(sql, new { StudentId = studentId });
+        }
     }
 }

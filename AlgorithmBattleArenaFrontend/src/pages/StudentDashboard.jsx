@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { BarChart, User, Users, Trophy, Swords, PlayCircle, LogOut, TrendingUp, UserPlus, Calendar, Settings, Home, Medal, Search, X, Check } from 'lucide-react';
 import apiService from '../services/api';
 import { useAuth } from '../services/auth';
+import ContactsSection from '../components/ContactsSection';
 
 const StatCard = ({ icon, label, value }) => (
   <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-2xl flex items-center space-x-4 transform hover:scale-105 transition-transform duration-300">
@@ -224,7 +225,7 @@ export default function StudentDashboard() {
     { id: 'analytics', label: 'Analytics', icon: TrendingUp },
     { id: 'battle', label: 'Battle', icon: Swords },
     { id: 'contests', label: 'Contests', icon: Calendar },
-    { id: 'friends', label: 'Friends', icon: UserPlus },
+    { id: 'friends', label: 'Contacts', icon: UserPlus },
     { id: 'profile', label: 'Profile', icon: User }
   ];
 
@@ -415,7 +416,7 @@ export default function StudentDashboard() {
             {/* Friends List */}
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold text-white">Friends ({friends.length})</h3>
+                <h3 className="text-xl font-semibold text-white">Contacts ({friends.length})</h3>
                 <button 
                   onClick={() => setShowAddFriendModal(true)}
                   className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-lg flex items-center space-x-2"
@@ -473,6 +474,8 @@ export default function StudentDashboard() {
                 </div>
               </div>
             )}
+            
+            <ContactsSection studentId={profile?.id} />
             
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
               <h3 className="text-xl font-semibold mb-4 text-white">Request Teacher</h3>

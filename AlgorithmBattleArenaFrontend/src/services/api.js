@@ -60,7 +60,8 @@ class ApiService {
     getByStatus: (status) => this.client.get(`/api/Students?status=${status}`),
     acceptRequest: (requestId) => this.client.put(`/api/Students/${requestId}/accept`),
     rejectRequest: (requestId) => this.client.put(`/api/Students/${requestId}/reject`),
-    requestTeacher: (teacherId) => this.client.post('/api/Students/request', teacherId)
+    requestTeacher: (teacherId) => this.client.post('/api/Students/request', teacherId),
+    getAcceptedTeachers: () => this.client.get('/api/Students/teachers')
   };
 
   teachers = {

@@ -17,48 +17,39 @@ namespace AlgorithmBattleArina.Repositories
             var sql = @"
                 WITH UserStats AS (
                     SELECT 
-                        s.Email,
-                        COALESCE(s.FirstName + ' ' + s.LastName, t.FirstName + ' ' + t.LastName, s.Email) as FullName,
-                        COUNT(DISTINCT lp.LobbyId) as MatchesPlayed,
-                        COUNT(DISTINCT CASE WHEN sub.Status = 'Accepted' THEN sub.ProblemId END) as ProblemsCompleted,
-                        COALESCE(AVG(CAST(SUBSTRING(sub.Status, 1, CASE WHEN CHARINDEX('%', sub.Status) > 0 THEN CHARINDEX('%', sub.Status) - 1 ELSE 0 END) AS DECIMAL)), 0) as AvgScore,
+                        a.Email,
+                        COALESCE(s.FirstName + ' ' + s.LastName, t.FirstName + ' ' + t.LastName, a.Email) as FullName,
+                        COALESCE(COUNT(DISTINCT lp.LobbyId), 0) as MatchesPlayed,
+                        COALESCE(COUNT(DISTINCT sub.SubmissionId), 0) as ProblemsCompleted,
+                        COALESCE(SUM(ISNULL(sub.Score, 0)), 0) as TotalScore,
                         MAX(sub.SubmittedAt) as LastActivity
                     FROM AlgorithmBattleArinaSchema.Auth a
                     LEFT JOIN AlgorithmBattleArinaSchema.Student s ON a.Email = s.Email
                     LEFT JOIN AlgorithmBattleArinaSchema.Teachers t ON a.Email = t.Email
                     LEFT JOIN AlgorithmBattleArinaSchema.LobbyParticipants lp ON a.Email = lp.ParticipantEmail
-                    LEFT JOIN AlgorithmBattleArinaSchema.Lobbies l ON lp.LobbyId = l.LobbyId AND l.Status = 'Closed'
                     LEFT JOIN AlgorithmBattleArinaSchema.Submissions sub ON a.Email = sub.ParticipantEmail
-                    WHERE a.Email = @Email
-                    GROUP BY s.Email, s.FirstName, s.LastName, t.FirstName, t.LastName
+                    GROUP BY a.Email, s.FirstName, s.LastName, t.FirstName, t.LastName
                 ),
-                Rankings AS (
+                AllUserRanks AS (
                     SELECT 
                         Email,
-                        ROW_NUMBER() OVER (ORDER BY AvgScore DESC, ProblemsCompleted DESC, MatchesPlayed DESC) as Rank
-                    FROM (
-                        SELECT 
-                            a.Email,
-                            COALESCE(AVG(CAST(SUBSTRING(sub.Status, 1, CASE WHEN CHARINDEX('%', sub.Status) > 0 THEN CHARINDEX('%', sub.Status) - 1 ELSE 0 END) AS DECIMAL)), 0) as AvgScore,
-                            COUNT(DISTINCT CASE WHEN sub.Status = 'Accepted' THEN sub.ProblemId END) as ProblemsCompleted,
-                            COUNT(DISTINCT lp.LobbyId) as MatchesPlayed
-                        FROM AlgorithmBattleArinaSchema.Auth a
-                        LEFT JOIN AlgorithmBattleArinaSchema.LobbyParticipants lp ON a.Email = lp.ParticipantEmail
-                        LEFT JOIN AlgorithmBattleArinaSchema.Submissions sub ON a.Email = sub.ParticipantEmail
-                        GROUP BY a.Email
-                    ) RankData
+                        TotalScore,
+                        ProblemsCompleted,
+                        ROW_NUMBER() OVER (ORDER BY TotalScore DESC, ProblemsCompleted DESC, MatchesPlayed DESC) as Rank
+                    FROM UserStats
                 )
                 SELECT 
                     us.Email,
                     us.FullName,
-                    COALESCE(r.Rank, 999999) as Rank,
+                    COALESCE(r.Rank, 999) as Rank,
                     us.MatchesPlayed,
                     CASE WHEN us.MatchesPlayed > 0 THEN CAST(us.ProblemsCompleted AS DECIMAL) / us.MatchesPlayed * 100 ELSE 0 END as WinRate,
                     us.ProblemsCompleted,
-                    CAST(us.AvgScore as INT) as TotalScore,
+                    us.TotalScore,
                     us.LastActivity
                 FROM UserStats us
-                LEFT JOIN Rankings r ON us.Email = r.Email";
+                LEFT JOIN AllUserRanks r ON us.Email = r.Email
+                WHERE us.Email = @Email";
 
             var result = await _dapper.LoadDataSingleOrDefaultAsync<UserStatisticsDto>(sql, new { Email = userEmail });
             
@@ -66,7 +57,7 @@ namespace AlgorithmBattleArina.Repositories
             { 
                 Email = userEmail, 
                 FullName = userEmail,
-                Rank = 999999,
+                Rank = 999,
                 MatchesPlayed = 0,
                 WinRate = 0,
                 ProblemsCompleted = 0,

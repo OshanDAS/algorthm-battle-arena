@@ -11,5 +11,6 @@ namespace AlgorithmBattleArina.Repositories
         Task AcceptRequest(int requestId, int teacherId);
         Task RejectRequest(int requestId, int teacherId);
         Task<IEnumerable<StudentRequestDto>> GetStudentsByStatus(int teacherId, string status);
+        Task<IEnumerable<TeacherDto>> GetAcceptedTeachers(int studentId);
     }
 }
