@@ -5,6 +5,7 @@ import apiService from '../services/api';
 import { useSignalR } from '../hooks/useSignalR';
 import { useAuth } from '../services/auth';
 import ProblemBrowserModal from '../components/ProblemBrowserModal';
+import LobbyChatSidebar from '../components/LobbyChatSidebar';
 
 const PlayerCard = ({ player, isHost, onKick }) => (
     <div className={`bg-white/10 p-4 rounded-lg flex items-center justify-between border-2 border-transparent`}>
@@ -42,6 +43,7 @@ export default function LobbyInstancePage() {
     const [language, setLanguage] = useState('Python');
     const [maxProblems, setMaxProblems] = useState(5);
     const [durationSec, setDurationSec] = useState(600);
+    const [showChat, setShowChat] = useState(false);
 
     const isHost = useMemo(() => lobby?.hostEmail === user?.email, [lobby, user]);
     const isParticipant = useMemo(() => lobby?.participants.some(p => p.participantEmail === user?.email), [lobby, user]);
@@ -399,6 +401,11 @@ export default function LobbyInstancePage() {
                 isOpen={isBrowserOpen} 
                 onClose={() => setIsBrowserOpen(false)} 
                 onAddProblems={handleAddProblems} 
+            />
+            <LobbyChatSidebar 
+                lobbyId={lobbyId}
+                isOpen={showChat}
+                onToggle={() => setShowChat(!showChat)}
             />
         </>
     );

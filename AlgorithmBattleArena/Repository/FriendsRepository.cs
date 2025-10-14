@@ -88,6 +88,19 @@ namespace AlgorithmBattleArina.Repositories
             return await _dapper.LoadDataAsync<FriendRequestDto>(sql, new { StudentId = studentId });
         }
 
+        public async Task<FriendRequestDto?> GetFriendRequestAsync(int requestId)
+        {
+            var sql = @"
+                SELECT fr.RequestId, fr.SenderId, fr.ReceiverId,
+                       s.FirstName + ' ' + s.LastName AS SenderName, s.Email AS SenderEmail,
+                       fr.Status, fr.RequestedAt
+                FROM AlgorithmBattleArinaSchema.FriendRequests fr
+                JOIN AlgorithmBattleArinaSchema.Student s ON fr.SenderId = s.StudentId
+                WHERE fr.RequestId = @RequestId";
+
+            return await _dapper.LoadDataSingleOrDefaultAsync<FriendRequestDto>(sql, new { RequestId = requestId });
+        }
+
         public async Task AcceptFriendRequestAsync(int requestId, int studentId)
         {
             var sql = @"
@@ -125,6 +138,21 @@ namespace AlgorithmBattleArina.Repositories
                 OR (StudentId1 = @FriendId AND StudentId2 = @StudentId)";
 
             await _dapper.ExecuteSqlAsync(sql, new { StudentId = studentId, FriendId = friendId });
+        }
+
+        public async Task<(string senderEmail, string receiverEmail)?> GetFriendRequestEmailsAsync(int requestId)
+        {
+            var sql = @"
+                SELECT s1.Email as SenderEmail, s2.Email as ReceiverEmail
+                FROM AlgorithmBattleArinaSchema.FriendRequests fr
+                JOIN AlgorithmBattleArinaSchema.Student s1 ON fr.SenderId = s1.StudentId
+                JOIN AlgorithmBattleArinaSchema.Student s2 ON fr.ReceiverId = s2.StudentId
+                WHERE fr.RequestId = @RequestId";
+
+            var result = await _dapper.LoadDataSingleOrDefaultAsync<dynamic>(sql, new { RequestId = requestId });
+            if (result == null) return null;
+            
+            return (result.SenderEmail, result.ReceiverEmail);
         }
     }
 }

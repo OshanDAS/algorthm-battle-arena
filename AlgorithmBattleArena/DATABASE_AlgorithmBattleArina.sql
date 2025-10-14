@@ -354,3 +354,40 @@ CREATE TABLE AlgorithmBattleArinaSchema.FriendRequests (
     CONSTRAINT UQ_Friend_Request UNIQUE (SenderId, ReceiverId)
 );
 GO
+
+CREATE TABLE AlgorithmBattleArinaSchema.Conversations (
+    ConversationId INT IDENTITY(1,1) PRIMARY KEY,
+    Type NVARCHAR(20) CHECK (Type IN ('Friend', 'Lobby', 'TeacherStudent', 'Match')) NOT NULL,
+    ReferenceId INT NULL, -- LobbyId, MatchId, or NULL for friend chats
+    CreatedAt DATETIME2 DEFAULT GETDATE(),
+    UpdatedAt DATETIME2 DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE AlgorithmBattleArinaSchema.ConversationParticipants (
+    ConversationParticipantId INT IDENTITY(1,1) PRIMARY KEY,
+    ConversationId INT NOT NULL,
+    ParticipantEmail NVARCHAR(50) NOT NULL,
+    JoinedAt DATETIME2 DEFAULT GETDATE(),
+    
+    CONSTRAINT FK_ConversationParticipants_Conversation 
+        FOREIGN KEY (ConversationId) REFERENCES AlgorithmBattleArinaSchema.Conversations(ConversationId) ON DELETE CASCADE,
+    CONSTRAINT FK_ConversationParticipants_Auth 
+        FOREIGN KEY (ParticipantEmail) REFERENCES AlgorithmBattleArinaSchema.Auth(Email),
+    CONSTRAINT UQ_Conversation_Participant UNIQUE (ConversationId, ParticipantEmail)
+);
+GO
+
+CREATE TABLE AlgorithmBattleArinaSchema.Messages (
+    MessageId INT IDENTITY(1,1) PRIMARY KEY,
+    ConversationId INT NOT NULL,
+    SenderEmail NVARCHAR(50) NOT NULL,
+    Content NVARCHAR(MAX) NOT NULL,
+    SentAt DATETIME2 DEFAULT GETDATE(),
+    
+    CONSTRAINT FK_Messages_Conversation 
+        FOREIGN KEY (ConversationId) REFERENCES AlgorithmBattleArinaSchema.Conversations(ConversationId) ON DELETE CASCADE,
+    CONSTRAINT FK_Messages_Sender 
+        FOREIGN KEY (SenderEmail) REFERENCES AlgorithmBattleArinaSchema.Auth(Email)
+);
+GO

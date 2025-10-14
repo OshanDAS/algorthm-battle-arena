@@ -41,6 +41,7 @@ builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
 builder.Services.AddScoped<IStatisticsRepository, StatisticsRepository>();
 builder.Services.AddScoped<IFriendsRepository, FriendsRepository>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
 
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IProblemImportRepository, ProblemImportRepository>();
@@ -77,7 +78,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
                 if (!string.IsNullOrEmpty(accessToken) &&
                     (path.StartsWithSegments("/lobbyHub", StringComparison.OrdinalIgnoreCase) ||
-                     path.StartsWithSegments("/matchhub", StringComparison.OrdinalIgnoreCase)))
+                     path.StartsWithSegments("/matchhub", StringComparison.OrdinalIgnoreCase) ||
+                     path.StartsWithSegments("/chathub", StringComparison.OrdinalIgnoreCase)))
                 {
                     context.Token = accessToken;
                 }
@@ -146,6 +148,7 @@ app.MapControllers();
 
 // SignalR hubs
 app.MapHub<MatchHub>("/lobbyHub");
+app.MapHub<ChatHub>("/chathub");
 
 app.Run();
 

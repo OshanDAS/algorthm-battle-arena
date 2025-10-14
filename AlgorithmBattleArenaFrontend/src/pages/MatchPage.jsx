@@ -7,6 +7,7 @@ import { useAuth } from '../services/auth';
 import codeExecutor from '../services/codeExecutor';
 import ResultsModal from '../components/ResultsModal';
 import ConfirmationDialog from '../components/ConfirmationDialog';
+import MatchChatPanel from '../components/MatchChatPanel';
 
 function formatCountdown(ms) {
     if (ms <= 0) return '00:00';
@@ -39,6 +40,7 @@ export default function MatchPage() {
     const [problemScores, setProblemScores] = useState({});
     const [submissionCounts, setSubmissionCounts] = useState({});
     const [pendingExit, setPendingExit] = useState(false);
+    const [showChat, setShowChat] = useState(false);
 
     useEffect(() => {
         if (!match) {
@@ -436,6 +438,13 @@ export default function MatchPage() {
                 problemsCompleted={Object.keys(submitResults).length}
                 totalProblems={problems.length}
                 timeRemaining={remaining || 0}
+            />
+            
+            {/* Match Chat */}
+            <MatchChatPanel 
+                matchId={match.matchId}
+                isOpen={showChat}
+                onToggle={() => setShowChat(!showChat)}
             />
         </div>
     );

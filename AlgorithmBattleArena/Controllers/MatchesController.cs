@@ -21,13 +21,15 @@ namespace AlgorithmBattleArina.Controllers
         private readonly IHubContext<MatchHub> _hubContext;
         private readonly ILobbyRepository _lobbyRepository;
         private readonly IMatchRepository _matchRepository;
+        private readonly IChatRepository _chatRepository;
         private readonly AuthHelper _authHelper;
 
-        public MatchesController(IHubContext<MatchHub> hubContext, ILobbyRepository lobbyRepository, IMatchRepository matchRepository, AuthHelper authHelper)
+        public MatchesController(IHubContext<MatchHub> hubContext, ILobbyRepository lobbyRepository, IMatchRepository matchRepository, IChatRepository chatRepository, AuthHelper authHelper)
         {
             _hubContext = hubContext;
             _lobbyRepository = lobbyRepository;
             _matchRepository = matchRepository;
+            _chatRepository = chatRepository;
             _authHelper = authHelper;
         }
 
@@ -47,6 +49,14 @@ namespace AlgorithmBattleArina.Controllers
             }
 
             var match = await _matchRepository.CreateMatch(lobbyId, request.ProblemIds);
+            
+            // Create match chat conversation
+            var lobby = await _lobbyRepository.GetLobbyById(lobbyId);
+            if (lobby != null)
+            {
+                var participantEmails = lobby.Participants.Select(p => p.ParticipantEmail).ToList();
+                await _chatRepository.CreateConversationAsync("Match", match.MatchId, participantEmails);
+            }
 
             var bufferSec = Math.Max(1, request.PreparationBufferSec);
             var startAtUtc = DateTime.UtcNow.AddSeconds(bufferSec);

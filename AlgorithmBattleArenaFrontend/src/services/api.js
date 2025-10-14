@@ -110,6 +110,16 @@ class ApiService {
       });
     }
   };
+
+  chat = {
+    getConversations: () => this.client.get('/api/Chat/conversations'),
+    getMessages: (conversationId, pageSize = 50, offset = 0) => 
+      this.client.get(`/api/Chat/conversations/${conversationId}/messages?pageSize=${pageSize}&offset=${offset}`),
+    createConversation: (type, participantEmails, referenceId = null) => 
+      this.client.post('/api/Chat/conversations', { type, participantEmails, referenceId }),
+    sendMessage: (conversationId, content) => 
+      this.client.post(`/api/Chat/conversations/${conversationId}/messages`, { content })
+  };
 }
 
 export default new ApiService();

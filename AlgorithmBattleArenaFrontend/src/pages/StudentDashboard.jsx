@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BarChart, User, Users, Trophy, Swords, PlayCircle, LogOut, TrendingUp, UserPlus, Calendar, Settings, Home, Medal, Search, X, Check } from 'lucide-react';
+import { BarChart, User, Users, Trophy, Swords, PlayCircle, LogOut, TrendingUp, UserPlus, Calendar, Settings, Home, Medal, Search, X, Check, MessageCircle } from 'lucide-react';
 import apiService from '../services/api';
 import { useAuth } from '../services/auth';
 import ContactsSection from '../components/ContactsSection';
+import ChatButton from '../components/ChatButton';
+import ChatWindow from '../components/ChatWindow';
 
 const StatCard = ({ icon, label, value }) => (
   <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-2xl flex items-center space-x-4 transform hover:scale-105 transition-transform duration-300">
@@ -15,7 +17,7 @@ const StatCard = ({ icon, label, value }) => (
   </div>
 );
 
-const FriendListItem = ({ friend, onRemove }) => (
+const FriendListItem = ({ friend, onRemove, onChat }) => (
   <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
     <div className="flex items-center space-x-3">
       <User className="h-8 w-8 text-gray-400" />
@@ -26,6 +28,13 @@ const FriendListItem = ({ friend, onRemove }) => (
     </div>
     <div className="flex items-center space-x-2">
       <div className={`h-3 w-3 rounded-full ${friend.isOnline ? 'bg-green-400' : 'bg-gray-600'}`}></div>
+      <button 
+        onClick={() => onChat(friend)}
+        className="text-blue-400 hover:text-blue-300 p-1"
+        title="Chat with friend"
+      >
+        <MessageCircle className="h-4 w-4" />
+      </button>
       <button 
         onClick={() => onRemove(friend.studentId)}
         className="text-red-400 hover:text-red-300 p-1"
@@ -70,6 +79,9 @@ export default function StudentDashboard() {
   const [searchResults, setSearchResults] = useState([]);
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
   const [friendsLoading, setFriendsLoading] = useState(false);
+  
+  // Chat state
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     fetchUserStats();
@@ -214,6 +226,10 @@ export default function StudentDashboard() {
         console.error('Error removing friend:', error);
       }
     }
+  };
+
+  const handleChatWithFriend = (friend) => {
+    setShowChat(true);
   };
 
   const handleLogout = () => {
@@ -428,7 +444,7 @@ export default function StudentDashboard() {
               <div className="space-y-3">
                 {friends.length > 0 ? (
                   friends.map((friend) => (
-                    <FriendListItem key={friend.studentId} friend={friend} onRemove={removeFriend} />
+                    <FriendListItem key={friend.studentId} friend={friend} onRemove={removeFriend} onChat={handleChatWithFriend} />
                   ))
                 ) : (
                   <div className="text-center py-6">
@@ -830,6 +846,10 @@ export default function StudentDashboard() {
 
         {renderContent()}
       </div>
+      
+      {/* Chat Components */}
+      <ChatButton onClick={() => setShowChat(true)} />
+      <ChatWindow isOpen={showChat} onClose={() => setShowChat(false)} />
     </div>
   );
 

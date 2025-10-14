@@ -19,12 +19,14 @@ namespace AlgorithmBattleArina.Controllers
     public class LobbiesController : ControllerBase
     {
         private readonly ILobbyRepository _lobbyRepository;
+        private readonly IChatRepository _chatRepository;
         private readonly AuthHelper _authHelper;
         private readonly IHubContext<MatchHub> _hubContext;
 
-        public LobbiesController(ILobbyRepository lobbyRepository, AuthHelper authHelper, IHubContext<MatchHub> hubContext)
+        public LobbiesController(ILobbyRepository lobbyRepository, IChatRepository chatRepository, AuthHelper authHelper, IHubContext<MatchHub> hubContext)
         {
             _lobbyRepository = lobbyRepository;
+            _chatRepository = chatRepository;
             _authHelper = authHelper;
             _hubContext = hubContext;
         }
@@ -62,6 +64,9 @@ namespace AlgorithmBattleArina.Controllers
                 {
                     return StatusCode(500, new { message = "Failed to create lobby" });
                 }
+                
+                // Create lobby chat conversation
+                await _chatRepository.CreateConversationAsync("Lobby", lobby.LobbyId, new List<string> { hostEmail });
                 
                 return CreatedAtAction(nameof(GetLobby), new { lobbyId = lobby.LobbyId }, lobby);
             }

@@ -13,11 +13,13 @@ namespace AlgorithmBattleArina.Controllers
     public class FriendsController : ControllerBase
     {
         private readonly IFriendsRepository _friendsRepository;
+        private readonly IChatRepository _chatRepository;
         private readonly AuthHelper _authHelper;
 
-        public FriendsController(IFriendsRepository friendsRepository, AuthHelper authHelper)
+        public FriendsController(IFriendsRepository friendsRepository, IChatRepository chatRepository, AuthHelper authHelper)
         {
             _friendsRepository = friendsRepository;
+            _chatRepository = chatRepository;
             _authHelper = authHelper;
         }
 
@@ -94,7 +96,23 @@ namespace AlgorithmBattleArina.Controllers
             
             try
             {
+                var friendRequest = await _friendsRepository.GetFriendRequestAsync(requestId);
+                if (friendRequest == null) return NotFound("Friend request not found");
+                
                 await _friendsRepository.AcceptFriendRequestAsync(requestId, studentId.Value);
+                
+                // Create friend chat conversation
+                var userEmail = _authHelper.GetEmailFromClaims(User);
+                var friendEmail = friendRequest.SenderEmail;
+                if (!string.IsNullOrEmpty(userEmail) && !string.IsNullOrEmpty(friendEmail))
+                {
+                    var existingConv = await _chatRepository.GetFriendConversationAsync(userEmail, friendEmail);
+                    if (existingConv == null)
+                    {
+                        await _chatRepository.CreateConversationAsync("Friend", null, new List<string> { userEmail, friendEmail });
+                    }
+                }
+                
                 return Ok(new { Message = "Friend request accepted successfully" });
             }
             catch (Exception ex)
