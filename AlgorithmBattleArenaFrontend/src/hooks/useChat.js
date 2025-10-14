@@ -95,30 +95,22 @@ export const useChat = () => {
   // Initialize chat service
   useEffect(() => {
     const initializeChat = async () => {
+      const token = getToken();
+      if (!token) return;
+      
       try {
-        await chatSignalR.start();
+        if (chatSignalR.connectionState === 'disconnected') {
+          await chatSignalR.start();
+        }
         await loadConversations();
       } catch (error) {
         console.error('Failed to initialize chat:', error);
-        // Retry connection after a delay
-        setTimeout(() => {
-          const token = getToken();
-          if (token) {
-            chatSignalR.start().catch(console.error);
-          }
-        }, 5000);
       }
     };
 
-    // Only initialize if we have a token
-    const token = getToken();
-    if (token) {
-      initializeChat();
-    }
+    initializeChat();
 
-    return () => {
-      chatSignalR.stop();
-    };
+    // Don't stop connection on unmount - keep it alive for global chat
   }, [loadConversations]);
 
   // Create friend conversation

@@ -799,8 +799,8 @@ export default function StudentDashboard() {
                     onClick={() => setActiveTab(item.id)}
                     className={`flex items-center space-x-2 px-3 py-2 font-medium transition-all duration-200 ${
                       activeTab === item.id
-                        ? 'text-black border-b-2 border-green-400'
-                        : 'text-gray-800 hover:text-black border-b-2 border-transparent hover:border-green-300/50'
+                        ? 'text-white border-b-2 border-green-400'
+                        : 'text-gray-300 hover:text-white border-b-2 border-transparent hover:border-green-300/50'
                     }`}
                   >
                     <Icon className="h-4 w-4" />

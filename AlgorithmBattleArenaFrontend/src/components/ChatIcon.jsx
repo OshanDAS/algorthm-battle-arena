@@ -10,18 +10,17 @@ const ChatIcon = ({ user, onChatStart, className = "" }) => {
     
     setLoading(true);
     try {
-      // Create or get existing conversation with this user
       const response = await apiService.chat.createFriendConversation(
         user.studentId || user.teacherId, 
         user.email
       );
       
-      if (onChatStart) {
+      if (response.data && onChatStart) {
         onChatStart(response.data.conversationId);
       }
     } catch (error) {
       console.error('Failed to start chat:', error);
-      alert('Failed to start chat. Please try again.');
+      console.error('Error details:', error.response?.data);
     } finally {
       setLoading(false);
     }

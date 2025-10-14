@@ -24,7 +24,7 @@ const MessageList = ({ messages, currentUserEmail }) => {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+    <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 max-h-full">
       {messages.map((message, index) => {
         const isOwnMessage = message.senderEmail === currentUserEmail;
         const showSender = index === 0 || messages[index - 1].senderEmail !== message.senderEmail;
@@ -34,7 +34,7 @@ const MessageList = ({ messages, currentUserEmail }) => {
             key={message.messageId || index}
             className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
           >
-            <div className={`max-w-xs lg:max-w-md ${isOwnMessage ? 'order-1' : 'order-2'}`}>
+            <div className={`max-w-[70%] sm:max-w-xs lg:max-w-md ${isOwnMessage ? 'order-1' : 'order-2'}`}>
               {showSender && !isOwnMessage && (
                 <div className="text-xs text-gray-500 mb-1 px-3">
                   {message.senderName || message.senderEmail}

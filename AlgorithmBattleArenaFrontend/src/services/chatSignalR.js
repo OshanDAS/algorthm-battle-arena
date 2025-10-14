@@ -14,7 +14,8 @@ class ChatSignalRService {
   }
 
   async start() {
-    if (this.connectionState !== 'disconnected') return;
+    if (this.connectionState === 'connected') return;
+    if (this.connectionState === 'connecting') return;
 
     const token = getToken();
     if (!token) {
@@ -72,14 +73,6 @@ class ChatSignalRService {
     } catch (err) {
       console.error('Failed to start SignalR connection:', err);
       this.connectionState = 'disconnected';
-      
-      // Retry logic
-      if (this.reconnectAttempts < this.maxReconnectAttempts) {
-        this.reconnectAttempts++;
-        console.log(`Retrying connection (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
-        setTimeout(() => this.start(), 2000 * this.reconnectAttempts);
-        return;
-      }
       
       throw new Error(`Failed to connect to chat service: ${err.message}`);
     }
