@@ -118,7 +118,9 @@ class ApiService {
     createConversation: (type, participantEmails, referenceId = null) => 
       this.client.post('/api/Chat/conversations', { type, participantEmails, referenceId }),
     sendMessage: (conversationId, content) => 
-      this.client.post(`/api/Chat/conversations/${conversationId}/messages`, { content })
+      this.client.post(`/api/Chat/conversations/${conversationId}/messages`, { content }),
+    createFriendConversation: (friendId, friendEmail) => 
+      this.client.post('/api/Chat/conversations/friend', { friendId, friendEmail })
   };
 }
 

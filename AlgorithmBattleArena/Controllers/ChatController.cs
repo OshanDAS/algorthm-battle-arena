@@ -51,32 +51,50 @@ namespace AlgorithmBattleArina.Controllers
         public async Task<ActionResult<IEnumerable<MessageDto>>> GetMessages(int conversationId, 
             [FromQuery] int pageSize = 50, [FromQuery] int offset = 0)
         {
-            var userEmail = _authHelper.GetEmailFromClaims(User);
-            if (string.IsNullOrEmpty(userEmail)) return Unauthorized();
+            try
+            {
+                var userEmail = _authHelper.GetEmailFromClaims(User);
+                if (string.IsNullOrEmpty(userEmail)) return Unauthorized();
 
-            if (!await _chatRepository.IsParticipantAsync(conversationId, userEmail))
-                return Forbid("Not a participant in this conversation");
+                if (!await _chatRepository.IsParticipantAsync(conversationId, userEmail))
+                    return Forbid("Not a participant in this conversation");
 
-            var messages = await _chatRepository.GetMessagesAsync(conversationId, pageSize, offset);
-            return Ok(messages);
+                var messages = await _chatRepository.GetMessagesAsync(conversationId, pageSize, offset);
+                return Ok(messages);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error getting messages: {ex.Message}");
+            }
         }
 
         [HttpPost("conversations/{conversationId:int}/messages")]
         public async Task<ActionResult> SendMessage(int conversationId, [FromBody] SendMessageDto request)
         {
-            var userEmail = _authHelper.GetEmailFromClaims(User);
-            if (string.IsNullOrEmpty(userEmail)) return Unauthorized();
-
-            if (!await _chatRepository.IsParticipantAsync(conversationId, userEmail))
-                return Forbid("Not a participant in this conversation");
-
             try
             {
-                var messageId = await _chatRepository.SendMessageAsync(conversationId, userEmail, request.Content);
+                var userEmail = _authHelper.GetEmailFromClaims(User);
+                if (string.IsNullOrEmpty(userEmail)) return Unauthorized();
+
+                if (string.IsNullOrWhiteSpace(request?.Content))
+                    return BadRequest("Message content cannot be empty");
+
+                if (!await _chatRepository.IsParticipantAsync(conversationId, userEmail))
+                    return Forbid("Not a participant in this conversation");
+
+                var messageId = await _chatRepository.SendMessageAsync(conversationId, userEmail, request.Content.Trim());
                 
-                // Get the full message details for broadcasting
-                var messages = await _chatRepository.GetMessagesAsync(conversationId, 1, 0);
-                var message = messages.FirstOrDefault();
+                // Create message object for broadcasting without additional DB query
+                var senderName = GetSenderDisplayName(userEmail);
+                var message = new MessageDto
+                {
+                    MessageId = messageId,
+                    ConversationId = conversationId,
+                    SenderEmail = userEmail,
+                    SenderName = senderName,
+                    Content = request.Content.Trim(),
+                    SentAt = DateTime.UtcNow
+                };
                 
                 if (message != null)
                 {
@@ -88,7 +106,7 @@ namespace AlgorithmBattleArina.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"Failed to send message: {ex.Message}");
+                return StatusCode(500, $"Failed to send message: {ex.Message}");
             }
         }
 
@@ -96,32 +114,53 @@ namespace AlgorithmBattleArina.Controllers
         [StudentOnly]
         public async Task<ActionResult> CreateFriendConversation([FromBody] CreateFriendConversationDto request)
         {
-            var userEmail = _authHelper.GetEmailFromClaims(User);
-            var userId = _authHelper.GetUserIdFromClaims(User, "Student");
-            if (string.IsNullOrEmpty(userEmail) || userId == null) return Unauthorized();
+            try
+            {
+                var userEmail = _authHelper.GetEmailFromClaims(User);
+                var userId = _authHelper.GetUserIdFromClaims(User, "Student");
+                if (string.IsNullOrEmpty(userEmail) || userId == null) return Unauthorized();
 
-            // Check if users are friends
-            var friends = await _friendsRepository.GetFriendsAsync(userId.Value);
-            if (!friends.Any(f => f.StudentId == request.FriendId))
-                return BadRequest("You can only chat with friends");
+                if (request == null || string.IsNullOrWhiteSpace(request.FriendEmail))
+                    return BadRequest("Invalid friend information");
 
-            // Check if conversation already exists
-            var existingConversation = await _chatRepository.GetFriendConversationAsync(userEmail, request.FriendEmail);
-            if (existingConversation != null)
-                return Ok(existingConversation);
+                // Check if users are friends
+                var friends = await _friendsRepository.GetFriendsAsync(userId.Value);
+                if (!friends.Any(f => f.StudentId == request.FriendId))
+                    return BadRequest("You can only chat with friends");
 
-            // Create new conversation
-            var participantEmails = new List<string> { userEmail, request.FriendEmail };
-            var conversationId = await _chatRepository.CreateConversationAsync("Friend", null, participantEmails);
-            
-            var conversation = await _chatRepository.GetConversationAsync(conversationId);
-            return Ok(conversation);
+                // Check if conversation already exists
+                var existingConversation = await _chatRepository.GetFriendConversationAsync(userEmail, request.FriendEmail);
+                if (existingConversation != null)
+                    return Ok(existingConversation);
+
+                // Create new conversation
+                var participantEmails = new List<string> { userEmail, request.FriendEmail };
+                var conversationId = await _chatRepository.CreateConversationAsync("Friend", null, participantEmails);
+                
+                var conversation = await _chatRepository.GetConversationAsync(conversationId);
+                return Ok(conversation);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Failed to create conversation: {ex.Message}");
+            }
         }
-    }
 
-    public class CreateFriendConversationDto
-    {
-        public int FriendId { get; set; }
-        public string FriendEmail { get; set; } = string.Empty;
+        private string GetSenderDisplayName(string email)
+        {
+            try
+            {
+                var atIndex = email.IndexOf('@');
+                if (atIndex > 0)
+                {
+                    return email.Substring(0, atIndex);
+                }
+                return email;
+            }
+            catch
+            {
+                return email;
+            }
+        }
     }
 }

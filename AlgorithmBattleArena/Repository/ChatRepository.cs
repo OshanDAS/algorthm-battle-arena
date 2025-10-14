@@ -24,13 +24,20 @@ namespace AlgorithmBattleArina.Repositories
 
             var conversationId = await _dapper.LoadDataSingleAsync<int>(conversationSql, new { Type = type, ReferenceId = referenceId });
 
-            foreach (var email in participantEmails)
+            try
             {
-                var participantSql = @"
-                    INSERT INTO AlgorithmBattleArinaSchema.ConversationParticipants (ConversationId, ParticipantEmail, JoinedAt)
-                    VALUES (@ConversationId, @ParticipantEmail, GETDATE())";
-                
-                await _dapper.ExecuteSqlAsync(participantSql, new { ConversationId = conversationId, ParticipantEmail = email });
+                foreach (var email in participantEmails)
+                {
+                    var participantSql = @"
+                        INSERT INTO AlgorithmBattleArinaSchema.ConversationParticipants (ConversationId, ParticipantEmail, JoinedAt)
+                        VALUES (@ConversationId, @ParticipantEmail, GETDATE())";
+                    
+                    await _dapper.ExecuteSqlAsync(participantSql, new { ConversationId = conversationId, ParticipantEmail = email });
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to add participants to conversation: {ex.Message}", ex);
             }
 
             return conversationId;
@@ -48,16 +55,23 @@ namespace AlgorithmBattleArina.Repositories
 
             var conversations = await _dapper.LoadDataAsync<ConversationDto>(sql, new { UserEmail = userEmail });
             
-            // Get participants for each conversation
-            foreach (var conv in conversations)
+            // Get participants for each conversation in a single query for better performance
+            if (conversations.Any())
             {
+                var conversationIds = conversations.Select(c => c.ConversationId).ToList();
                 var participantsSql = @"
-                    SELECT ParticipantEmail 
+                    SELECT ConversationId, ParticipantEmail 
                     FROM AlgorithmBattleArinaSchema.ConversationParticipants 
-                    WHERE ConversationId = @ConversationId";
+                    WHERE ConversationId IN @ConversationIds";
                 
-                var participants = await _dapper.LoadDataAsync<string>(participantsSql, new { ConversationId = conv.ConversationId });
-                conv.Participants = participants.ToList();
+                var allParticipants = await _dapper.LoadDataAsync<dynamic>(participantsSql, new { ConversationIds = conversationIds });
+                var participantGroups = allParticipants.GroupBy(p => (int)p.ConversationId)
+                    .ToDictionary(g => g.Key, g => g.Select(p => (string)p.ParticipantEmail).ToList());
+                
+                foreach (var conv in conversations)
+                {
+                    conv.Participants = participantGroups.GetValueOrDefault(conv.ConversationId, new List<string>());
+                }
             }
 
             return conversations;
@@ -89,17 +103,24 @@ namespace AlgorithmBattleArina.Repositories
 
         public async Task<int> SendMessageAsync(int conversationId, string senderEmail, string content)
         {
-            var sql = @"
-                INSERT INTO AlgorithmBattleArinaSchema.Messages (ConversationId, SenderEmail, Content, SentAt)
-                VALUES (@ConversationId, @SenderEmail, @Content, GETDATE());
-                
-                UPDATE AlgorithmBattleArinaSchema.Conversations 
-                SET UpdatedAt = GETDATE() 
-                WHERE ConversationId = @ConversationId;
-                
-                SELECT SCOPE_IDENTITY();";
+            try
+            {
+                var sql = @"
+                    INSERT INTO AlgorithmBattleArinaSchema.Messages (ConversationId, SenderEmail, Content, SentAt)
+                    VALUES (@ConversationId, @SenderEmail, @Content, GETDATE());
+                    
+                    UPDATE AlgorithmBattleArinaSchema.Conversations 
+                    SET UpdatedAt = GETDATE() 
+                    WHERE ConversationId = @ConversationId;
+                    
+                    SELECT SCOPE_IDENTITY();";
 
-            return await _dapper.LoadDataSingleAsync<int>(sql, new { ConversationId = conversationId, SenderEmail = senderEmail, Content = content });
+                return await _dapper.LoadDataSingleAsync<int>(sql, new { ConversationId = conversationId, SenderEmail = senderEmail, Content = content });
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to send message: {ex.Message}", ex);
+            }
         }
 
         public async Task<IEnumerable<MessageDto>> GetMessagesAsync(int conversationId, int pageSize = 50, int offset = 0)

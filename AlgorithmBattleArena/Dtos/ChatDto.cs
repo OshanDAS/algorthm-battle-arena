@@ -32,4 +32,10 @@ namespace AlgorithmBattleArina.Dtos
         public int? ReferenceId { get; set; }
         public List<string> ParticipantEmails { get; set; } = new();
     }
+
+    public class CreateFriendConversationDto
+    {
+        public int FriendId { get; set; }
+        public string FriendEmail { get; set; } = string.Empty;
+    }
 }

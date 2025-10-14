@@ -14,9 +14,10 @@ export const useChat = () => {
     try {
       setLoading(true);
       const response = await api.chat.getConversations();
-      setConversations(response.data);
+      setConversations(response.data || []);
     } catch (error) {
       console.error('Failed to load conversations:', error);
+      setConversations([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -32,6 +33,11 @@ export const useChat = () => {
       }));
     } catch (error) {
       console.error('Failed to load messages:', error);
+      // Set empty array to prevent infinite loading states
+      setMessages(prev => ({
+        ...prev,
+        [conversationId]: []
+      }));
     }
   }, []);
 
@@ -53,19 +59,29 @@ export const useChat = () => {
 
   // Leave conversation
   const leaveConversation = useCallback(async (conversationId) => {
-    await chatSignalR.leaveConversation(conversationId);
-    if (activeConversation === conversationId) {
-      setActiveConversation(null);
+    try {
+      await chatSignalR.leaveConversation(conversationId);
+      if (activeConversation === conversationId) {
+        setActiveConversation(null);
+      }
+    } catch (error) {
+      console.error('Failed to leave conversation:', error);
+      // Still update UI state even if SignalR call fails
+      if (activeConversation === conversationId) {
+        setActiveConversation(null);
+      }
     }
   }, [activeConversation]);
 
   // Handle incoming messages
   useEffect(() => {
     const unsubscribe = chatSignalR.onReceiveMessage((message) => {
-      setMessages(prev => ({
-        ...prev,
-        [message.conversationId]: [...(prev[message.conversationId] || []), message]
-      }));
+      if (message && message.conversationId) {
+        setMessages(prev => ({
+          ...prev,
+          [message.conversationId]: [...(prev[message.conversationId] || []), message]
+        }));
+      }
     });
 
     return unsubscribe;
@@ -79,6 +95,13 @@ export const useChat = () => {
         await loadConversations();
       } catch (error) {
         console.error('Failed to initialize chat:', error);
+        // Retry connection after a delay
+        setTimeout(() => {
+          const token = getToken();
+          if (token) {
+            chatSignalR.start().catch(console.error);
+          }
+        }, 5000);
       }
     };
 
