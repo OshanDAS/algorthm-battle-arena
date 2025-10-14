@@ -6,6 +6,7 @@ import { useAuth } from '../services/auth';
 import ContactsSection from '../components/ContactsSection';
 import ChatButton from '../components/ChatButton';
 import ChatWindow from '../components/ChatWindow';
+import ChatIcon from '../components/ChatIcon';
 
 const StatCard = ({ icon, label, value }) => (
   <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-2xl flex items-center space-x-4 transform hover:scale-105 transition-transform duration-300">
@@ -17,7 +18,7 @@ const StatCard = ({ icon, label, value }) => (
   </div>
 );
 
-const FriendListItem = ({ friend, onRemove, onChat }) => (
+const FriendListItem = ({ friend, onRemove, onChatStart }) => (
   <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
     <div className="flex items-center space-x-3">
       <User className="h-8 w-8 text-gray-400" />
@@ -28,13 +29,11 @@ const FriendListItem = ({ friend, onRemove, onChat }) => (
     </div>
     <div className="flex items-center space-x-2">
       <div className={`h-3 w-3 rounded-full ${friend.isOnline ? 'bg-green-400' : 'bg-gray-600'}`}></div>
-      <button 
-        onClick={() => onChat(friend)}
-        className="text-blue-400 hover:text-blue-300 p-1"
-        title="Chat with friend"
-      >
-        <MessageCircle className="h-4 w-4" />
-      </button>
+      <ChatIcon 
+        user={friend} 
+        onChatStart={onChatStart}
+        className="w-8 h-8"
+      />
       <button 
         onClick={() => onRemove(friend.studentId)}
         className="text-red-400 hover:text-red-300 p-1"
@@ -82,6 +81,7 @@ export default function StudentDashboard() {
   
   // Chat state
   const [showChat, setShowChat] = useState(false);
+  const [selectedConversationId, setSelectedConversationId] = useState(null);
 
   useEffect(() => {
     fetchUserStats();
@@ -228,7 +228,8 @@ export default function StudentDashboard() {
     }
   };
 
-  const handleChatWithFriend = (friend) => {
+  const handleChatStart = (conversationId) => {
+    setSelectedConversationId(conversationId);
     setShowChat(true);
   };
 
@@ -444,7 +445,7 @@ export default function StudentDashboard() {
               <div className="space-y-3">
                 {friends.length > 0 ? (
                   friends.map((friend) => (
-                    <FriendListItem key={friend.studentId} friend={friend} onRemove={removeFriend} onChat={handleChatWithFriend} />
+                    <FriendListItem key={friend.studentId} friend={friend} onRemove={removeFriend} onChatStart={handleChatStart} />
                   ))
                 ) : (
                   <div className="text-center py-6">
@@ -849,7 +850,14 @@ export default function StudentDashboard() {
       
       {/* Chat Components */}
       <ChatButton onClick={() => setShowChat(true)} />
-      <ChatWindow isOpen={showChat} onClose={() => setShowChat(false)} />
+      <ChatWindow 
+        isOpen={showChat} 
+        onClose={() => {
+          setShowChat(false);
+          setSelectedConversationId(null);
+        }}
+        initialConversationId={selectedConversationId}
+      />
     </div>
   );
 

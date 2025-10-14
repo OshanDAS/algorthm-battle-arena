@@ -20,8 +20,8 @@ const MessageInput = ({ onSendMessage, disabled = false }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 border-t bg-white">
-      <div className="flex gap-2">
+    <div className="border-t p-4">
+      <form onSubmit={handleSubmit} className="flex space-x-2">
         <input
           type="text"
           value={message}
@@ -34,12 +34,13 @@ const MessageInput = ({ onSendMessage, disabled = false }) => {
         <button
           type="submit"
           disabled={!message.trim() || disabled}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center space-x-1"
         >
           <Send size={16} />
+          <span className="hidden sm:inline">Send</span>
         </button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 };
 

@@ -1,11 +1,12 @@
 import { X } from 'lucide-react';
+import { useEffect } from 'react';
 import ConversationList from './ConversationList';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import { useChat } from '../hooks/useChat';
 import { useAuth } from '../hooks/useAuth';
 
-const ChatWindow = ({ isOpen, onClose }) => {
+const ChatWindow = ({ isOpen, onClose, initialConversationId = null }) => {
   const { user } = useAuth();
   const {
     conversations,
@@ -16,15 +17,22 @@ const ChatWindow = ({ isOpen, onClose }) => {
     leaveConversation
   } = useChat();
 
-  // Don't render if user is not authenticated
-  if (!user || !isOpen) return null;
-
   const handleSelectConversation = async (conversationId) => {
     if (activeConversation && activeConversation !== conversationId) {
       await leaveConversation(activeConversation);
     }
     await joinConversation(conversationId);
   };
+
+  // Auto-join initial conversation if provided
+  useEffect(() => {
+    if (isOpen && initialConversationId && initialConversationId !== activeConversation) {
+      handleSelectConversation(initialConversationId);
+    }
+  }, [isOpen, initialConversationId, activeConversation]);
+
+  // Don't render if user is not authenticated
+  if (!user || !isOpen) return null;
 
   const handleSendMessage = async (content) => {
     if (activeConversation) {

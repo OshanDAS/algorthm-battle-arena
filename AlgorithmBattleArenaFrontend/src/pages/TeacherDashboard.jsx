@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Crown, Users, BookOpen, Plus, Trophy, Sword } from 'lucide-react';
 import { useAuth } from '../services/auth';
+import ChatButton from '../components/ChatButton';
+import ChatWindow from '../components/ChatWindow';
 
 export default function TeacherDashboard() {
   const { logout } = useAuth();
+  const [showChat, setShowChat] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white">
@@ -75,6 +78,13 @@ export default function TeacherDashboard() {
           </div>
         </div>
         </main>
+        
+        {/* Chat Components */}
+        <ChatButton onClick={() => setShowChat(true)} />
+        <ChatWindow 
+          isOpen={showChat} 
+          onClose={() => setShowChat(false)}
+        />
       </div>
     );
   }

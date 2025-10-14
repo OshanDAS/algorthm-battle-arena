@@ -52,9 +52,14 @@ export const useChat = () => {
 
   // Join conversation
   const joinConversation = useCallback(async (conversationId) => {
-    setActiveConversation(conversationId);
-    await chatSignalR.joinConversation(conversationId);
-    await loadMessages(conversationId);
+    try {
+      setActiveConversation(conversationId);
+      await chatSignalR.joinConversation(conversationId);
+      await loadMessages(conversationId);
+    } catch (error) {
+      console.error('Failed to join conversation:', error);
+      setActiveConversation(null);
+    }
   }, [loadMessages]);
 
   // Leave conversation
@@ -116,6 +121,18 @@ export const useChat = () => {
     };
   }, [loadConversations]);
 
+  // Create friend conversation
+  const createFriendConversation = useCallback(async (friendId, friendEmail) => {
+    try {
+      const response = await api.chat.createFriendConversation(friendId, friendEmail);
+      await loadConversations(); // Refresh conversations list
+      return response.data;
+    } catch (error) {
+      console.error('Failed to create friend conversation:', error);
+      throw error;
+    }
+  }, [loadConversations]);
+
   return {
     conversations,
     messages,
@@ -124,6 +141,7 @@ export const useChat = () => {
     sendMessage,
     joinConversation,
     leaveConversation,
-    loadConversations
+    loadConversations,
+    createFriendConversation
   };
 };

@@ -24,7 +24,10 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+});
 
 // Register DbContexts, repositories, and helpers
 var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION") ??
@@ -103,7 +106,8 @@ builder.Services.AddCors(options =>
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials();
+            .AllowCredentials()
+            .SetIsOriginAllowed(origin => true);
     });
 
     options.AddPolicy("ProdCors", policy =>

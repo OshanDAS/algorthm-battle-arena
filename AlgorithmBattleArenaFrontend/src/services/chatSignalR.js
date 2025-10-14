@@ -26,7 +26,10 @@ class ChatSignalRService {
     
     try {
       this.connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${apiService.client.defaults.baseURL}/chathub?access_token=${encodeURIComponent(token)}`)
+        .withUrl(`${apiService.client.defaults.baseURL}/chathub?access_token=${encodeURIComponent(token)}`, {
+          skipNegotiation: true,
+          transport: signalR.HttpTransportType.WebSockets
+        })
         .withAutomaticReconnect([0, 2000, 10000, 30000])
         .configureLogging(signalR.LogLevel.Information)
         .build();
@@ -64,10 +67,20 @@ class ChatSignalRService {
 
       await this.connection.start();
       this.connectionState = 'connected';
+      this.reconnectAttempts = 0;
       console.log('SignalR connected successfully');
     } catch (err) {
       console.error('Failed to start SignalR connection:', err);
       this.connectionState = 'disconnected';
+      
+      // Retry logic
+      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        this.reconnectAttempts++;
+        console.log(`Retrying connection (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
+        setTimeout(() => this.start(), 2000 * this.reconnectAttempts);
+        return;
+      }
+      
       throw new Error(`Failed to connect to chat service: ${err.message}`);
     }
   }
