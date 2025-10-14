@@ -15,11 +15,13 @@ const MatchChatPanel = ({ matchId, isOpen, onToggle }) => {
     const conv = conversations.find(c => c.type === 'Match' && c.referenceId === parseInt(matchId));
     if (conv) {
       setMatchConversation(conv);
-      joinConversation(conv.conversationId);
+      // join asynchronously without blocking render
+      (async () => await joinConversation(conv.conversationId))();
     }
 
     return () => {
       if (conv) {
+        // best-effort leave on unmount
         leaveConversation(conv.conversationId);
       }
     };

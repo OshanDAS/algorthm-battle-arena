@@ -17,6 +17,15 @@ namespace AlgorithmBattleArena.Repositories
 
         public async Task<int> CreateConversationAsync(string type, int? referenceId, List<string> participantEmails)
         {
+            // Check if conversation already exists
+            var existingConversation = await GetConversationByTypeAndReference(type, referenceId);
+            if (existingConversation != null)
+            {
+                // Add new participants to existing conversation
+                await AddParticipantsToConversationAsync(existingConversation.ConversationId, participantEmails);
+                return existingConversation.ConversationId;
+            }
+
             var conversationSql = @"
                 INSERT INTO AlgorithmBattleArinaSchema.Conversations (Type, ReferenceId, CreatedAt, UpdatedAt)
                 VALUES (@Type, @ReferenceId, GETDATE(), GETDATE());
@@ -26,14 +35,7 @@ namespace AlgorithmBattleArena.Repositories
 
             try
             {
-                foreach (var email in participantEmails)
-                {
-                    var participantSql = @"
-                        INSERT INTO AlgorithmBattleArinaSchema.ConversationParticipants (ConversationId, ParticipantEmail, JoinedAt)
-                        VALUES (@ConversationId, @ParticipantEmail, GETDATE())";
-                    
-                    await _dapper.ExecuteSqlAsync(participantSql, new { ConversationId = conversationId, ParticipantEmail = email });
-                }
+                await AddParticipantsToConversationAsync(conversationId, participantEmails);
             }
             catch (Exception ex)
             {
@@ -41,6 +43,27 @@ namespace AlgorithmBattleArena.Repositories
             }
 
             return conversationId;
+        }
+
+        public async Task AddParticipantsToConversationAsync(int conversationId, List<string> participantEmails)
+        {
+            foreach (var email in participantEmails)
+            {
+                try
+                {
+                    var participantSql = @"
+                        IF NOT EXISTS (SELECT 1 FROM AlgorithmBattleArinaSchema.ConversationParticipants 
+                                      WHERE ConversationId = @ConversationId AND ParticipantEmail = @ParticipantEmail)
+                        INSERT INTO AlgorithmBattleArinaSchema.ConversationParticipants (ConversationId, ParticipantEmail, JoinedAt)
+                        VALUES (@ConversationId, @ParticipantEmail, GETDATE())";
+                    
+                    await _dapper.ExecuteSqlAsync(participantSql, new { ConversationId = conversationId, ParticipantEmail = email });
+                }
+                catch
+                {
+                    // Ignore duplicate participant errors
+                }
+            }
         }
 
         public async Task<IEnumerable<ConversationDto>> GetConversationsAsync(string userEmail)
@@ -187,7 +210,7 @@ namespace AlgorithmBattleArena.Repositories
             return await GetConversationByTypeAndReference("Match", matchId);
         }
 
-        private async Task<ConversationDto?> GetConversationByTypeAndReference(string type, int referenceId)
+        private async Task<ConversationDto?> GetConversationByTypeAndReference(string type, int? referenceId)
         {
             var sql = @"
                 SELECT ConversationId, Type, ReferenceId, CreatedAt, UpdatedAt

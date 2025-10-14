@@ -40,7 +40,9 @@ namespace AlgorithmBattleArena.Hubs
                 if (!await _chatRepository.IsParticipantAsync(convId, userEmail))
                     throw new HubException("Not authorized to join this conversation");
 
-                await Groups.AddToGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
+                var groupName = $"conversation_{convId}";
+                _logger.LogInformation("ChatHub: User {Email} joining group {Group} (convId={ConvId})", userEmail, groupName, convId);
+                await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             }
             catch (Exception ex) when (!(ex is HubException))
             {
@@ -52,7 +54,9 @@ namespace AlgorithmBattleArena.Hubs
         {
             try
             {
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
+                var groupName = $"conversation_{conversationId}";
+                _logger.LogInformation("ChatHub: Connection {ConnId} leaving group {Group}", Context.ConnectionId, groupName);
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
             }
             catch (Exception ex)
             {
@@ -92,9 +96,9 @@ namespace AlgorithmBattleArena.Hubs
                     Content = content.Trim(),
                     SentAt = DateTime.UtcNow
                 };
-                
-                await Clients.Group($"conversation_{conversationId}")
-                    .SendAsync("NewMessage", message);
+                var groupName = $"conversation_{convId}";
+                _logger.LogInformation("ChatHub: Broadcasting NewMessage to group {Group} from {Email} (messageId={MessageId})", groupName, userEmail, messageId);
+                await Clients.Group(groupName).SendAsync("NewMessage", message);
             }
             catch (Exception ex)
             {

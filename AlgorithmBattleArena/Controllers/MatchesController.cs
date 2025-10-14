@@ -54,8 +54,16 @@ namespace AlgorithmBattleArena.Controllers
             var lobby = await _lobbyRepository.GetLobbyById(lobbyId);
             if (lobby != null)
             {
-                var participantEmails = lobby.Participants.Select(p => p.ParticipantEmail).ToList();
-                await _chatRepository.CreateConversationAsync("Match", match.MatchId, participantEmails);
+                try
+                {
+                    var participantEmails = lobby.Participants.Select(p => p.ParticipantEmail).ToList();
+                    await _chatRepository.CreateConversationAsync("Match", match.MatchId, participantEmails);
+                }
+                catch (Exception chatEx)
+                {
+                    // Log but don't fail match creation if chat fails
+                    Console.WriteLine($"Failed to create match chat: {chatEx.Message}");
+                }
             }
 
             var bufferSec = Math.Max(1, request.PreparationBufferSec);

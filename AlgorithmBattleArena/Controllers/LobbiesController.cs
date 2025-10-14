@@ -66,7 +66,15 @@ namespace AlgorithmBattleArena.Controllers
                 }
                 
                 // Create lobby chat conversation
-                await _chatRepository.CreateConversationAsync("Lobby", lobby.LobbyId, new List<string> { hostEmail });
+                try
+                {
+                    await _chatRepository.CreateConversationAsync("Lobby", lobby.LobbyId, new List<string> { hostEmail });
+                }
+                catch (Exception chatEx)
+                {
+                    // Log but don't fail lobby creation if chat fails
+                    Console.WriteLine($"Failed to create lobby chat: {chatEx.Message}");
+                }
                 
                 return CreatedAtAction(nameof(GetLobby), new { lobbyId = lobby.LobbyId }, lobby);
             }
@@ -88,6 +96,17 @@ namespace AlgorithmBattleArena.Controllers
 
             var success = await _lobbyRepository.JoinLobby(lobby.LobbyId, participantEmail);
             if (!success) return BadRequest("Cannot join lobby. It might be full or closed.");
+
+            // Add participant to lobby conversation
+            try
+            {
+                var allParticipants = new List<string> { lobby.HostEmail, participantEmail };
+                await _chatRepository.CreateConversationAsync("Lobby", lobby.LobbyId, allParticipants);
+            }
+            catch
+            {
+                // Conversation might already exist, ignore error
+            }
 
             var updatedLobby = await _lobbyRepository.GetLobbyById(lobby.LobbyId);
             await _hubContext.Clients.Group(lobby.LobbyId.ToString()).SendAsync("LobbyUpdated", updatedLobby);

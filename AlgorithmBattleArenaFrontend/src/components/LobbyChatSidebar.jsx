@@ -16,14 +16,18 @@ const LobbyChatSidebar = ({ lobbyId, isOpen, onToggle }) => {
 
   useEffect(() => {
     if (lobbyConversation && lobbyConversation.conversationId !== activeConversationId) {
-      setActiveConversationId(lobbyConversation.conversationId);
-      joinConversation(lobbyConversation.conversationId);
+      const join = async () => {
+        setActiveConversationId(lobbyConversation.conversationId);
+        await joinConversation(lobbyConversation.conversationId);
+      };
+      join();
     }
   }, [lobbyConversation, activeConversationId, joinConversation]);
 
   useEffect(() => {
     return () => {
       if (activeConversationId) {
+        // best-effort leave on unmount
         leaveConversation(activeConversationId);
       }
     };

@@ -4,8 +4,6 @@ import { BarChart, User, Users, Trophy, Swords, PlayCircle, LogOut, TrendingUp, 
 import apiService from '../services/api';
 import { useAuth } from '../services/auth';
 import ContactsSection from '../components/ContactsSection';
-import ChatButton from '../components/ChatButton';
-import ChatWindow from '../components/ChatWindow';
 import ChatIcon from '../components/ChatIcon';
 
 const StatCard = ({ icon, label, value }) => (
@@ -79,9 +77,7 @@ export default function StudentDashboard() {
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
   const [friendsLoading, setFriendsLoading] = useState(false);
   
-  // Chat state
-  const [showChat, setShowChat] = useState(false);
-  const [selectedConversationId, setSelectedConversationId] = useState(null);
+
 
   useEffect(() => {
     fetchUserStats();
@@ -492,7 +488,7 @@ export default function StudentDashboard() {
               </div>
             )}
             
-            <ContactsSection studentId={profile?.id} />
+            <ContactsSection studentId={profile?.id} friends={friends} />
             
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
               <h3 className="text-xl font-semibold mb-4 text-white">Request Teacher</h3>
@@ -848,16 +844,7 @@ export default function StudentDashboard() {
         {renderContent()}
       </div>
       
-      {/* Chat Components */}
-      <ChatButton onClick={() => setShowChat(true)} />
-      <ChatWindow 
-        isOpen={showChat} 
-        onClose={() => {
-          setShowChat(false);
-          setSelectedConversationId(null);
-        }}
-        initialConversationId={selectedConversationId}
-      />
+
     </div>
   );
 

@@ -6,6 +6,7 @@ namespace AlgorithmBattleArena.Repositories
     public interface IChatRepository
     {
         Task<int> CreateConversationAsync(string type, int? referenceId, List<string> participantEmails);
+        Task AddParticipantsToConversationAsync(int conversationId, List<string> participantEmails);
         Task<IEnumerable<ConversationDto>> GetConversationsAsync(string userEmail);
         Task<ConversationDto?> GetConversationAsync(int conversationId);
         Task<int> SendMessageAsync(int conversationId, string senderEmail, string content);

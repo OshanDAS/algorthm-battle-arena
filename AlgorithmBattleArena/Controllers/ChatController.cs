@@ -16,14 +16,16 @@ namespace AlgorithmBattleArena.Controllers
     {
         private readonly IChatRepository _chatRepository;
         private readonly IFriendsRepository _friendsRepository;
+        private readonly ITeacherRepository _teacherRepository;
         private readonly AuthHelper _authHelper;
         private readonly IHubContext<ChatHub> _hubContext;
 
-        public ChatController(IChatRepository chatRepository, IFriendsRepository friendsRepository, 
-            AuthHelper authHelper, IHubContext<ChatHub> hubContext)
+        public ChatController(IChatRepository chatRepository, IFriendsRepository friendsRepository,
+            ITeacherRepository teacherRepository, AuthHelper authHelper, IHubContext<ChatHub> hubContext)
         {
             _chatRepository = chatRepository;
             _friendsRepository = friendsRepository;
+            _teacherRepository = teacherRepository;
             _authHelper = authHelper;
             _hubContext = hubContext;
         }
@@ -122,16 +124,26 @@ namespace AlgorithmBattleArena.Controllers
                 if (request == null || string.IsNullOrWhiteSpace(request.FriendEmail))
                     return BadRequest("Invalid friend information");
 
-                // For students, check friendship; for teachers, allow direct chat
+                // For students, check friendship *unless* the requested participant is a teacher.
                 var role = _authHelper.GetRoleFromClaims(User);
                 if (role == "Student")
                 {
                     var userId = _authHelper.GetUserIdFromClaims(User, "Student");
                     if (userId == null) return Unauthorized();
-                    
-                    var friends = await _friendsRepository.GetFriendsAsync(userId.Value);
-                    if (!friends.Any(f => f.StudentId == request.FriendId))
-                        return BadRequest("You can only chat with friends");
+
+                    var isTeacher = false;
+                    if (request.FriendId > 0)
+                    {
+                        isTeacher = await _teacherRepository.ExistsAsync(request.FriendId);
+                    }
+
+                    if (!isTeacher)
+                    {
+                        var friends = await _friendsRepository.GetFriendsAsync(userId.Value);
+                        if (!friends.Any(f => f.StudentId == request.FriendId))
+                            return BadRequest("You can only chat with friends");
+                    }
+                    // if isTeacher == true, allow student to start direct conversation with teacher
                 }
 
                 // Check if conversation already exists

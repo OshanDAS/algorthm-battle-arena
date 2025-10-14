@@ -85,6 +85,7 @@ class ChatSignalRService {
       }
       
       if (this.connection && this.connectionState === 'connected') {
+        console.log('chatSignalR: invoking JoinConversation for', conversationId);
         await this.connection.invoke('JoinConversation', conversationId.toString());
       } else {
         throw new Error('SignalR connection not available');
@@ -113,6 +114,7 @@ class ChatSignalRService {
       }
       
       if (this.connection && this.connectionState === 'connected') {
+        console.log('chatSignalR: invoking SendMessage to', conversationId, 'content=', content);
         await this.connection.invoke('SendMessage', conversationId.toString(), content.trim());
       } else {
         throw new Error('Not connected to chat service');

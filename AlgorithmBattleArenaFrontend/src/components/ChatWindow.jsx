@@ -59,12 +59,22 @@ const ChatWindow = ({ isOpen, onClose, initialConversationId = null }) => {
             <h3 className="font-semibold">
               {activeConversation ? 'Chat' : 'Select a conversation'}
             </h3>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <X size={20} />
-            </button>
+            <div className="flex items-center space-x-2">
+              {activeConversation && (
+                <button
+                  onClick={async () => { await leaveConversation(activeConversation); }}
+                  className="text-sm px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-700"
+                >
+                  Exit Chat
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
 
           {activeConversation ? (

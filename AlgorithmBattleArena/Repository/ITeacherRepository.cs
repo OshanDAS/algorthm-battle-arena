@@ -7,5 +7,6 @@ namespace AlgorithmBattleArena.Repositories
     public interface ITeacherRepository
     {
         Task<IEnumerable<Teacher>> GetTeachers();
+        Task<bool> ExistsAsync(int teacherId);
     }
 }
