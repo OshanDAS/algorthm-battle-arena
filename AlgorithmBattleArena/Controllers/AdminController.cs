@@ -1,16 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
-using AlgorithmBattleArina.Attributes;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Attributes;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Helpers;
 
-using AlgorithmBattleArina.Exceptions;
-using AlgorithmBattleArina.Repositories;
+using AlgorithmBattleArena.Exceptions;
+using AlgorithmBattleArena.Repositories;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Globalization;
 using CsvHelper;
 
-namespace AlgorithmBattleArina.Controllers
+namespace AlgorithmBattleArena.Controllers
 {
     [AdminOnly]
     [ApiController]

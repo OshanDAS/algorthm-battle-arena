@@ -1,10 +1,10 @@
-using AlgorithmBattleArina.Repositories;
+using AlgorithmBattleArena.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Dtos;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Dtos;
 
-namespace AlgorithmBattleArina.Hubs
+namespace AlgorithmBattleArena.Hubs
 {
     [Authorize]
     public class ChatHub : Hub

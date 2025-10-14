@@ -1,6 +1,6 @@
-using AlgorithmBattleArina.Dtos;
+using AlgorithmBattleArena.Dtos;
 
-namespace AlgorithmBattleArina.Exceptions;
+namespace AlgorithmBattleArena.Exceptions;
 
 public class ImportException : Exception
 {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace AlgorithmBattleArina.Models
+namespace AlgorithmBattleArena.Models
 {
     /// <summary>
     /// Request body for starting a match in a lobby.

@@ -1,4 +1,4 @@
-namespace AlgorithmBattleArina.Dtos
+namespace AlgorithmBattleArena.Dtos
 {
     public class AdminUserDto
     {

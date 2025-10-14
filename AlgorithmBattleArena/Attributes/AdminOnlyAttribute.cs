@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
 
-namespace AlgorithmBattleArina.Attributes
+namespace AlgorithmBattleArena.Attributes
 {
     public class AdminOnlyAttribute : Attribute, IAuthorizationFilter
     {

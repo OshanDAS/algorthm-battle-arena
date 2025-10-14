@@ -1,14 +1,14 @@
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Models;
 using Dapper;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Helpers;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public class ProblemRepository : IProblemRepository
     {

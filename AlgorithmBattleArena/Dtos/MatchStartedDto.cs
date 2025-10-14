@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AlgorithmBattleArina.Dtos
+namespace AlgorithmBattleArena.Dtos
 {
     /// <summary>
     /// Payload sent to clients when a match starts.

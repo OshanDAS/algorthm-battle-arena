@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Models;
-using AlgorithmBattleArina.Dtos;
+using AlgorithmBattleArena.Models;
+using AlgorithmBattleArena.Dtos;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public interface IStudentRepository
     {

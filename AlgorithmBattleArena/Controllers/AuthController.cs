@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Helpers;
 using System.Security.Claims;
 
-namespace AlgorithmBattleArina.Controllers
+namespace AlgorithmBattleArena.Controllers
 {
     [Authorize]
     [ApiController]

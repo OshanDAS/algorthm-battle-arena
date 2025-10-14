@@ -1,9 +1,9 @@
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Models;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Models;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Helpers;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public class AuthRepository : IAuthRepository
     {

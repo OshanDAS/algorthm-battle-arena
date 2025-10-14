@@ -1,17 +1,17 @@
-using AlgorithmBattleArina.Hubs;
-using AlgorithmBattleArina.Models;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Attributes;
+using AlgorithmBattleArena.Hubs;
+using AlgorithmBattleArena.Models;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Helpers;
 
-namespace AlgorithmBattleArina.Controllers
+namespace AlgorithmBattleArena.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

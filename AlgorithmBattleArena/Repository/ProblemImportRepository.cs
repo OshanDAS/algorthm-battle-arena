@@ -1,9 +1,9 @@
 using System.Text.RegularExpressions;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Exceptions;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Exceptions;
+using AlgorithmBattleArena.Models;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public class ProblemImportRepository : IProblemImportRepository
     {

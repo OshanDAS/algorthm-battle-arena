@@ -1,8 +1,8 @@
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Hubs;
-using AlgorithmBattleArina.Middleware;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Hubs;
+using AlgorithmBattleArena.Middleware;
 // using Microsoft.EntityFrameworkCore; // Removed - using Dapper only
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

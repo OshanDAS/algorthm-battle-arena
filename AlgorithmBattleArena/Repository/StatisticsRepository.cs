@@ -1,7 +1,7 @@
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Dtos;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Dtos;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public class StatisticsRepository : IStatisticsRepository
     {

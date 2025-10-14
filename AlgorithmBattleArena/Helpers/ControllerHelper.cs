@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace AlgorithmBattleArina.Helpers
+namespace AlgorithmBattleArena.Helpers
 {
     public static class ControllerHelper
     {

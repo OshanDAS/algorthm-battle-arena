@@ -26,15 +26,7 @@ class ChatSignalRService {
     
     try {
       this.connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${apiService.client.defaults.baseURL}/chathub`, {
-          accessTokenFactory: () => {
-            const currentToken = getToken();
-            if (!currentToken) {
-              console.error('Token expired during connection');
-            }
-            return currentToken;
-          },
-        })
+        .withUrl(`${apiService.client.defaults.baseURL}/chathub?access_token=${encodeURIComponent(token)}`)
         .withAutomaticReconnect([0, 2000, 10000, 30000])
         .configureLogging(signalR.LogLevel.Information)
         .build();
