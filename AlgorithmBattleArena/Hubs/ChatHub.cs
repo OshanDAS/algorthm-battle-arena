@@ -11,11 +11,13 @@ namespace AlgorithmBattleArena.Hubs
     {
         private readonly IChatRepository _chatRepository;
         private readonly AuthHelper _authHelper;
+        private readonly ILogger<ChatHub> _logger;
 
-        public ChatHub(IChatRepository chatRepository, AuthHelper authHelper)
+        public ChatHub(IChatRepository chatRepository, AuthHelper authHelper, ILogger<ChatHub> logger)
         {
             _chatRepository = chatRepository;
             _authHelper = authHelper;
+            _logger = logger;
         }
 
         private string? GetUserEmail()
@@ -119,9 +121,45 @@ namespace AlgorithmBattleArena.Hubs
             }
         }
 
-        public override Task OnDisconnectedAsync(Exception? exception)
+        public override async Task OnConnectedAsync()
         {
-            return base.OnDisconnectedAsync(exception);
+            try
+            {
+                var httpContext = Context.GetHttpContext();
+                var path = httpContext?.Request?.Path.Value ?? "";
+                var query = httpContext?.Request?.QueryString.Value ?? "";
+                var connectionId = Context.ConnectionId;
+
+                var email = Context.User != null ? _authHelper.GetEmailFromClaims(Context.User) ?? "(no-email)" : "(no-user)";
+                var role = Context.User != null ? _authHelper.GetRoleFromClaims(Context.User) ?? "(no-role)" : "(no-user)";
+
+                _logger.LogInformation("SignalR ChatHub connected: ConnectionId={ConnectionId}, Path={Path}, Query={Query}, Email={Email}, Role={Role}",
+                    connectionId, path, query, email, role);
+            }
+            catch (Exception ex)
+            {
+                // Don't block connection on logging failures
+                Console.WriteLine($"ChatHub OnConnected logging failed: {ex.Message}");
+            }
+
+            await base.OnConnectedAsync();
+        }
+
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            try
+            {
+                var connectionId = Context.ConnectionId;
+                var email = Context.User != null ? _authHelper.GetEmailFromClaims(Context.User) ?? "(no-email)" : "(no-user)";
+                _logger.LogInformation("SignalR ChatHub disconnected: ConnectionId={ConnectionId}, Email={Email}, Reason={Reason}",
+                    connectionId, email, exception?.Message ?? "(none)");
+            }
+            catch
+            {
+                // swallow
+            }
+
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }

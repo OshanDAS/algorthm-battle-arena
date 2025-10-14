@@ -111,22 +111,28 @@ namespace AlgorithmBattleArena.Controllers
         }
 
         [HttpPost("conversations/friend")]
-        [StudentOnly]
+        [StudentOrAdmin]
         public async Task<ActionResult> CreateFriendConversation([FromBody] CreateFriendConversationDto request)
         {
             try
             {
                 var userEmail = _authHelper.GetEmailFromClaims(User);
-                var userId = _authHelper.GetUserIdFromClaims(User, "Student");
-                if (string.IsNullOrEmpty(userEmail) || userId == null) return Unauthorized();
+                if (string.IsNullOrEmpty(userEmail)) return Unauthorized();
 
                 if (request == null || string.IsNullOrWhiteSpace(request.FriendEmail))
                     return BadRequest("Invalid friend information");
 
-                // Check if users are friends
-                var friends = await _friendsRepository.GetFriendsAsync(userId.Value);
-                if (!friends.Any(f => f.StudentId == request.FriendId))
-                    return BadRequest("You can only chat with friends");
+                // For students, check friendship; for teachers, allow direct chat
+                var role = _authHelper.GetRoleFromClaims(User);
+                if (role == "Student")
+                {
+                    var userId = _authHelper.GetUserIdFromClaims(User, "Student");
+                    if (userId == null) return Unauthorized();
+                    
+                    var friends = await _friendsRepository.GetFriendsAsync(userId.Value);
+                    if (!friends.Any(f => f.StudentId == request.FriendId))
+                        return BadRequest("You can only chat with friends");
+                }
 
                 // Check if conversation already exists
                 var existingConversation = await _chatRepository.GetFriendConversationAsync(userEmail, request.FriendEmail);
