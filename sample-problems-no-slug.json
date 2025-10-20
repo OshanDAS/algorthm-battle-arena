@@ -1,44 +1,34 @@
 [
   {
-    "title": "Two Sum",
-    "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
-    "difficulty": "Easy",
-    "isPublic": true,
-    "isActive": true,
+    "title": "Find Missing Number",
+    "description": "Given an array nums containing n distinct numbers in the range [0, n], return the only number in the range that is missing from the array.",
+    "difficultyLevel": "Easy",
+    "category": "Array",
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "createdBy": "admin",
+    "tags": "[\"array\",\"math\"]",
     "testCases": [
       {
-        "input": "[2,7,11,15]\n9",
-        "expectedOutput": "[0,1]",
+        "inputData": "[3,0,1]",
+        "expectedOutput": "2",
         "isSample": true
       },
       {
-        "input": "[3,2,4]\n6", 
-        "expectedOutput": "[1,2]",
+        "inputData": "[0,1]",
+        "expectedOutput": "2",
+        "isSample": false
+      },
+      {
+        "inputData": "[9,6,4,2,3,5,7,0,1]",
+        "expectedOutput": "8",
         "isSample": false
       }
-    ]
-  },
-  {
-    "title": "Valid Parentheses",
-    "description": "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.",
-    "difficulty": "Easy",
-    "isPublic": true,
-    "isActive": true,
-    "testCases": [
+    ],
+    "solutions": [
       {
-        "input": "()",
-        "expectedOutput": "true",
-        "isSample": true
-      },
-      {
-        "input": "()[]{}",
-        "expectedOutput": "true", 
-        "isSample": true
-      },
-      {
-        "input": "(]",
-        "expectedOutput": "false",
-        "isSample": false
+        "language": "javascript",
+        "solutionText": "function missingNumber(nums) { const n = nums.length; const expectedSum = n * (n + 1) / 2; const actualSum = nums.reduce((sum, num) => sum + num, 0); return expectedSum - actualSum; }"
       }
     ]
   }

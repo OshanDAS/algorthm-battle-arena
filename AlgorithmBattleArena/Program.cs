@@ -50,6 +50,9 @@ builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IProblemImportRepository, ProblemImportRepository>();
 builder.Services.AddSingleton<AuthHelper>();
+// Micro-course AI service
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<AlgorithmBattleArena.Services.IMicroCourseService, AlgorithmBattleArena.Services.OpenAiMicroCourseService>();
 
 // JWT Authentication configuration
 var tokenKey = Environment.GetEnvironmentVariable("TOKEN_KEY") ??
@@ -154,6 +157,21 @@ app.MapControllers();
 // SignalR hubs
 app.MapHub<MatchHub>("/lobbyHub");
 app.MapHub<ChatHub>("/chathub");
+
+// Resolve the micro-course service once at startup to log OpenAI key presence (constructor logs this)
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var svc = scope.ServiceProvider.GetService<AlgorithmBattleArena.Services.IMicroCourseService>();
+        // svc may be null if registration changes; constructor will have logged presence
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetService<ILogger<Program>>();
+        logger?.LogWarning(ex, "Failed to resolve IMicroCourseService at startup");
+    }
+}
 
 app.Run();
 

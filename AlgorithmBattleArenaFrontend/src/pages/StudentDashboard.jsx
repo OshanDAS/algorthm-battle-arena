@@ -69,6 +69,7 @@ export default function StudentDashboard() {
   const [activeTab, setActiveTab] = useState('home');
   const [showTeacherModal, setShowTeacherModal] = useState(false);
   
+  
   // Friends state
   const [friends, setFriends] = useState([]);
   const [friendRequests, setFriendRequests] = useState({ received: [], sent: [] });
@@ -233,6 +234,7 @@ export default function StudentDashboard() {
     logout();
   };
 
+
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'analytics', label: 'Analytics', icon: TrendingUp },
@@ -255,6 +257,7 @@ export default function StudentDashboard() {
               <p className="text-gray-300 text-lg">
                 Ready to challenge yourself? Join a contest or start a battle to improve your coding skills.
               </p>
+              
             </div>
 
             {/* Quick Stats */}
@@ -843,8 +846,6 @@ export default function StudentDashboard() {
 
         {renderContent()}
       </div>
-      
-
     </div>
   );
 

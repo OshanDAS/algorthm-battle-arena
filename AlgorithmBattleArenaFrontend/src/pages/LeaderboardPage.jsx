@@ -82,13 +82,13 @@ const LeaderboardPage = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     Problems Completed
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider hidden sm:table-cell">
                     Matches Played
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider hidden md:table-cell">
                     Win Rate
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider hidden lg:table-cell">
                     Last Activity
                   </th>
                 </tr>
@@ -101,7 +101,7 @@ const LeaderboardPage = () => {
                         {entry.rank}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4">
                       <div className="text-sm font-medium text-white">
                         {entry.participantEmail}
                       </div>
@@ -116,17 +116,17 @@ const LeaderboardPage = () => {
                         {entry.problemsCompleted}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 hidden sm:table-cell">
                       <div className="text-sm text-gray-300">
                         {entry.matchesPlayed}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 hidden md:table-cell">
                       <div className="text-sm text-gray-300">
                         {entry.winRate}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                    <td className="px-6 py-4 hidden lg:table-cell text-sm text-gray-400">
                       {new Date(entry.lastSubmission).toLocaleDateString()}
                     </td>
                   </tr>

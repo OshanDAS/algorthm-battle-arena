@@ -6,6 +6,8 @@ const BASE_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:5000'  // Local development
   : 'https://algorithmbattlearena-dwdmb7a6c0a7hqdc.southindia-01.azurewebsites.net'; // Production
 
+console.log('API Base URL:', BASE_URL);
+
 class ApiService {
   constructor() {
     this.client = axios.create({
@@ -47,6 +49,10 @@ class ApiService {
     getById: (id) => this.client.get(`/api/Problems/${id}`),
     create: (data) => this.client.post('/api/Problems', data),
     generate: (data) => this.client.post('/api/Problems/generate', data),
+    getMicroCourse: (id, data) => {
+      console.log('Calling getMicroCourse with:', { id, data });
+      return this.client.post(`/api/Problems/${id}/microcourse`, data);
+    },
     update: (id, data) => this.client.put(`/api/Problems/${id}`, data),
     delete: (id) => this.client.delete(`/api/Problems/${id}`)
   };

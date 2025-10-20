@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using AlgorithmBattleArena.Dtos;
 using AlgorithmBattleArena.Exceptions;
 using AlgorithmBattleArena.Models;
+using System.Text.Json;
 
 namespace AlgorithmBattleArena.Repositories
 {
@@ -33,36 +34,36 @@ namespace AlgorithmBattleArena.Repositories
                 throw new ImportException(validationErrors);
             }
 
-            // Convert DTOs to entities
-            var problemEntities = problemList.Select(dto => new Problem
+            // Use stored procedure to import each problem
+            var importedCount = 0;
+            foreach (var dto in problemList)
             {
-                Slug = dto.Slug ?? GenerateSlug(dto.Title),
-                Title = dto.Title,
-                Description = dto.Description,
-                DifficultyLevel = dto.Difficulty,
-                IsPublic = dto.IsPublic,
-                IsActive = dto.IsActive,
-                Category = "Imported",
-                TimeLimit = dto.TimeLimitMs > 0 ? dto.TimeLimitMs : 1000,
-                MemoryLimit = dto.MemoryLimitMb > 0 ? dto.MemoryLimitMb : 128,
-                CreatedBy = "System",
-                Tags = dto.Tags?.Length > 0 ? System.Text.Json.JsonSerializer.Serialize(dto.Tags) : "[]",
-                TestCases = dto.TestCases.Select(tc => new ProblemTestCase
+                var testCasesJson = JsonSerializer.Serialize(dto.TestCases);
+                var solutionsJson = JsonSerializer.Serialize(dto.Solutions);
+                
+                var upsertDto = new ProblemUpsertDto
                 {
-                    InputData = tc.Input,
-                    ExpectedOutput = tc.ExpectedOutput,
-                    IsSample = tc.IsSample
-                }).ToList()
-            }).ToList();
-
-            // Import using repository
-            var importedCount = await _problemRepository.ImportProblemsAsync(problemEntities);
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    DifficultyLevel = dto.DifficultyLevel,
+                    Category = dto.Category,
+                    TimeLimit = dto.TimeLimit > 0 ? dto.TimeLimit : 1000,
+                    MemoryLimit = dto.MemoryLimit > 0 ? dto.MemoryLimit : 256,
+                    CreatedBy = dto.CreatedBy,
+                    Tags = dto.Tags,
+                    TestCases = testCasesJson,
+                    Solutions = solutionsJson
+                };
+                
+                await _problemRepository.UpsertProblem(upsertDto);
+                importedCount++;
+            }
             
             return new ImportResultDto
             {
                 Ok = true,
                 Inserted = importedCount,
-                Slugs = problemList.Select(p => p.Slug ?? GenerateSlug(p.Title)).ToArray()
+                Slugs = problemList.Select(p => GenerateSlug(p.Title)).ToArray()
             };
         }
 
@@ -78,10 +79,10 @@ namespace AlgorithmBattleArena.Repositories
             if (string.IsNullOrWhiteSpace(problem.Description))
                 errors.Add(new ImportErrorDto { Row = row, Field = "description", Message = "Description is required" });
 
-            if (string.IsNullOrWhiteSpace(problem.Difficulty))
-                errors.Add(new ImportErrorDto { Row = row, Field = "difficulty", Message = "Difficulty is required" });
-            else if (!IsValidDifficulty(problem.Difficulty))
-                errors.Add(new ImportErrorDto { Row = row, Field = "difficulty", Message = "Difficulty must be Easy, Medium, Hard, or numeric 1-5" });
+            if (string.IsNullOrWhiteSpace(problem.DifficultyLevel))
+                errors.Add(new ImportErrorDto { Row = row, Field = "difficultyLevel", Message = "Difficulty is required" });
+            else if (!IsValidDifficulty(problem.DifficultyLevel))
+                errors.Add(new ImportErrorDto { Row = row, Field = "difficultyLevel", Message = "Difficulty must be Easy, Medium, Hard, or numeric 1-5" });
 
             if (problem.TestCases == null || problem.TestCases.Length == 0)
                 errors.Add(new ImportErrorDto { Row = row, Field = "testCases", Message = "At least one test case required" });
@@ -90,8 +91,8 @@ namespace AlgorithmBattleArena.Repositories
                 for (int i = 0; i < problem.TestCases.Length; i++)
                 {
                     var testCase = problem.TestCases[i];
-                    if (string.IsNullOrWhiteSpace(testCase.Input))
-                        errors.Add(new ImportErrorDto { Row = row, Field = $"testCases[{i}].input", Message = "Test case input cannot be empty" });
+                    if (string.IsNullOrWhiteSpace(testCase.InputData))
+                        errors.Add(new ImportErrorDto { Row = row, Field = $"testCases[{i}].inputData", Message = "Test case input cannot be empty" });
                     if (string.IsNullOrWhiteSpace(testCase.ExpectedOutput))
                         errors.Add(new ImportErrorDto { Row = row, Field = $"testCases[{i}].expectedOutput", Message = "Test case expected output cannot be empty" });
                 }

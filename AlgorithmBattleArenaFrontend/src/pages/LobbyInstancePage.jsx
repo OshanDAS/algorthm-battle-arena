@@ -19,8 +19,8 @@ const SimpleChatWindow = ({ conversationId, currentUserEmail, onSendMessage, mes
     }
   };
   
-  return (
-    <div className="h-96 flex flex-col bg-white/5 rounded-lg border border-white/10">
+    return (
+        <div className="flex flex-col bg-white/5 rounded-lg border border-white/10 max-h-[55vh] md:h-96 overflow-y-auto">
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-400">
@@ -331,7 +331,7 @@ export default function LobbyInstancePage() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                         {/* Left Column: Settings */}
-                        <div className="lg:col-span-1 bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-2xl space-y-6">
+                        <div className="lg:col-span-1 col-span-1 bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-2xl space-y-6">
                             <h2 className="text-2xl font-bold flex items-center"><Settings className="mr-3"/> Settings</h2>
                             
                             <div>
@@ -424,7 +424,7 @@ export default function LobbyInstancePage() {
                         </div>
 
                         {/* Middle Column: Players & Controls */}
-                        <div className="lg:col-span-2 bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-2xl">
+                        <div className="lg:col-span-2 col-span-1 bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-2xl">
                             <h2 className="text-2xl font-bold flex items-center mb-4"><Users className="mr-3"/> Participants ({lobby.participants.length}/{lobby.maxPlayers})</h2>
                             
                             <div className="space-y-3 mb-6">
@@ -477,7 +477,7 @@ export default function LobbyInstancePage() {
                         </div>
                         
                         {/* Right Column: Chat */}
-                        <div className="lg:col-span-1 bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-2xl">
+                        <div className="lg:col-span-1 col-span-1 bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-2xl">
                             <h2 className="text-xl font-bold flex items-center mb-4">
                                 <MessageCircle className="mr-2" /> 
                                 Lobby Chat
@@ -491,7 +491,7 @@ export default function LobbyInstancePage() {
                                     messages={messages[lobbyConversationId] || []}
                                 />
                             ) : (
-                                <div className="h-96 flex items-center justify-center text-gray-400">
+                                <div className="flex-1 max-h-[45vh] md:h-96 flex items-center justify-center text-gray-400">
                                     <p>Loading chat...</p>
                                 </div>
                             )}

@@ -33,6 +33,10 @@ namespace AlgorithmBattleArena.Repositories
             parameters.Add("@TestCases", dto.TestCases);
             parameters.Add("@Solutions", dto.Solutions);
 
+            // Debug logging
+            Console.WriteLine($"TestCases JSON: {dto.TestCases}");
+            Console.WriteLine($"Solutions JSON: {dto.Solutions}");
+
             return await _dapper.LoadDataSingleAsync<int>(
                 "EXEC AlgorithmBattleArinaSchema.spUpsertProblem @Title, @Description, @DifficultyLevel, @Category, @TimeLimit, @MemoryLimit, @CreatedBy, @Tags, @TestCases, @Solutions",
                 parameters

@@ -64,6 +64,8 @@ const MatchChatWindow = ({ conversationId, currentUserEmail, onSendMessage, mess
         </div>
       </form>
     </div>
+
+            
   );
 };
 
@@ -98,6 +100,9 @@ export default function MatchPage() {
     const [problemScores, setProblemScores] = useState({});
     const [submissionCounts, setSubmissionCounts] = useState({});
     const [pendingExit, setPendingExit] = useState(false);
+    const [microCourse, setMicroCourse] = useState(null);
+    const [microCourseLoading, setMicroCourseLoading] = useState(false);
+    const [lastMicroCourseRequest, setLastMicroCourseRequest] = useState({}); // { [problemId]: timestamp }
 
     
     // Chat functionality
@@ -352,6 +357,42 @@ export default function MatchPage() {
                         <Clock className="h-6 w-6" />
                         <span className="text-xl font-bold">{remaining !== null ? formatCountdown(remaining) : '...'}</span>
                     </div>
+                    <button
+                        onClick={async () => {
+                            if (!activeProblem) return;
+                            const pid = activeProblem.problemId;
+                            const now = Date.now();
+                            const last = lastMicroCourseRequest[pid] || 0;
+                            // cooldown 60 seconds per problem
+                            if (now - last < 60000) {
+                                alert('Please wait before requesting another micro-course for this problem.');
+                                return;
+                            }
+                            setMicroCourseLoading(true);
+                            try {
+                                const resp = await apiService.problems.getMicroCourse(pid, { 
+                                    timeLimitSeconds: match.durationSec, 
+                                    remainingSec: Math.floor(remaining/1000), 
+                                    language: language 
+                                });
+                                setMicroCourse(resp.data);
+                                setLastMicroCourseRequest(prev => ({ ...prev, [pid]: Date.now() }));
+                            } catch (err) {
+                                console.error('Failed to fetch micro-course', err);
+                                if (err?.response) {
+                                    console.error('Server responded with:', err.response.status, err.response.data);
+                                } else {
+                                    console.error('Network or other error:', err.message);
+                                }
+                            } finally {
+                                setMicroCourseLoading(false);
+                            }
+                        }}
+                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-xl flex items-center justify-center space-x-2"
+                    >
+                        <Play className="h-4 w-4" />
+                        <span>{microCourseLoading ? 'Loading...' : 'Get Quick Course'}</span>
+                    </button>
                     <button 
                         onClick={handleSubmitAndExit}
                         className="bg-red-700 text-white font-bold py-2 px-4 rounded-xl flex items-center justify-center space-x-2"
@@ -362,8 +403,8 @@ export default function MatchPage() {
                 </div>
             </header>
 
-            <div className="flex-1 grid grid-cols-12 gap-4">
-                <div className="col-span-4 bg-slate-800 p-4 rounded-lg overflow-y-auto">
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div className="md:col-span-4 col-span-1 bg-slate-800 p-4 rounded-lg max-h-[60vh] md:max-h-none overflow-y-auto">
                     <h2 className="text-xl font-bold mb-4">Problems</h2>
                     <div className="space-y-2">
                         {problems.map(p => {
@@ -412,11 +453,11 @@ export default function MatchPage() {
                                                         <div key={idx} className="mb-2 p-2 bg-slate-800 rounded text-xs">
                                                             <div className="mb-1">
                                                                 <span className="text-blue-300">Input:</span>
-                                                                <pre className="text-gray-300 mt-1">{tc.inputData}</pre>
+                                                                <pre className="text-gray-300 mt-1 whitespace-pre-wrap break-words max-w-full">{tc.inputData}</pre>
                                                             </div>
                                                             <div>
                                                                 <span className="text-green-300">Output:</span>
-                                                                <pre className="text-gray-300 mt-1">{tc.expectedOutput}</pre>
+                                                                <pre className="text-gray-300 mt-1 whitespace-pre-wrap break-words max-w-full">{tc.expectedOutput}</pre>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -458,7 +499,7 @@ export default function MatchPage() {
                     </div>
                 </div>
 
-                <div className="col-span-6 flex flex-col">
+                <div className="md:col-span-6 col-span-1 flex flex-col">
                     <div className="flex justify-end mb-2">
                         <select 
                             value={language}
@@ -501,7 +542,7 @@ export default function MatchPage() {
                 </div>
                 
                 {/* Chat Column */}
-                <div className="col-span-2 bg-slate-800 p-4 rounded-lg flex flex-col">
+                <div className="md:col-span-2 col-span-1 bg-slate-800 p-4 rounded-lg flex flex-col max-h-[60vh] md:max-h-none overflow-y-auto">
                     <h2 className="text-xl font-bold mb-4 flex items-center">
                         <MessageCircle className="mr-2" />
                         Match Chat
@@ -543,6 +584,84 @@ export default function MatchPage() {
                 timeRemaining={remaining || 0}
             />
             
+            {/* Micro-course modal */}
+            {microCourse && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+                    <div className="bg-white text-black rounded-xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col">
+                        <div className="flex justify-between items-center p-6 border-b border-gray-200">
+                            <h2 className="text-2xl font-bold text-gray-800">📚 Quick Micro-Course</h2>
+                            <button 
+                                onClick={() => setMicroCourse(null)} 
+                                className="text-gray-400 hover:text-gray-600 text-xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        
+                        <div className="flex-1 overflow-y-auto p-6">
+                            <div className="mb-6">
+                                <p className="text-lg font-medium text-gray-700 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+                                    {microCourse.summary}
+                                </p>
+                            </div>
+                            
+                            <div className="space-y-4">
+                                {microCourse.steps && microCourse.steps.map((s, idx) => (
+                                    <div key={idx} className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                        <div className="flex justify-between items-center mb-3">
+                                            <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                                                <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">
+                                                    {idx + 1}
+                                                </span>
+                                                {s.title}
+                                            </h3>
+                                            <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">
+                                                {s.durationSec}s
+                                            </span>
+                                        </div>
+                                        
+                                        <p className="text-gray-700 mb-3 leading-relaxed">{s.content}</p>
+                                        
+                                        {s.example && (
+                                            <div className="bg-amber-50 border-l-4 border-amber-400 p-3 mb-3 rounded-r">
+                                                <div className="flex items-center mb-1">
+                                                    <span className="text-amber-600 font-medium text-sm">💡 Example:</span>
+                                                </div>
+                                                <p className="text-amber-800 text-sm">{s.example}</p>
+                                            </div>
+                                        )}
+                                        
+                                        {s.resources && s.resources.length > 0 && (
+                                            <div className="bg-purple-50 border-l-4 border-purple-400 p-3 rounded-r">
+                                                <div className="flex items-center mb-2">
+                                                    <span className="text-purple-600 font-medium text-sm">📖 Resources:</span>
+                                                </div>
+                                                <ul className="space-y-1">
+                                                    {s.resources.map((resource, ridx) => (
+                                                        <li key={ridx} className="text-purple-700 text-sm flex items-center">
+                                                            <span className="text-purple-400 mr-2">•</span>
+                                                            {resource}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        {microCourse.disclaimer && (
+                            <div className="p-4 bg-gray-100 border-t border-gray-200 rounded-b-xl">
+                                <p className="text-xs text-gray-600 text-center italic">
+                                    ⚠️ {microCourse.disclaimer}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
 
         </div>
     );
