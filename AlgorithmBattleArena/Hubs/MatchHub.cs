@@ -1,12 +1,12 @@
-using AlgorithmBattleArina.Repositories;
+using AlgorithmBattleArena.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Helpers;
 
-namespace AlgorithmBattleArina.Hubs
+namespace AlgorithmBattleArena.Hubs
 {
     [Authorize]
     public class MatchHub : Hub

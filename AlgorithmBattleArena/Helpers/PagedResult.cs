@@ -1,4 +1,4 @@
-namespace AlgorithmBattleArina.Helpers
+namespace AlgorithmBattleArena.Helpers
 {
     public class PagedResult<T>
     {

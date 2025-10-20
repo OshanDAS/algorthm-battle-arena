@@ -4,11 +4,11 @@ using System.Data;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Models;
 
 
 
-namespace AlgorithmBattleArina.Data
+namespace AlgorithmBattleArena.Data
 {
     public class DataContextEF: DbContext
     {

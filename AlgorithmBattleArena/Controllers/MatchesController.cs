@@ -1,17 +1,17 @@
-using AlgorithmBattleArina.Hubs;
-using AlgorithmBattleArina.Models;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Attributes;
+using AlgorithmBattleArena.Hubs;
+using AlgorithmBattleArena.Models;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Helpers;
 
-namespace AlgorithmBattleArina.Controllers
+namespace AlgorithmBattleArena.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -21,13 +21,15 @@ namespace AlgorithmBattleArina.Controllers
         private readonly IHubContext<MatchHub> _hubContext;
         private readonly ILobbyRepository _lobbyRepository;
         private readonly IMatchRepository _matchRepository;
+        private readonly IChatRepository _chatRepository;
         private readonly AuthHelper _authHelper;
 
-        public MatchesController(IHubContext<MatchHub> hubContext, ILobbyRepository lobbyRepository, IMatchRepository matchRepository, AuthHelper authHelper)
+        public MatchesController(IHubContext<MatchHub> hubContext, ILobbyRepository lobbyRepository, IMatchRepository matchRepository, IChatRepository chatRepository, AuthHelper authHelper)
         {
             _hubContext = hubContext;
             _lobbyRepository = lobbyRepository;
             _matchRepository = matchRepository;
+            _chatRepository = chatRepository;
             _authHelper = authHelper;
         }
 
@@ -47,6 +49,22 @@ namespace AlgorithmBattleArina.Controllers
             }
 
             var match = await _matchRepository.CreateMatch(lobbyId, request.ProblemIds);
+            
+            // Create match chat conversation
+            var lobby = await _lobbyRepository.GetLobbyById(lobbyId);
+            if (lobby != null)
+            {
+                try
+                {
+                    var participantEmails = lobby.Participants.Select(p => p.ParticipantEmail).ToList();
+                    await _chatRepository.CreateConversationAsync("Match", match.MatchId, participantEmails);
+                }
+                catch (Exception chatEx)
+                {
+                    // Log but don't fail match creation if chat fails
+                    Console.WriteLine($"Failed to create match chat: {chatEx.Message}");
+                }
+            }
 
             var bufferSec = Math.Max(1, request.PreparationBufferSec);
             var startAtUtc = DateTime.UtcNow.AddSeconds(bufferSec);

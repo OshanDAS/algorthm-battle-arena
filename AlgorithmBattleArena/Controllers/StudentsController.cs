@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Helpers;
 using System.Threading.Tasks;
 using System.Security.Claims;
 
-namespace AlgorithmBattleArina.Controllers
+namespace AlgorithmBattleArena.Controllers
 {
     [Authorize]
     [ApiController]
@@ -71,6 +71,19 @@ namespace AlgorithmBattleArina.Controllers
 
             var students = await _studentRepository.GetStudentsByStatus(teacherId.Value, status);
             return Ok(students);
+        }
+
+        [HttpGet("teachers")]
+        public async Task<IActionResult> GetAcceptedTeachers()
+        {
+            var studentId = _authHelper.GetUserIdFromClaims(User, "Student");
+            if (studentId == null)
+            {
+                return Unauthorized("User not found or not a student");
+            }
+
+            var teachers = await _studentRepository.GetAcceptedTeachers(studentId.Value);
+            return Ok(teachers);
         }
     }
 }

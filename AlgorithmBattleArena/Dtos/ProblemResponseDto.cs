@@ -1,6 +1,6 @@
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Models;
 
-namespace AlgorithmBattleArina.Dtos
+namespace AlgorithmBattleArena.Dtos
 {
     public class ProblemResponseDto
     {

@@ -1,24 +1,30 @@
-namespace AlgorithmBattleArina.Dtos;
+namespace AlgorithmBattleArena.Dtos;
 
 public class ImportedProblemDto
 {
-    public string? Slug { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public string Difficulty { get; set; } = string.Empty;
-    public bool IsPublic { get; set; } = true;
-    public bool IsActive { get; set; } = true;
-    public int TimeLimitMs { get; set; }
-    public int MemoryLimitMb { get; set; }
-    public string[] Tags { get; set; } = Array.Empty<string>();
+    public string DifficultyLevel { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+    public int TimeLimit { get; set; }
+    public int MemoryLimit { get; set; }
+    public string CreatedBy { get; set; } = "admin";
+    public string Tags { get; set; } = string.Empty;
     public ImportTestCaseDto[] TestCases { get; set; } = Array.Empty<ImportTestCaseDto>();
+    public ImportSolutionDto[] Solutions { get; set; } = Array.Empty<ImportSolutionDto>();
 }
 
 public class ImportTestCaseDto
 {
-    public string Input { get; set; } = string.Empty;
+    public string InputData { get; set; } = string.Empty;
     public string ExpectedOutput { get; set; } = string.Empty;
     public bool IsSample { get; set; }
+}
+
+public class ImportSolutionDto
+{
+    public string Language { get; set; } = string.Empty;
+    public string SolutionText { get; set; } = string.Empty;
 }
 
 public class ImportErrorDto

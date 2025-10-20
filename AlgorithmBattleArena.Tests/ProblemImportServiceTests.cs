@@ -2,7 +2,6 @@ using AlgorithmBattleArina.Data;
 using AlgorithmBattleArina.Dtos;
 using AlgorithmBattleArina.Exceptions;
 using AlgorithmBattleArina.Models;
-using AlgorithmBattleArina.Services;
 using AlgorithmBattleArina.Repositories;
 using AlgorithmBattleArina.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +10,10 @@ using Xunit;
 
 namespace AlgorithmBattleArena.Tests;
 
-public class ProblemImportServiceTests : IDisposable
+public class ProblemImportRepositoryTests : IDisposable
 {
     private readonly DataContextEF _context;
-    private readonly ProblemImportService _service;
+    private readonly ProblemImportRepository _repository;
 
     public ProblemImportServiceTests()
     {
@@ -31,8 +30,7 @@ public class ProblemImportServiceTests : IDisposable
 
         _context = new TestDataContextEF(config, options);
         var mockProblemRepo = new MockProblemRepository();
-        var validator = new ProblemImportValidator(mockProblemRepo);
-        _service = new ProblemImportService(mockProblemRepo, validator);
+        _repository = new ProblemImportRepository(mockProblemRepo);
     }
 
     [Fact]
@@ -44,7 +42,7 @@ public class ProblemImportServiceTests : IDisposable
             CreateValidProblem("test-slug-2", "Test Problem 2")
         };
 
-        var result = await _service.ImportProblemsAsync(problems);
+        var result = await _repository.ImportProblemsAsync(problems);
 
         Assert.True(result.Ok);
         Assert.Equal(2, result.Inserted);
@@ -59,7 +57,7 @@ public class ProblemImportServiceTests : IDisposable
             CreateValidProblem("new-slug", "Existing Problem")
         };
 
-        var result = await _service.ImportProblemsAsync(problems);
+        var result = await _repository.ImportProblemsAsync(problems);
         Assert.True(result.Ok);
     }
 
@@ -73,7 +71,7 @@ public class ProblemImportServiceTests : IDisposable
         };
 
         // With mock validator, invalid data gets caught during validation
-        var exception = await Assert.ThrowsAsync<ImportException>(() => _service.ImportProblemsAsync(problems));
+        var exception = await Assert.ThrowsAsync<ImportException>(() => _repository.ImportProblemsAsync(problems));
         Assert.NotEmpty(exception.Errors);
     }
 
@@ -87,7 +85,7 @@ public class ProblemImportServiceTests : IDisposable
             new ImportTestCaseDto { Input = "input2", ExpectedOutput = "output2", IsSample = false }
         };
 
-        var result = await _service.ImportProblemsAsync(new[] { problem });
+        var result = await _repository.ImportProblemsAsync(new[] { problem });
 
         Assert.True(result.Ok);
         Assert.Equal(1, result.Inserted);

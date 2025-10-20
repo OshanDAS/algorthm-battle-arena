@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Models;
 using Dapper;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public class TeacherRepository : ITeacherRepository
     {
@@ -19,6 +19,14 @@ namespace AlgorithmBattleArina.Repositories
         {
             string sql = @"SELECT * FROM AlgorithmBattleArinaSchema.Teachers";
             return await _dapper.LoadDataAsync<Teacher>(sql);
+        }
+
+        public async Task<bool> ExistsAsync(int teacherId)
+        {
+            string sql = @"SELECT COUNT(1) FROM AlgorithmBattleArinaSchema.Teachers WHERE TeacherId = @TeacherId";
+            var result = await _dapper.LoadDataAsync<int>(sql, new { TeacherId = teacherId });
+            var count = result.FirstOrDefault();
+            return count > 0;
         }
     }
 }

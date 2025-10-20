@@ -1,9 +1,9 @@
-using AlgorithmBattleArina.Data;
+using AlgorithmBattleArena.Data;
 using System.Security.Claims;
 using System.Text.Json;
 using Dapper;
 
-namespace AlgorithmBattleArina.Middleware
+namespace AlgorithmBattleArena.Middleware
 {
     public class AuditLoggingMiddleware
     {
