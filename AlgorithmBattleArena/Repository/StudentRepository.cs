@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Models;
 using Dapper;
-using AlgorithmBattleArina.Dtos;
+using AlgorithmBattleArena.Dtos;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public class StudentRepository : IStudentRepository
     {
@@ -49,6 +49,15 @@ namespace AlgorithmBattleArina.Repositories
                 string sql = @"SELECT r.RequestId, s.StudentId, s.FirstName, s.LastName, s.Email, s.Email AS Username FROM AlgorithmBattleArinaSchema.Student s JOIN AlgorithmBattleArinaSchema.StudentTeacherRequests r ON s.StudentId = r.StudentId WHERE r.TeacherId = @TeacherId AND r.Status = @Status";
                 return await _dapper.LoadDataAsync<StudentRequestDto>(sql, new { TeacherId = teacherId, Status = status });
             }
+        }
+
+        public async Task<IEnumerable<TeacherDto>> GetAcceptedTeachers(int studentId)
+        {
+            string sql = @"SELECT t.TeacherId, t.FirstName, t.LastName, t.Email 
+                          FROM AlgorithmBattleArinaSchema.Teachers t 
+                          JOIN AlgorithmBattleArinaSchema.Student s ON t.TeacherId = s.TeacherId 
+                          WHERE s.StudentId = @StudentId";
+            return await _dapper.LoadDataAsync<TeacherDto>(sql, new { StudentId = studentId });
         }
     }
 }

@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Models;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public interface ITeacherRepository
     {
         Task<IEnumerable<Teacher>> GetTeachers();
+        Task<bool> ExistsAsync(int teacherId);
     }
 }

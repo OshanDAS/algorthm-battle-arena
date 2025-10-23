@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AlgorithmBattleArina.Dtos
+namespace AlgorithmBattleArena.Dtos
 {
     public class TestCaseDto
     {

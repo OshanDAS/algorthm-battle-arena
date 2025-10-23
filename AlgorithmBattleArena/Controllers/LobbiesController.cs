@@ -1,17 +1,17 @@
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Attributes;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Attributes;
+using AlgorithmBattleArena.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using AlgorithmBattleArina.Dtos;
+using AlgorithmBattleArena.Dtos;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
 using Microsoft.AspNetCore.SignalR;
-using AlgorithmBattleArina.Hubs;
+using AlgorithmBattleArena.Hubs;
 
-namespace AlgorithmBattleArina.Controllers
+namespace AlgorithmBattleArena.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -19,12 +19,14 @@ namespace AlgorithmBattleArina.Controllers
     public class LobbiesController : ControllerBase
     {
         private readonly ILobbyRepository _lobbyRepository;
+        private readonly IChatRepository _chatRepository;
         private readonly AuthHelper _authHelper;
         private readonly IHubContext<MatchHub> _hubContext;
 
-        public LobbiesController(ILobbyRepository lobbyRepository, AuthHelper authHelper, IHubContext<MatchHub> hubContext)
+        public LobbiesController(ILobbyRepository lobbyRepository, IChatRepository chatRepository, AuthHelper authHelper, IHubContext<MatchHub> hubContext)
         {
             _lobbyRepository = lobbyRepository;
+            _chatRepository = chatRepository;
             _authHelper = authHelper;
             _hubContext = hubContext;
         }
@@ -63,6 +65,17 @@ namespace AlgorithmBattleArina.Controllers
                     return StatusCode(500, new { message = "Failed to create lobby" });
                 }
                 
+                // Create lobby chat conversation
+                try
+                {
+                    await _chatRepository.CreateConversationAsync("Lobby", lobby.LobbyId, new List<string> { hostEmail });
+                }
+                catch (Exception chatEx)
+                {
+                    // Log but don't fail lobby creation if chat fails
+                    Console.WriteLine($"Failed to create lobby chat: {chatEx.Message}");
+                }
+                
                 return CreatedAtAction(nameof(GetLobby), new { lobbyId = lobby.LobbyId }, lobby);
             }
             catch (Exception ex)
@@ -83,6 +96,17 @@ namespace AlgorithmBattleArina.Controllers
 
             var success = await _lobbyRepository.JoinLobby(lobby.LobbyId, participantEmail);
             if (!success) return BadRequest("Cannot join lobby. It might be full or closed.");
+
+            // Add participant to lobby conversation
+            try
+            {
+                var allParticipants = new List<string> { lobby.HostEmail, participantEmail };
+                await _chatRepository.CreateConversationAsync("Lobby", lobby.LobbyId, allParticipants);
+            }
+            catch
+            {
+                // Conversation might already exist, ignore error
+            }
 
             var updatedLobby = await _lobbyRepository.GetLobbyById(lobby.LobbyId);
             await _hubContext.Clients.Group(lobby.LobbyId.ToString()).SendAsync("LobbyUpdated", updatedLobby);

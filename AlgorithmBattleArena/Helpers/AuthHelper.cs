@@ -6,7 +6,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace AlgorithmBattleArina.Helpers
+namespace AlgorithmBattleArena.Helpers
 {
     public class AuthHelper
     {

@@ -1,13 +1,13 @@
 
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Models;
 using Dapper;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public class LobbyRepository : ILobbyRepository
     {

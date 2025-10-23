@@ -1,7 +1,7 @@
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Helpers;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public interface IAdminRepository
     {

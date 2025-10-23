@@ -1,6 +1,6 @@
 using System;
 
-namespace AlgorithmBattleArina.Models
+namespace AlgorithmBattleArena.Models
 {
     public class Submission
     {

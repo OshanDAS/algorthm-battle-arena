@@ -1,4 +1,4 @@
-namespace AlgorithmBattleArina.Models
+namespace AlgorithmBattleArena.Models
 {
     public class MatchProblem
     {

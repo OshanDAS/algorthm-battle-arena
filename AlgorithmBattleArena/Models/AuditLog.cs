@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AlgorithmBattleArina.Models
+namespace AlgorithmBattleArena.Models
 {
     public class AuditLog
     {

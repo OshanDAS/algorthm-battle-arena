@@ -6,6 +6,8 @@ const BASE_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:5000'  // Local development
   : 'https://algorithmbattlearena-dwdmb7a6c0a7hqdc.southindia-01.azurewebsites.net'; // Production
 
+console.log('API Base URL:', BASE_URL);
+
 class ApiService {
   constructor() {
     this.client = axios.create({
@@ -47,6 +49,10 @@ class ApiService {
     getById: (id) => this.client.get(`/api/Problems/${id}`),
     create: (data) => this.client.post('/api/Problems', data),
     generate: (data) => this.client.post('/api/Problems/generate', data),
+    getMicroCourse: (id, data) => {
+      console.log('Calling getMicroCourse with:', { id, data });
+      return this.client.post(`/api/Problems/${id}/microcourse`, data);
+    },
     update: (id, data) => this.client.put(`/api/Problems/${id}`, data),
     delete: (id) => this.client.delete(`/api/Problems/${id}`)
   };
@@ -60,7 +66,8 @@ class ApiService {
     getByStatus: (status) => this.client.get(`/api/Students?status=${status}`),
     acceptRequest: (requestId) => this.client.put(`/api/Students/${requestId}/accept`),
     rejectRequest: (requestId) => this.client.put(`/api/Students/${requestId}/reject`),
-    requestTeacher: (teacherId) => this.client.post('/api/Students/request', teacherId)
+    requestTeacher: (teacherId) => this.client.post('/api/Students/request', teacherId),
+    getAcceptedTeachers: () => this.client.get('/api/Students/teachers')
   };
 
   teachers = {
@@ -85,6 +92,17 @@ class ApiService {
     delete: (id) => this.client.delete(`/api/Lobbies/${id}`)
   };
 
+  friends = {
+    getFriends: () => this.client.get('/api/Friends'),
+    searchStudents: (query) => this.client.get('/api/Friends/search', { params: { query } }),
+    sendFriendRequest: (receiverId) => this.client.post('/api/Friends/request', { receiverId }),
+    getReceivedRequests: () => this.client.get('/api/Friends/requests/received'),
+    getSentRequests: () => this.client.get('/api/Friends/requests/sent'),
+    acceptFriendRequest: (requestId) => this.client.put(`/api/Friends/requests/${requestId}/accept`),
+    rejectFriendRequest: (requestId) => this.client.put(`/api/Friends/requests/${requestId}/reject`),
+    removeFriend: (friendId) => this.client.delete(`/api/Friends/${friendId}`)
+  };
+
   admin = {
     getUsers: ({ q, role, page = 1, pageSize = 25 }) => 
       this.client.get('/api/Admin/users', { params: { q, role, page, pageSize } }),
@@ -97,6 +115,18 @@ class ApiService {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
     }
+  };
+
+  chat = {
+    getConversations: () => this.client.get('/api/Chat/conversations'),
+    getMessages: (conversationId, pageSize = 50, offset = 0) => 
+      this.client.get(`/api/Chat/conversations/${conversationId}/messages?pageSize=${pageSize}&offset=${offset}`),
+    createConversation: (type, participantEmails, referenceId = null) => 
+      this.client.post('/api/Chat/conversations', { type, participantEmails, referenceId }),
+    sendMessage: (conversationId, content) => 
+      this.client.post(`/api/Chat/conversations/${conversationId}/messages`, { content }),
+    createFriendConversation: (friendId, friendEmail) => 
+      this.client.post('/api/Chat/conversations/friend', { friendId, friendEmail })
   };
 }
 

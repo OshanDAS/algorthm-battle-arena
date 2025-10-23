@@ -1,14 +1,14 @@
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Models;
 using Dapper;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Helpers;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public class ProblemRepository : IProblemRepository
     {
@@ -32,6 +32,10 @@ namespace AlgorithmBattleArina.Repositories
             parameters.Add("@Tags", dto.Tags);
             parameters.Add("@TestCases", dto.TestCases);
             parameters.Add("@Solutions", dto.Solutions);
+
+            // Debug logging
+            Console.WriteLine($"TestCases JSON: {dto.TestCases}");
+            Console.WriteLine($"Solutions JSON: {dto.Solutions}");
 
             return await _dapper.LoadDataSingleAsync<int>(
                 "EXEC AlgorithmBattleArinaSchema.spUpsertProblem @Title, @Description, @DifficultyLevel, @Category, @TimeLimit, @MemoryLimit, @CreatedBy, @Tags, @TestCases, @Solutions",

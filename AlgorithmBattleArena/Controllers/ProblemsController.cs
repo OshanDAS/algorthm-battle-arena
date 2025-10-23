@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Attributes;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Attributes;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Repositories;
+using AlgorithmBattleArena.Repositories;
 
-namespace AlgorithmBattleArina.Controllers
+namespace AlgorithmBattleArena.Controllers
 {
     [Authorize]
     [ApiController]
@@ -15,11 +15,13 @@ namespace AlgorithmBattleArina.Controllers
     {
         private readonly IProblemRepository _problemRepository;
         private readonly ILogger<ProblemsController> _logger;
+    private readonly AlgorithmBattleArena.Services.IMicroCourseService _microCourseService;
 
-        public ProblemsController(IProblemRepository problemRepository, ILogger<ProblemsController> logger)
+        public ProblemsController(IProblemRepository problemRepository, ILogger<ProblemsController> logger, AlgorithmBattleArena.Services.IMicroCourseService microCourseService)
         {
             _problemRepository = problemRepository;
             _logger = logger;
+            _microCourseService = microCourseService;
         }
 
         [AdminOnly]
@@ -40,7 +42,26 @@ namespace AlgorithmBattleArina.Controllers
             }
         }
 
-        [StudentOrAdmin]
+        [AllowAnonymous]
+        [HttpPost("{id:int}/microcourse")]
+        public async Task<IActionResult> GetMicroCourse(int id, [FromBody] MicroCourseRequestDto request)
+        {
+            _logger.LogInformation("Received microcourse request for problem {ProblemId}", id);
+            try
+            {
+                var userId = User?.Identity?.Name ?? "unknown";
+                var result = await _microCourseService.GenerateMicroCourseAsync(id, request, userId);
+                if (result == null)
+                    return NotFound(new { message = "Problem not found or micro-course unavailable." });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating micro-course");
+                return StatusCode(500, new { message = "Failed to generate micro-course" });
+            }
+        }
         [HttpGet]
         public async Task<IActionResult> GetProblems([FromQuery] ProblemFilterDto filter)
         {
@@ -127,6 +148,20 @@ namespace AlgorithmBattleArina.Controllers
             catch (Exception ex)
             {
                 return ControllerHelper.HandleError(ex, "Error generating problems", _logger);
+            }
+        }
+
+        [HttpGet("debug/javascript-count")]
+        public async Task<IActionResult> GetJavaScriptProblemCount()
+        {
+            try
+            {
+                var problems = await _problemRepository.GetRandomProblems("javascript", "Mixed", 100);
+                return Ok(new { count = problems.Count(), problems = problems.Select(p => new { p.ProblemId, p.Title, p.DifficultyLevel }) });
+            }
+            catch (Exception ex)
+            {
+                return ControllerHelper.HandleError(ex, "Error checking JavaScript problems", _logger);
             }
         }
     }

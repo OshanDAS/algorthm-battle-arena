@@ -1,6 +1,6 @@
-using AlgorithmBattleArina.Dtos;
+using AlgorithmBattleArena.Dtos;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public interface IStatisticsRepository
     {

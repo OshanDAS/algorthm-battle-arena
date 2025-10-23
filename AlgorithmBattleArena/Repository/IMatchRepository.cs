@@ -1,9 +1,9 @@
-using AlgorithmBattleArina.Models;
-using AlgorithmBattleArina.Dtos;
+using AlgorithmBattleArena.Models;
+using AlgorithmBattleArena.Dtos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public interface IMatchRepository
     {
