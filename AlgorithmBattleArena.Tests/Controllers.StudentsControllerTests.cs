@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Controllers;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Dtos;
+using AlgorithmBattleArena.Controllers;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Dtos;
 
 namespace AlgorithmBattleArena.Tests;
 

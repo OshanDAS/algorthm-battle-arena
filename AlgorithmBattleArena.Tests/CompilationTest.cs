@@ -1,8 +1,8 @@
 using Xunit;
 using Microsoft.Extensions.Configuration;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Models;
 using System.Collections.Generic;
 
 namespace AlgorithmBattleArena.Tests;

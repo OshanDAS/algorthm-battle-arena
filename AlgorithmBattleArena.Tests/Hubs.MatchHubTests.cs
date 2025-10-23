@@ -2,10 +2,10 @@ using Xunit;
 using Moq;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
-using AlgorithmBattleArina.Hubs;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Hubs;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Models;
 using Microsoft.Extensions.Configuration;
 
 namespace AlgorithmBattleArena.Tests;

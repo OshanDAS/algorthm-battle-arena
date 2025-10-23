@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using System.Security.Claims;
 using AlgorithmBattleArena.Controllers;
@@ -15,7 +16,8 @@ namespace AlgorithmBattleArena.Tests
     {
         private readonly Mock<IChatRepository> _mockChatRepository;
         private readonly Mock<IFriendsRepository> _mockFriendsRepository;
-        private readonly Mock<AuthHelper> _mockAuthHelper;
+        private readonly Mock<ITeacherRepository> _mockTeacherRepository;
+        private readonly AuthHelper _authHelper;
         private readonly Mock<IHubContext<ChatHub>> _mockHubContext;
         private readonly ChatController _controller;
 
@@ -23,13 +25,24 @@ namespace AlgorithmBattleArena.Tests
         {
             _mockChatRepository = new Mock<IChatRepository>();
             _mockFriendsRepository = new Mock<IFriendsRepository>();
-            _mockAuthHelper = new Mock<AuthHelper>();
+            _mockTeacherRepository = new Mock<ITeacherRepository>();
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: false)
+                .Build();
+            _authHelper = new AuthHelper(config);
             _mockHubContext = new Mock<IHubContext<ChatHub>>();
+
+            // Setup SignalR hub context mocks
+            var mockClients = new Mock<IHubClients>();
+            var mockClientProxy = new Mock<IClientProxy>();
+            _mockHubContext.Setup(h => h.Clients).Returns(mockClients.Object);
+            mockClients.Setup(c => c.Group(It.IsAny<string>())).Returns(mockClientProxy.Object);
 
             _controller = new ChatController(
                 _mockChatRepository.Object,
                 _mockFriendsRepository.Object,
-                _mockAuthHelper.Object,
+                _mockTeacherRepository.Object,
+                _authHelper,
                 _mockHubContext.Object
             );
 
@@ -55,8 +68,6 @@ namespace AlgorithmBattleArena.Tests
                 new ConversationDto { ConversationId = 1, Type = "Friend" }
             };
 
-            _mockAuthHelper.Setup(x => x.GetEmailFromClaims(It.IsAny<ClaimsPrincipal>()))
-                          .Returns(userEmail);
             _mockChatRepository.Setup(x => x.GetConversationsAsync(userEmail))
                               .ReturnsAsync(conversations);
 
@@ -79,8 +90,6 @@ namespace AlgorithmBattleArena.Tests
 
             var request = new SendMessageDto { Content = messageContent };
 
-            _mockAuthHelper.Setup(x => x.GetEmailFromClaims(It.IsAny<ClaimsPrincipal>()))
-                          .Returns(userEmail);
             _mockChatRepository.Setup(x => x.IsParticipantAsync(conversationId, userEmail))
                               .ReturnsAsync(true);
             _mockChatRepository.Setup(x => x.SendMessageAsync(conversationId, userEmail, messageContent))
@@ -98,12 +107,9 @@ namespace AlgorithmBattleArena.Tests
         public async Task SendMessage_WithEmptyContent_ReturnsBadRequest()
         {
             // Arrange
-            var userEmail = "test@example.com";
+            // var userEmail = "test@example.com";
             var conversationId = 1;
             var request = new SendMessageDto { Content = "" };
-
-            _mockAuthHelper.Setup(x => x.GetEmailFromClaims(It.IsAny<ClaimsPrincipal>()))
-                          .Returns(userEmail);
 
             // Act
             var result = await _controller.SendMessage(conversationId, request);
@@ -120,8 +126,6 @@ namespace AlgorithmBattleArena.Tests
             var conversationId = 1;
             var request = new SendMessageDto { Content = "Hello" };
 
-            _mockAuthHelper.Setup(x => x.GetEmailFromClaims(It.IsAny<ClaimsPrincipal>()))
-                          .Returns(userEmail);
             _mockChatRepository.Setup(x => x.IsParticipantAsync(conversationId, userEmail))
                               .ReturnsAsync(false);
 

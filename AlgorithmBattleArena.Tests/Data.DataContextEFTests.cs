@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Models;
 
 namespace AlgorithmBattleArena.Tests;
 

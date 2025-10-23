@@ -3,11 +3,11 @@ using Moq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
-using AlgorithmBattleArina.Controllers;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Models;
-using AlgorithmBattleArina.Dtos;
+using AlgorithmBattleArena.Controllers;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Models;
+using AlgorithmBattleArena.Dtos;
 
 namespace AlgorithmBattleArena.Tests;
 

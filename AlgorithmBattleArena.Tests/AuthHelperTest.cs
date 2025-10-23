@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Security.Claims;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Helpers;
 
 namespace AlgorithmBattleArena.Tests;
 

@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using System.Security.Claims;
 using AlgorithmBattleArena.Hubs;
@@ -10,7 +12,8 @@ namespace AlgorithmBattleArena.Tests
     public class ChatHubTests
     {
         private readonly Mock<IChatRepository> _mockChatRepository;
-        private readonly Mock<AuthHelper> _mockAuthHelper;
+        private readonly AuthHelper _authHelper;
+        private readonly Mock<ILogger<ChatHub>> _mockLogger;
         private readonly Mock<HubCallerContext> _mockContext;
         private readonly Mock<IGroupManager> _mockGroups;
         private readonly Mock<IHubCallerClients> _mockClients;
@@ -19,12 +22,16 @@ namespace AlgorithmBattleArena.Tests
         public ChatHubTests()
         {
             _mockChatRepository = new Mock<IChatRepository>();
-            _mockAuthHelper = new Mock<AuthHelper>();
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: false)
+                .Build();
+            _authHelper = new AuthHelper(config);
+            _mockLogger = new Mock<ILogger<ChatHub>>();
             _mockContext = new Mock<HubCallerContext>();
             _mockGroups = new Mock<IGroupManager>();
             _mockClients = new Mock<IHubCallerClients>();
 
-            _hub = new ChatHub(_mockChatRepository.Object, _mockAuthHelper.Object);
+            _hub = new ChatHub(_mockChatRepository.Object, _authHelper, _mockLogger.Object);
 
             // Setup hub context
             var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
@@ -47,8 +54,6 @@ namespace AlgorithmBattleArena.Tests
             var conversationId = "1";
             var userEmail = "test@example.com";
 
-            _mockAuthHelper.Setup(x => x.GetEmailFromClaims(It.IsAny<ClaimsPrincipal>()))
-                          .Returns(userEmail);
             _mockChatRepository.Setup(x => x.IsParticipantAsync(1, userEmail))
                               .ReturnsAsync(true);
 
@@ -76,8 +81,6 @@ namespace AlgorithmBattleArena.Tests
             var conversationId = "1";
             var userEmail = "test@example.com";
 
-            _mockAuthHelper.Setup(x => x.GetEmailFromClaims(It.IsAny<ClaimsPrincipal>()))
-                          .Returns(userEmail);
             _mockChatRepository.Setup(x => x.IsParticipantAsync(1, userEmail))
                               .ReturnsAsync(false);
 

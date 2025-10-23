@@ -1,8 +1,8 @@
 using Xunit;
 using Moq;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Models;
 using Dapper;
 
 namespace AlgorithmBattleArena.Tests;

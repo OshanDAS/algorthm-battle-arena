@@ -6,12 +6,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using System.Text.Json;
-using AlgorithmBattleArina.Controllers;
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Models;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Repositories;
+using AlgorithmBattleArena.Controllers;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Models;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Repositories;
 
 namespace AlgorithmBattleArena.Tests;
 
@@ -37,10 +37,9 @@ public class AdminControllerTests : IDisposable
         _context = new TestDataContextEF(config, options);
         _logger = new TestLogger<AdminController>();
         var mockProblemRepo = new MockProblemRepository();
-        var validator = new AlgorithmBattleArina.Services.ProblemImportValidator(mockProblemRepo);
-        var importService = new AlgorithmBattleArina.Services.ProblemImportService(mockProblemRepo, validator);
+        var importRepository = new ProblemImportRepository(mockProblemRepo);
         var mockAdminRepo = new MockAdminRepository(_context);
-        _controller = new AdminController(mockAdminRepo, _logger, importService);
+        _controller = new AdminController(mockAdminRepo, _logger, importRepository);
 
         // Set up admin claims
         var identity = new ClaimsIdentity(new[]

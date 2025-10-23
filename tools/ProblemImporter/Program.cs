@@ -1,7 +1,7 @@
 ﻿using System.CommandLine;
 using System.Text.Json;
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using ProblemImporter.Models;

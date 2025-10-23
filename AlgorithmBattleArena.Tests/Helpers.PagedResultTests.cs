@@ -1,5 +1,5 @@
 using Xunit;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 
