@@ -113,7 +113,6 @@ namespace AlgorithmBattleArena.Controllers
         }
 
         [HttpPost("conversations/friend")]
-        [StudentOrAdmin]
         public async Task<ActionResult> CreateFriendConversation([FromBody] CreateFriendConversationDto request)
         {
             try
@@ -124,7 +123,7 @@ namespace AlgorithmBattleArena.Controllers
                 if (request == null || string.IsNullOrWhiteSpace(request.FriendEmail))
                     return BadRequest("Invalid friend information");
 
-                // For students, check friendship *unless* the requested participant is a teacher.
+                // Handle role-based conversation creation
                 var role = _authHelper.GetRoleFromClaims(User);
                 if (role == "Student")
                 {
@@ -143,7 +142,11 @@ namespace AlgorithmBattleArena.Controllers
                         if (!friends.Any(f => f.StudentId == request.FriendId))
                             return BadRequest("You can only chat with friends");
                     }
-                    // if isTeacher == true, allow student to start direct conversation with teacher
+                }
+                else if (role == "Teacher")
+                {
+                    // Teachers can chat with any student - no additional validation needed
+                    // The student-teacher relationship is managed through the student request system
                 }
 
                 // Check if conversation already exists
