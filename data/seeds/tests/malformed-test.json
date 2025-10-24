@@ -1,0 +1,24 @@
+[
+  {
+    "title": "",
+    "description": "Missing required fields",
+    "difficultyLevel": "InvalidDifficulty",
+    "isPublic": true,
+    "isActive": true,
+    "timeLimit": -1,
+    "memoryLimit": 0,
+    "tags": ["test"],
+    "testCases": []
+  },
+  {
+    "title": "Problem with invalid slug and no test cases",
+    "description": "",
+    "difficultyLevel": "Easy",
+    "isPublic": true,
+    "isActive": true,
+    "timeLimit": 1000,
+    "memoryLimit": 128,
+    "tags": ["test"],
+    "testCases": []
+  }
+]
