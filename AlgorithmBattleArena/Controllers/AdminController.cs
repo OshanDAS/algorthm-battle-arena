@@ -1,16 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
-using AlgorithmBattleArina.Attributes;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Services;
-using AlgorithmBattleArina.Exceptions;
-using AlgorithmBattleArina.Repositories;
+using AlgorithmBattleArena.Attributes;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Helpers;
+
+using AlgorithmBattleArena.Exceptions;
+using AlgorithmBattleArena.Repositories;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Globalization;
 using CsvHelper;
 
-namespace AlgorithmBattleArina.Controllers
+namespace AlgorithmBattleArena.Controllers
 {
     [AdminOnly]
     [ApiController]
@@ -19,13 +19,13 @@ namespace AlgorithmBattleArina.Controllers
     {
         private readonly IAdminRepository _adminRepository;
         private readonly ILogger<AdminController> _logger;
-        private readonly ProblemImportService _importService;
+        private readonly IProblemImportRepository _importRepository;
 
-        public AdminController(IAdminRepository adminRepository, ILogger<AdminController> logger, ProblemImportService importService)
+        public AdminController(IAdminRepository adminRepository, ILogger<AdminController> logger, IProblemImportRepository importRepository)
         {
             _adminRepository = adminRepository;
             _logger = logger;
-            _importService = importService;
+            _importRepository = importRepository;
         }
 
         [HttpGet("users")]
@@ -93,8 +93,8 @@ namespace AlgorithmBattleArina.Controllers
                 if (problems.Count > 1000)
                     return StatusCode(413, "Too many rows. Maximum 1000 allowed.");
 
-                // Validation is now handled inside the import service
-                var result = await _importService.ImportProblemsAsync(problems);
+                // Validation is now handled inside the import repository
+                var result = await _importRepository.ImportProblemsAsync(problems);
                 _logger.LogInformation("Imported {Count} problems. CorrelationId: {CorrelationId}", result.Inserted, correlationId);
                 return Ok(result);
             }

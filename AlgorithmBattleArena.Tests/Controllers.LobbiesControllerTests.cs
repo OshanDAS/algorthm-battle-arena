@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
-using AlgorithmBattleArina.Controllers;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Models;
-using AlgorithmBattleArina.Hubs;
+using AlgorithmBattleArena.Controllers;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Models;
+using AlgorithmBattleArena.Hubs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +19,7 @@ namespace AlgorithmBattleArena.Tests;
 public class LobbiesControllerTests
 {
     private readonly Mock<ILobbyRepository> _mockLobbyRepository;
+    private readonly Mock<IChatRepository> _mockChatRepository;
     private readonly AuthHelper _authHelper;
     private readonly Mock<IHubContext<MatchHub>> _mockHubContext;
     private readonly Mock<IHubClients> _mockClients;
@@ -27,6 +28,7 @@ public class LobbiesControllerTests
     public LobbiesControllerTests()
     {
         _mockLobbyRepository = new Mock<ILobbyRepository>();
+        _mockChatRepository = new Mock<IChatRepository>();
         var config = new ConfigurationBuilder()
             .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: false)
             .Build();
@@ -41,7 +43,7 @@ public class LobbiesControllerTests
 
     private LobbiesController CreateController(string email = "test@test.com")
     {
-        var controller = new LobbiesController(_mockLobbyRepository.Object, _authHelper, _mockHubContext.Object);
+        var controller = new LobbiesController(_mockLobbyRepository.Object, _mockChatRepository.Object, _authHelper, _mockHubContext.Object);
         
         var identity = new ClaimsIdentity(new[]
         {

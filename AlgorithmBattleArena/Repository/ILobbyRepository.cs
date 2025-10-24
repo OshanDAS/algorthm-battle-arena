@@ -1,8 +1,8 @@
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public interface ILobbyRepository
     {

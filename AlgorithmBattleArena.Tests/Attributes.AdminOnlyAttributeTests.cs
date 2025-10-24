@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using System.Security.Claims;
-using AlgorithmBattleArina.Attributes;
+using AlgorithmBattleArena.Attributes;
 
 namespace AlgorithmBattleArena.Tests;
 

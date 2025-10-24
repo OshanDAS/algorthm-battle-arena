@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using AlgorithmBattleArina.Attributes;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Repositories;
+using AlgorithmBattleArena.Attributes;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Repositories;
 
-namespace AlgorithmBattleArina.Controllers
+namespace AlgorithmBattleArena.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

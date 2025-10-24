@@ -1,9 +1,8 @@
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Hubs;
-using AlgorithmBattleArina.Middleware;
-using AlgorithmBattleArina.Services;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Hubs;
+using AlgorithmBattleArena.Middleware;
 // using Microsoft.EntityFrameworkCore; // Removed - using Dapper only
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -11,6 +10,7 @@ using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using DotNetEnv;
+
 
 // Load environment variables from .env file
 DotNetEnv.Env.Load();
@@ -24,7 +24,10 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+});
 
 // Register DbContexts, repositories, and helpers
 var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION") ??
@@ -41,11 +44,15 @@ builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
 builder.Services.AddScoped<IStatisticsRepository, StatisticsRepository>();
+builder.Services.AddScoped<IFriendsRepository, FriendsRepository>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
 
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
-builder.Services.AddScoped<ProblemImportService>();
-builder.Services.AddScoped<ProblemImportValidator>();
+builder.Services.AddScoped<IProblemImportRepository, ProblemImportRepository>();
 builder.Services.AddSingleton<AuthHelper>();
+// Micro-course AI service
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<AlgorithmBattleArena.Services.IMicroCourseService, AlgorithmBattleArena.Services.OpenAiMicroCourseService>();
 
 // JWT Authentication configuration
 var tokenKey = Environment.GetEnvironmentVariable("TOKEN_KEY") ??
@@ -78,7 +85,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
                 if (!string.IsNullOrEmpty(accessToken) &&
                     (path.StartsWithSegments("/lobbyHub", StringComparison.OrdinalIgnoreCase) ||
-                     path.StartsWithSegments("/matchhub", StringComparison.OrdinalIgnoreCase)))
+                     path.StartsWithSegments("/matchhub", StringComparison.OrdinalIgnoreCase) ||
+                     path.StartsWithSegments("/chathub", StringComparison.OrdinalIgnoreCase)))
                 {
                     context.Token = accessToken;
                 }
@@ -101,7 +109,8 @@ builder.Services.AddCors(options =>
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials();
+            .AllowCredentials()
+            .SetIsOriginAllowed(origin => true);
     });
 
     options.AddPolicy("ProdCors", policy =>
@@ -147,6 +156,22 @@ app.MapControllers();
 
 // SignalR hubs
 app.MapHub<MatchHub>("/lobbyHub");
+app.MapHub<ChatHub>("/chathub");
+
+// Resolve the micro-course service once at startup to log OpenAI key presence (constructor logs this)
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var svc = scope.ServiceProvider.GetService<AlgorithmBattleArena.Services.IMicroCourseService>();
+        // svc may be null if registration changes; constructor will have logged presence
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetService<ILogger<Program>>();
+        logger?.LogWarning(ex, "Failed to resolve IMicroCourseService at startup");
+    }
+}
 
 app.Run();
 

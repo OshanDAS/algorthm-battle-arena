@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using AlgorithmBattleArina.Repositories;
+using AlgorithmBattleArena.Repositories;
 using System.Threading.Tasks;
 
-namespace AlgorithmBattleArina.Controllers
+namespace AlgorithmBattleArena.Controllers
 {
     [Authorize]
     [ApiController]

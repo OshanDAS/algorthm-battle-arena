@@ -1,22 +1,21 @@
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Exceptions;
-using AlgorithmBattleArina.Models;
-using AlgorithmBattleArina.Services;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Exceptions;
+using AlgorithmBattleArena.Models;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
 namespace AlgorithmBattleArena.Tests;
 
-public class ProblemImportServiceTests : IDisposable
+public class ProblemImportRepositoryTests : IDisposable
 {
     private readonly DataContextEF _context;
-    private readonly ProblemImportService _service;
+    private readonly ProblemImportRepository _repository;
 
-    public ProblemImportServiceTests()
+    public ProblemImportRepositoryTests()
     {
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
@@ -31,8 +30,7 @@ public class ProblemImportServiceTests : IDisposable
 
         _context = new TestDataContextEF(config, options);
         var mockProblemRepo = new MockProblemRepository();
-        var validator = new ProblemImportValidator(mockProblemRepo);
-        _service = new ProblemImportService(mockProblemRepo, validator);
+        _repository = new ProblemImportRepository(mockProblemRepo);
     }
 
     [Fact]
@@ -40,15 +38,15 @@ public class ProblemImportServiceTests : IDisposable
     {
         var problems = new[]
         {
-            CreateValidProblem("test-slug-1", "Test Problem 1"),
-            CreateValidProblem("test-slug-2", "Test Problem 2")
+              CreateValidProblem("", "Test Problem 1"),
+              CreateValidProblem("", "Test Problem 2")
         };
 
-        var result = await _service.ImportProblemsAsync(problems);
+        var result = await _repository.ImportProblemsAsync(problems);
 
         Assert.True(result.Ok);
         Assert.Equal(2, result.Inserted);
-        Assert.Equal(new[] { "test-slug-1", "test-slug-2" }, result.Slugs);
+           Assert.Equal(new[] { "test-problem-1", "test-problem-2" }, result.Slugs);
     }
 
     [Fact]
@@ -59,7 +57,7 @@ public class ProblemImportServiceTests : IDisposable
             CreateValidProblem("new-slug", "Existing Problem")
         };
 
-        var result = await _service.ImportProblemsAsync(problems);
+        var result = await _repository.ImportProblemsAsync(problems);
         Assert.True(result.Ok);
     }
 
@@ -73,7 +71,7 @@ public class ProblemImportServiceTests : IDisposable
         };
 
         // With mock validator, invalid data gets caught during validation
-        var exception = await Assert.ThrowsAsync<ImportException>(() => _service.ImportProblemsAsync(problems));
+        var exception = await Assert.ThrowsAsync<ImportException>(() => _repository.ImportProblemsAsync(problems));
         Assert.NotEmpty(exception.Errors);
     }
 
@@ -83,11 +81,11 @@ public class ProblemImportServiceTests : IDisposable
         var problem = CreateValidProblem("test-slug", "Test Problem");
         problem.TestCases = new[]
         {
-            new ImportTestCaseDto { Input = "input1", ExpectedOutput = "output1", IsSample = true },
-            new ImportTestCaseDto { Input = "input2", ExpectedOutput = "output2", IsSample = false }
+            new ImportTestCaseDto { InputData = "input1", ExpectedOutput = "output1", IsSample = true },
+            new ImportTestCaseDto { InputData = "input2", ExpectedOutput = "output2", IsSample = false }
         };
 
-        var result = await _service.ImportProblemsAsync(new[] { problem });
+        var result = await _repository.ImportProblemsAsync(new[] { problem });
 
         Assert.True(result.Ok);
         Assert.Equal(1, result.Inserted);
@@ -97,15 +95,14 @@ public class ProblemImportServiceTests : IDisposable
     {
         return new ImportedProblemDto
         {
-            Slug = slug,
             Title = title,
             Description = "Test description",
-            Difficulty = "Easy",
-            TimeLimitMs = 1000,
-            MemoryLimitMb = 128,
+            DifficultyLevel = "Easy",
+            TimeLimit = 1000,
+            MemoryLimit = 128,
             TestCases = new[]
             {
-                new ImportTestCaseDto { Input = "test", ExpectedOutput = "result", IsSample = true }
+                new ImportTestCaseDto { InputData = "test", ExpectedOutput = "result", IsSample = true }
             }
         };
     }
@@ -114,15 +111,14 @@ public class ProblemImportServiceTests : IDisposable
     {
         return new ImportedProblemDto
         {
-            Slug = "invalid",
             Title = new string('x', 300), // Exceeds max length
             Description = "Description",
-            Difficulty = "Easy",
-            TimeLimitMs = 1000,
-            MemoryLimitMb = 128,
+            DifficultyLevel = "Easy",
+            TimeLimit = 1000,
+            MemoryLimit = 128,
             TestCases = new[]
             {
-                new ImportTestCaseDto { Input = "test", ExpectedOutput = "result", IsSample = true }
+                new ImportTestCaseDto { InputData = "test", ExpectedOutput = "result", IsSample = true }
             }
         };
     }

@@ -2,11 +2,11 @@ using Xunit;
 using Moq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Models;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Models;
+using AlgorithmBattleArena.Helpers;
 using Dapper;
 
 namespace AlgorithmBattleArena.Tests;

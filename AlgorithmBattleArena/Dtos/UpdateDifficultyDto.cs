@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace AlgorithmBattleArina.Dtos
+namespace AlgorithmBattleArena.Dtos
 {
     public class UpdateDifficultyDto
     {

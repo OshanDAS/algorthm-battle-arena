@@ -2,11 +2,11 @@ using Xunit;
 using Moq;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Models;
 
 namespace AlgorithmBattleArena.Tests;
 

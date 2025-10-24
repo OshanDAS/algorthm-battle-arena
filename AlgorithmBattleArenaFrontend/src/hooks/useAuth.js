@@ -2,7 +2,7 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { setToken as saveToken, getToken } from "./tokenStorage"; // <- new helper
+import { setToken as saveToken, getToken } from "../services/tokenStorage";
 
 export function useAuth() {
   const navigate = useNavigate();

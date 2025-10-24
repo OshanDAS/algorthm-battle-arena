@@ -1,26 +1,10 @@
 [
   {
-    "slug": "",
-    "title": "",
-    "description": "Missing required fields",
-    "difficulty": "InvalidDifficulty",
-    "isPublic": true,
-    "isActive": true,
-    "timeLimitMs": -1,
-    "memoryLimitMb": 0,
-    "tags": ["test"],
-    "testCases": []
-  },
-  {
-    "slug": "INVALID-SLUG-UPPERCASE",
-    "title": "Problem with invalid slug and no test cases",
-    "description": "",
-    "difficulty": "Easy",
-    "isPublic": true,
-    "isActive": true,
-    "timeLimitMs": 1000,
-    "memoryLimitMb": 128,
-    "tags": ["test"],
-    "testCases": []
+    "description": "This problem is missing a title",
+    "difficultyLevel": "Easy",
+    "category": "Array",
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "tags": "array"
   }
 ]

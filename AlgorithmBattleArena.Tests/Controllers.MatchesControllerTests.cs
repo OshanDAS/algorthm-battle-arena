@@ -4,17 +4,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
-using AlgorithmBattleArina.Controllers;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Hubs;
-using AlgorithmBattleArina.Helpers;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Controllers;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Hubs;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.Configuration;
-using MatchModel = AlgorithmBattleArina.Models.Match;
+using MatchModel = AlgorithmBattleArena.Models.Match;
 
 namespace AlgorithmBattleArena.Tests;
 
@@ -23,6 +23,7 @@ public class MatchesControllerTests
     private readonly Mock<IHubContext<MatchHub>> _mockHubContext;
     private readonly Mock<ILobbyRepository> _mockLobbyRepository;
     private readonly Mock<IMatchRepository> _mockMatchRepository;
+    private readonly Mock<IChatRepository> _mockChatRepository;
     private readonly AuthHelper _authHelper;
     private readonly Mock<IHubClients> _mockClients;
     private readonly Mock<IClientProxy> _mockClientProxy;
@@ -32,6 +33,7 @@ public class MatchesControllerTests
         _mockHubContext = new Mock<IHubContext<MatchHub>>();
         _mockLobbyRepository = new Mock<ILobbyRepository>();
         _mockMatchRepository = new Mock<IMatchRepository>();
+        _mockChatRepository = new Mock<IChatRepository>();
         var config = new ConfigurationBuilder()
             .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: false)
             .Build();
@@ -46,7 +48,7 @@ public class MatchesControllerTests
 
     private MatchesController CreateController(string email = "test@test.com")
     {
-        var controller = new MatchesController(_mockHubContext.Object, _mockLobbyRepository.Object, _mockMatchRepository.Object, _authHelper);
+        var controller = new MatchesController(_mockHubContext.Object, _mockLobbyRepository.Object, _mockMatchRepository.Object, _mockChatRepository.Object, _authHelper);
         
         var identity = new ClaimsIdentity(new[]
         {

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AlgorithmBattleArina.Models
+namespace AlgorithmBattleArena.Models
 {
     public class Lobby
     {

@@ -1,9 +1,9 @@
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Models;
 using Dapper;
 using System.Threading.Tasks;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public class SubmissionRepository : ISubmissionRepository
     {

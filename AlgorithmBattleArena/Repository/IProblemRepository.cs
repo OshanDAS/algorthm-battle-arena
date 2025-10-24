@@ -1,10 +1,10 @@
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Helpers;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public interface IProblemRepository
     {

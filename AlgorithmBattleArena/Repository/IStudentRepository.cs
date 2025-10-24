@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Models;
-using AlgorithmBattleArina.Dtos;
+using AlgorithmBattleArena.Models;
+using AlgorithmBattleArena.Dtos;
 
-namespace AlgorithmBattleArina.Repositories
+namespace AlgorithmBattleArena.Repositories
 {
     public interface IStudentRepository
     {
@@ -11,5 +11,9 @@ namespace AlgorithmBattleArina.Repositories
         Task AcceptRequest(int requestId, int teacherId);
         Task RejectRequest(int requestId, int teacherId);
         Task<IEnumerable<StudentRequestDto>> GetStudentsByStatus(int teacherId, string status);
+        Task<IEnumerable<TeacherDto>> GetAcceptedTeachers(int studentId);
+        Task<StudentAnalyticsDto> GetStudentAnalytics(int teacherId, int studentId);
+        Task<IEnumerable<SubmissionHistoryDto>> GetStudentSubmissionHistory(int teacherId, int studentId);
+        Task<TeacherDashboardStatsDto> GetTeacherDashboardStats(int teacherId);
     }
 }
