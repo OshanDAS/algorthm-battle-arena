@@ -67,7 +67,10 @@ class ApiService {
     acceptRequest: (requestId) => this.client.put(`/api/Students/${requestId}/accept`),
     rejectRequest: (requestId) => this.client.put(`/api/Students/${requestId}/reject`),
     requestTeacher: (teacherId) => this.client.post('/api/Students/request', teacherId),
-    getAcceptedTeachers: () => this.client.get('/api/Students/teachers')
+    getAcceptedTeachers: () => this.client.get('/api/Students/teachers'),
+    getAnalytics: (studentId) => this.client.get(`/api/Students/${studentId}/analytics`),
+    getSubmissionHistory: (studentId) => this.client.get(`/api/Students/${studentId}/submissions`),
+    getDashboardStats: () => this.client.get('/api/Students/dashboard-stats')
   };
 
   teachers = {
