@@ -73,9 +73,7 @@
 }
 ```
 
-**Error Responses:**
-- `401 Unauthorized` - Invalid credentials
-- `401 Unauthorized` - Account has been deactivated
+
 
 ### Refresh Token
 
@@ -677,24 +675,288 @@
 ]
 ```
 
-## SignalR Hub
+## Chat
 
-### Hub Endpoint
+### Get Conversations
 
-**URL:** `/lobbyHub` or `/matchHub`  
+**Endpoint:** `GET /api/Chat/conversations`  
+**Authorization:** Bearer Token Required
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "conversationId": 0,
+    "type": "Friend",
+    "name": "string",
+    "participantEmails": ["user1@example.com", "user2@example.com"],
+    "lastMessage": "string",
+    "lastMessageAt": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+### Get Messages
+
+**Endpoint:** `GET /api/Chat/conversations/{conversationId}/messages`  
+**Authorization:** Bearer Token Required (Must be participant)
+
+**Query Parameters:**
+- `pageSize` (integer, optional, default: 50) - Number of messages to retrieve
+- `offset` (integer, optional, default: 0) - Number of messages to skip
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "messageId": 0,
+    "conversationId": 0,
+    "senderEmail": "string",
+    "senderName": "string",
+    "content": "string",
+    "sentAt": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+### Send Message
+
+**Endpoint:** `POST /api/Chat/conversations/{conversationId}/messages`  
+**Authorization:** Bearer Token Required (Must be participant)
+
+**Request Body:**
+```json
+{
+  "content": "string"
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "messageId": 0
+}
+```
+
+### Create Friend Conversation
+
+**Endpoint:** `POST /api/Chat/conversations/friend`  
+**Authorization:** Bearer Token Required
+
+**Request Body:**
+```json
+{
+  "friendEmail": "string",
+  "friendId": 0
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "conversationId": 0,
+  "type": "Friend",
+  "name": "string",
+  "participantEmails": ["user1@example.com", "user2@example.com"]
+}
+```
+
+## Friends
+
+### Get Friends
+
+**Endpoint:** `GET /api/Friends`  
+**Authorization:** Student Only
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "studentId": 0,
+    "firstName": "string",
+    "lastName": "string",
+    "email": "string",
+    "isOnline": true
+  }
+]
+```
+
+### Search Students
+
+**Endpoint:** `GET /api/Friends/search`  
+**Authorization:** Student Only
+
+**Query Parameters:**
+- `query` (string, required) - Search term for student name or email
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "studentId": 0,
+    "firstName": "string",
+    "lastName": "string",
+    "email": "string",
+    "isFriend": false,
+    "hasPendingRequest": false
+  }
+]
+```
+
+### Send Friend Request
+
+**Endpoint:** `POST /api/Friends/request`  
+**Authorization:** Student Only
+
+**Request Body:**
+```json
+{
+  "receiverId": 0
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "requestId": 0,
+  "message": "Friend request sent successfully"
+}
+```
+
+### Get Received Friend Requests
+
+**Endpoint:** `GET /api/Friends/requests/received`  
+**Authorization:** Student Only
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "requestId": 0,
+    "senderId": 0,
+    "senderName": "string",
+    "senderEmail": "string",
+    "sentAt": "2024-01-01T00:00:00Z",
+    "status": "Pending"
+  }
+]
+```
+
+### Get Sent Friend Requests
+
+**Endpoint:** `GET /api/Friends/requests/sent`  
+**Authorization:** Student Only
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "requestId": 0,
+    "receiverId": 0,
+    "receiverName": "string",
+    "receiverEmail": "string",
+    "sentAt": "2024-01-01T00:00:00Z",
+    "status": "Pending"
+  }
+]
+```
+
+### Accept Friend Request
+
+**Endpoint:** `PUT /api/Friends/requests/{requestId}/accept`  
+**Authorization:** Student Only
+
+**Response:** `200 OK`
+```json
+{
+  "message": "Friend request accepted successfully"
+}
+```
+
+### Reject Friend Request
+
+**Endpoint:** `PUT /api/Friends/requests/{requestId}/reject`  
+**Authorization:** Student Only
+
+**Response:** `200 OK`
+```json
+{
+  "message": "Friend request rejected successfully"
+}
+```
+
+### Remove Friend
+
+**Endpoint:** `DELETE /api/Friends/{friendId}`  
+**Authorization:** Student Only
+
+**Response:** `200 OK`
+```json
+{
+  "message": "Friend removed successfully"
+}
+```
+
+## Statistics
+
+### Get User Statistics
+
+**Endpoint:** `GET /api/Statistics/user`  
+**Authorization:** Student or Admin
+
+**Response:** `200 OK`
+```json
+{
+  "rank": 0,
+  "matchesPlayed": 0,
+  "matchesWon": 0,
+  "winRate": 0.0,
+  "totalScore": 0,
+  "averageScore": 0.0,
+  "problemsSolved": 0,
+  "favoriteCategory": "string"
+}
+```
+
+### Get Leaderboard
+
+**Endpoint:** `GET /api/Statistics/leaderboard`  
+**Authorization:** Student or Admin
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "rank": 1,
+    "studentName": "string",
+    "email": "string",
+    "totalScore": 0,
+    "matchesWon": 0,
+    "winRate": 0.0
+  }
+]
+```
+
+## SignalR Hubs
+
+### Hub Endpoints
+
+**URLs:** `/lobbyHub`, `/matchHub`, `/chatHub`  
 **Authorization:** Bearer Token Required
 
 ### Hub Methods
 
-#### Join Lobby
-**Method:** `JoinLobby(string lobbyId)`
+#### Lobby Hub
+- `JoinLobby(string lobbyId)`
+- `LeaveLobby(string lobbyId)`
 
-#### Leave Lobby
-**Method:** `LeaveLobby(string lobbyId)`
+#### Chat Hub
+- `JoinConversation(string conversationId)`
+- `LeaveConversation(string conversationId)`
 
 ### Hub Events (Server to Client)
 
-#### Lobby Updated
+#### Lobby Events
 **Event:** `LobbyUpdated`
 ```json
 {
@@ -706,7 +968,6 @@
 }
 ```
 
-#### Lobby Created
 **Event:** `LobbyCreated`
 ```json
 {
@@ -717,10 +978,8 @@
 }
 ```
 
-#### Lobby Deleted
 **Event:** `LobbyDeleted`
 
-#### Match Started
 **Event:** `MatchStarted`
 ```json
 {
@@ -729,6 +988,19 @@
   "startAtUtc": "2024-01-01T00:00:00Z",
   "durationSec": 3600,
   "sentAtUtc": "2024-01-01T00:00:00Z"
+}
+```
+
+#### Chat Events
+**Event:** `NewMessage`
+```json
+{
+  "messageId": 0,
+  "conversationId": 0,
+  "senderEmail": "string",
+  "senderName": "string",
+  "content": "string",
+  "sentAt": "2024-01-01T00:00:00Z"
 }
 ```
 
@@ -742,64 +1014,10 @@
 - **Admin Only:** Admin role required
 - **Host Only:** Must be the lobby host
 
-## Error Responses
+## Common Error Responses
 
-### 400 Bad Request
-```json
-{
-  "message": "Error description"
-}
-```
-
-### 401 Unauthorized
-```json
-{
-  "message": "Invalid credentials" 
-}
-```
-
-```json
-{
-  "message": "Account has been deactivated"
-}
-```
-
-```json
-{
-  "message": "User not found or not a student"
-}
-```
-
-### 403 Forbidden
-```json
-{
-  "message": "Access denied"
-}
-```
-
-### 404 Not Found
-```json
-{
-  "message": "Resource not found"
-}
-```
-
-### 413 Payload Too Large
-```json
-{
-  "message": "File too large"
-}
-```
-
-```json
-{
-  "message": "Too many rows. Maximum 1000 allowed."
-}
-```
-
-### 500 Internal Server Error
-```json
-{
-  "message": "Internal server error: [details]"
-}
-```
+- `400 Bad Request` - Invalid request data
+- `401 Unauthorized` - Invalid credentials or token
+- `403 Forbidden` - Access denied
+- `404 Not Found` - Resource not found
+- `500 Internal Server Error` - Server error
