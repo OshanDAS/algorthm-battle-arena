@@ -3,14 +3,12 @@ using AlgorithmBattleArena.Repositories;
 using AlgorithmBattleArena.Helpers;
 using AlgorithmBattleArena.Hubs;
 using AlgorithmBattleArena.Middleware;
-// using Microsoft.EntityFrameworkCore; // Removed - using Dapper only
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using DotNetEnv;
-
 
 // Load environment variables from .env file
 DotNetEnv.Env.Load();
@@ -34,7 +32,6 @@ var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION") 
                        builder.Configuration.GetConnectionString("DefaultConnection");
 
 // EF Core removed - using Dapper only
-
 builder.Services.AddScoped<IDataContextDapper, DataContextDapper>();
 builder.Services.AddScoped<ILobbyRepository, LobbyRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
@@ -46,10 +43,10 @@ builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
 builder.Services.AddScoped<IStatisticsRepository, StatisticsRepository>();
 builder.Services.AddScoped<IFriendsRepository, FriendsRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
-
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IProblemImportRepository, ProblemImportRepository>();
 builder.Services.AddSingleton<AuthHelper>();
+
 // Micro-course AI service
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<AlgorithmBattleArena.Services.IMicroCourseService, AlgorithmBattleArena.Services.OpenAiMicroCourseService>();
@@ -96,9 +93,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// CORS configuration - Fixed version
+// ===================== CORS CONFIGURATION =====================
 builder.Services.AddCors(options =>
 {
+    // Local development CORS
     options.AddPolicy("DevCors", policy =>
     {
         policy.WithOrigins(
@@ -109,34 +107,39 @@ builder.Services.AddCors(options =>
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials()
-            .SetIsOriginAllowed(origin => true);
+            .AllowCredentials();
     });
 
+    // Production CORS for Azure Frontend
     options.AddPolicy("ProdCors", policy =>
     {
-        policy.WithOrigins("https://lemon-mud-0cd08c100.2.azurestaticapps.net")
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials()
-              .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
-    });
-
-    // Add a permissive policy for debugging (remove in production)
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy
+            .SetIsOriginAllowed(origin =>
+                origin == "https://lemon-mud-0cd08c100.2.azurestaticapps.net" ||
+                origin == "https://lemon-mud-0cd08c100.2.azurestaticapps.net/")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
     });
 });
+// ===============================================================
 
 var app = builder.Build();
 
-// Fixed middleware pipeline - CORS must be one of the first middlewares
-app.UseCors(app.Environment.IsDevelopment() ? "DevCors" : "ProdCors");
+// ===================== MIDDLEWARE ORDER MATTERS =====================
 
-// Configure the HTTP request pipeline
+// CORS FIRST (before authentication)
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("DevCors");
+}
+else
+{
+    app.UseCors("ProdCors");
+}
+
+// Swagger / HTTPS
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -147,24 +150,23 @@ else
     app.UseHttpsRedirection();
 }
 
-// Authentication and Authorization come after CORS
+// Authentication & Custom Middleware
 app.UseAuthentication();
 app.UseAuditLogging();
 app.UseAuthorization();
 
+// Controllers & Hubs
 app.MapControllers();
-
-// SignalR hubs
 app.MapHub<MatchHub>("/lobbyHub");
 app.MapHub<ChatHub>("/chathub");
 
-// Resolve the micro-course service once at startup to log OpenAI key presence (constructor logs this)
+// Resolve micro-course service once at startup
 using (var scope = app.Services.CreateScope())
 {
     try
     {
         var svc = scope.ServiceProvider.GetService<AlgorithmBattleArena.Services.IMicroCourseService>();
-        // svc may be null if registration changes; constructor will have logged presence
+        // Constructor will log key presence
     }
     catch (Exception ex)
     {
