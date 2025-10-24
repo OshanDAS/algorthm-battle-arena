@@ -1,9 +1,9 @@
 using Xunit;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using System;
@@ -118,7 +118,7 @@ public class ProgramTests : IClassFixture<TestWebApplicationFactory>
         using var scope = _factory.Services.CreateScope();
         var services = scope.ServiceProvider;
 
-        var signalRService = services.GetService<Microsoft.AspNetCore.SignalR.HubConnectionHandler<AlgorithmBattleArina.Hubs.MatchHub>>();
+        var signalRService = services.GetService<Microsoft.AspNetCore.SignalR.HubConnectionHandler<AlgorithmBattleArena.Hubs.MatchHub>>();
         Assert.NotNull(signalRService);
     }
 

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Data;
+using AlgorithmBattleArena.Data;
 
 namespace AlgorithmBattleArena.Tests;
 

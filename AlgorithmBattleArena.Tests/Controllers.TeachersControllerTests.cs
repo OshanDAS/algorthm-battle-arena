@@ -3,9 +3,9 @@ using Moq;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Controllers;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Models;
+using AlgorithmBattleArena.Controllers;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Models;
 
 namespace AlgorithmBattleArena.Tests;
 

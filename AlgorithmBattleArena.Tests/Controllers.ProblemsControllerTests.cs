@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using AlgorithmBattleArina.Controllers;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Dtos;
-using AlgorithmBattleArina.Models;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Controllers;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Dtos;
+using AlgorithmBattleArena.Models;
+using AlgorithmBattleArena.Helpers;
+using AlgorithmBattleArena.Services;
 using System.Collections.Generic;
 
 namespace AlgorithmBattleArena.Tests;
@@ -18,7 +19,8 @@ public class ProblemsControllerTests
     private static ProblemsController CreateController(Mock<IProblemRepository> problemRepoMock)
     {
         var logger = new Mock<ILogger<ProblemsController>>();
-        var controller = new ProblemsController(problemRepoMock.Object, logger.Object);
+        var microCourseService = new Mock<IMicroCourseService>();
+        var controller = new ProblemsController(problemRepoMock.Object, logger.Object, microCourseService.Object);
 
         var identity = new ClaimsIdentity(new[]
         {

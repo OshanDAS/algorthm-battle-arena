@@ -2,7 +2,7 @@ using Xunit;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using AlgorithmBattleArina.Helpers;
+using AlgorithmBattleArena.Helpers;
 using System;
 
 namespace AlgorithmBattleArena.Tests;

@@ -2,7 +2,7 @@ using Xunit;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using AlgorithmBattleArina.Data;
+using AlgorithmBattleArena.Data;
 
 namespace AlgorithmBattleArena.Tests;
 
@@ -189,7 +189,7 @@ public class DataContextDapperUnitTests : IDisposable
         var config = CreateTestConfiguration();
         var dataContext = new DataContextDapper(config);
         
-        Assert.Equal("AlgorithmBattleArina.Data.DataContextDapper", dataContext.GetType().FullName);
+           Assert.Equal("AlgorithmBattleArena.Data.DataContextDapper", dataContext.GetType().FullName);
     }
 
     [Fact]

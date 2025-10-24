@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Microsoft.Data.SqlClient;
-using AlgorithmBattleArina.Data;
+using AlgorithmBattleArena.Data;
 
 namespace AlgorithmBattleArena.Tests;
 

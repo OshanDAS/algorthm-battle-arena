@@ -2,9 +2,9 @@ using Xunit;
 using Moq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AlgorithmBattleArina.Repositories;
-using AlgorithmBattleArina.Data;
-using AlgorithmBattleArina.Dtos;
+using AlgorithmBattleArena.Repositories;
+using AlgorithmBattleArena.Data;
+using AlgorithmBattleArena.Dtos;
 
 namespace AlgorithmBattleArena.Tests;
 
