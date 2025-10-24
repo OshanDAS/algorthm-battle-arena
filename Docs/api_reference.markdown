@@ -1020,4 +1020,9 @@
 - `401 Unauthorized` - Invalid credentials or token
 - `403 Forbidden` - Access denied
 - `404 Not Found` - Resource not found
+- `409 Conflict` - Resource already exists or state conflict
+- `422 Unprocessable Entity` - Valid request format but business logic validation failed
+- `429 Too Many Requests` - Rate limit exceeded
 - `500 Internal Server Error` - Server error
+
+  
