@@ -19,7 +19,7 @@ jobs:
 
       # Restore only the solution (safe)
       - name: Restore dependencies
-        run: dotnet restore AlgorithmBattleArena.sln
+        run: dotnet restore algorithm-battle-arena.sln
 
       # Build ONLY the main project
       - name: Build main project
