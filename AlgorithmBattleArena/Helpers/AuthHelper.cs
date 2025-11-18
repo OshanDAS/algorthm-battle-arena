@@ -80,7 +80,13 @@ namespace AlgorithmBattleArena.Helpers
 
             if (userId.HasValue)
             {
-                claims.Add(new Claim(role == "Student" ? "studentId" : "teacherId", userId.ToString()!));
+                string claimType = role switch
+                {
+                    "Student" => "studentId",
+                    "Teacher" => "teacherId",
+                    _ => "userId"
+                };
+                claims.Add(new Claim(claimType, userId.ToString()!));
             }
 
             var tokenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKeyValue));
