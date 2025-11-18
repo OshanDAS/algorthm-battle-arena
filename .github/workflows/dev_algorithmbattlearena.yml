@@ -17,15 +17,15 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      # Restore only the main project
+      # Restore and build using the correct solution file
       - name: Restore dependencies
-        run: dotnet restore AlgorithmBattleArena/AlgorithmBattleArena.csproj
+        run: dotnet restore AlgorithmBattleArena/AlgorithmBattleArena.sln
 
-      # Build ONLY the main project
-      - name: Build main project
-        run: dotnet build AlgorithmBattleArena/AlgorithmBattleArena.csproj -c Release --no-restore
+      # Build the solution
+      - name: Build project
+        run: dotnet build AlgorithmBattleArena/AlgorithmBattleArena.sln -c Release --no-restore
 
-      # Run tests (safe)
+      # Run tests separately
       - name: Run unit tests
         run: |
           mkdir -p ./TestResults
