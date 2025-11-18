@@ -33,12 +33,12 @@ const PasswordStrengthIndicator = ({ password }) => {
   if (!password) return null
 
   return (
-    <div className="mt-2 space-y-1">
+    <div className="mt-4 space-y-2">
       <div className="flex justify-between items-center">
         <span
           style={{
             fontFamily: "'Courier New', monospace",
-            fontSize: '0.7rem',
+            fontSize: '1.4rem',
             color: '#ccc',
             letterSpacing: '0.05em',
           }}
@@ -48,11 +48,11 @@ const PasswordStrengthIndicator = ({ password }) => {
         <span
           style={{
             fontFamily: "'Courier New', monospace",
-            fontSize: '0.7rem',
+            fontSize: '1.4rem',
             color: getColor(),
             fontWeight: 'bold',
             letterSpacing: '0.05em',
-            textShadow: `0 0 5px ${getColor()}`,
+            textShadow: `0 0 10px ${getColor()}`,
           }}
         >
           {getLabel()}
@@ -62,9 +62,9 @@ const PasswordStrengthIndicator = ({ password }) => {
       <div
         style={{
           width: '100%',
-          height: '4px',
+          height: '8px',
           background: 'rgba(50, 50, 50, 0.8)',
-          borderRadius: '2px',
+          borderRadius: '4px',
           overflow: 'hidden',
         }}
       >
@@ -74,7 +74,7 @@ const PasswordStrengthIndicator = ({ password }) => {
             width: `${(strength / 5) * 100}%`,
             background: getColor(),
             transition: 'all 0.3s ease',
-            boxShadow: `0 0 8px ${getColor()}`,
+            boxShadow: `0 0 16px ${getColor()}`,
           }}
         />
       </div>
@@ -204,21 +204,21 @@ export default function RegisterPage() {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 w-full max-w-2xl px-4">
+      <div className="relative z-10 w-full max-w-5xl px-4">
         {/* Title */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-12">
           <h1
-            className="select-none mb-2"
+            className="select-none mb-4"
             style={{
-              fontSize: 'clamp(1.8rem, 7vw, 2.5rem)',
+              fontSize: 'clamp(3.6rem, 14vw, 5rem)',
               fontFamily: "'MK4', Impact, Haettenschweiler, 'Arial Black', sans-serif",
               fontWeight: '900',
               color: '#ffed4e',
               textShadow:
-                '3px 3px 0px #ff6b00, 6px 6px 0px #000, 0 0 20px rgba(255, 237, 78, 0.5)',
+                '6px 6px 0px #ff6b00, 12px 12px 0px #000, 0 0 40px rgba(255, 237, 78, 0.5)',
               letterSpacing: '0.08em',
               lineHeight: '1',
-              WebkitTextStroke: '1.5px #ff6b00',
+              WebkitTextStroke: '3px #ff6b00',
               paintOrder: 'stroke fill',
             }}
           >
@@ -228,10 +228,10 @@ export default function RegisterPage() {
             className="select-none"
             style={{
               fontFamily: "'Courier New', monospace",
-              fontSize: 'clamp(0.7rem, 2vw, 0.9rem)',
+              fontSize: 'clamp(1.4rem, 4vw, 1.8rem)',
               color: '#ff3366',
               letterSpacing: '0.15em',
-              textShadow: '0 0 10px rgba(255, 51, 102, 0.8), 1px 1px 0px #000',
+              textShadow: '0 0 20px rgba(255, 51, 102, 0.8), 2px 2px 0px #000',
             }}
           >
             CREATE WARRIOR PROFILE
@@ -243,28 +243,28 @@ export default function RegisterPage() {
           onSubmit={handleSubmit}
           style={{
             background: 'rgba(20, 20, 20, 0.85)',
-            border: '3px solid #ff6b00',
-            borderRadius: '8px',
-            boxShadow: '0 0 20px rgba(255, 107, 0, 0.3), inset 0 0 30px rgba(0, 0, 0, 0.5)',
+            border: '6px solid #ff6b00',
+            borderRadius: '16px',
+            boxShadow: '0 0 40px rgba(255, 107, 0, 0.3), inset 0 0 60px rgba(0, 0, 0, 0.5)',
           }}
-          className="p-6 sm:p-8 space-y-5"
+          className="p-10 sm:p-14 space-y-8"
         >
           {/* Role Selection */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <label
               className="block select-none"
               style={{
                 fontFamily: "'Courier New', monospace",
-                fontSize: '0.85rem',
+                fontSize: '1.7rem',
                 color: '#ffed4e',
                 letterSpacing: '0.1em',
-                textShadow: '1px 1px 0px #000',
+                textShadow: '2px 2px 0px #000',
               }}
             >
               SELECT ROLE
             </label>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {[
                 { role: "Student", icon: GraduationCap },
                 { role: "Teacher", icon: Users },
@@ -282,20 +282,20 @@ export default function RegisterPage() {
                         ? (isTeacher ? '#ffed4e' : 'rgba(107, 15, 26, 0.9)') 
                         : 'rgba(40, 40, 40, 0.8)',
                       border: isSelected 
-                        ? (isTeacher ? '3px solid #ff6b00' : '3px solid #ff6b00') 
-                        : '3px solid #666',
-                      borderRadius: '6px',
-                      padding: '16px',
+                        ? (isTeacher ? '6px solid #ff6b00' : '6px solid #ff6b00') 
+                        : '6px solid #666',
+                      borderRadius: '12px',
+                      padding: '32px',
                       cursor: 'pointer',
                       transition: 'background 0.2s, box-shadow 0.2s',
                       boxShadow: isSelected 
-                        ? (isTeacher ? '0 0 15px rgba(255, 237, 78, 0.5)' : '0 0 15px rgba(255, 107, 0, 0.5)') 
+                        ? (isTeacher ? '0 0 30px rgba(255, 237, 78, 0.5)' : '0 0 30px rgba(255, 107, 0, 0.5)') 
                         : 'none',
                     }}
-                    className="relative flex flex-col items-center gap-2"
+                    className="relative flex flex-col items-center gap-4"
                   >
                     <Icon 
-                      className="w-6 h-6" 
+                      className="w-12 h-12" 
                       style={{ 
                         color: isSelected 
                           ? (isTeacher ? '#ff0000' : '#ffed4e') 
@@ -305,7 +305,7 @@ export default function RegisterPage() {
                     <span
                       style={{
                         fontFamily: "'Courier New', monospace",
-                        fontSize: '0.85rem',
+                        fontSize: '1.7rem',
                         fontWeight: 'bold',
                         color: isSelected 
                           ? (isTeacher ? '#ff0000' : '#ffed4e') 
@@ -317,11 +317,11 @@ export default function RegisterPage() {
                     </span>
                     {isSelected && (
                       <div
-                        className="absolute -top-2 -right-2 w-4 h-4 rounded-full"
+                        className="absolute -top-4 -right-4 w-8 h-8 rounded-full"
                         style={{
                           background: '#4ade80',
-                          border: '2px solid #000',
-                          boxShadow: '0 0 8px #4ade80',
+                          border: '4px solid #000',
+                          boxShadow: '0 0 16px #4ade80',
                         }}
                       />
                     )}
@@ -332,20 +332,20 @@ export default function RegisterPage() {
           </div>
 
           {/* Name Fields */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {[
               { label: "FIRST NAME", name: "firstName", placeholder: "Enter first name" },
               { label: "LAST NAME", name: "lastName", placeholder: "Enter last name" },
             ].map((field) => (
-              <div key={field.name} className="space-y-2">
+              <div key={field.name} className="space-y-3">
                 <label
                   className="block select-none"
                   style={{
                     fontFamily: "'Courier New', monospace",
-                    fontSize: '0.75rem',
+                    fontSize: '1.5rem',
                     color: '#ffed4e',
                     letterSpacing: '0.1em',
-                    textShadow: '1px 1px 0px #000',
+                    textShadow: '2px 2px 0px #000',
                   }}
                 >
                   {field.label}
@@ -358,14 +358,14 @@ export default function RegisterPage() {
                   disabled={isLoading}
                   style={{
                     fontFamily: "'Courier New', monospace",
-                    fontSize: '0.85rem',
+                    fontSize: '1.7rem',
                     background: isLoading ? 'rgba(50, 50, 50, 0.5)' : errors[field.name] ? 'rgba(60, 20, 20, 0.8)' : 'rgba(30, 30, 30, 0.8)',
-                    border: errors[field.name] ? '2px solid #ff3366' : '2px solid #666',
+                    border: errors[field.name] ? '4px solid #ff3366' : '4px solid #666',
                     color: '#fff',
-                    borderRadius: '4px',
+                    borderRadius: '8px',
                     transition: 'all 0.2s',
                   }}
-                  className={`w-full px-3 py-2.5 focus:outline-none focus:border-[#ff6b00] focus:shadow-[0_0_10px_rgba(255,107,0,0.5)] ${
+                  className={`w-full px-6 py-5 focus:outline-none focus:border-[#ff6b00] focus:shadow-[0_0_20px_rgba(255,107,0,0.5)] ${
                     isLoading ? "cursor-not-allowed opacity-60" : ""
                   }`}
                 />
@@ -373,9 +373,9 @@ export default function RegisterPage() {
                   <p
                     style={{
                       fontFamily: "'Courier New', monospace",
-                      fontSize: '0.7rem',
+                      fontSize: '1.4rem',
                       color: '#ff3366',
-                      textShadow: '0 0 5px rgba(255, 51, 102, 0.5)',
+                      textShadow: '0 0 10px rgba(255, 51, 102, 0.5)',
                     }}
                   >
                     ! {errors[field.name]}
@@ -386,15 +386,15 @@ export default function RegisterPage() {
           </div>
 
           {/* Email */}
-          <div className="space-y-2">
+          <div className="space-y-4">
             <label
               className="block select-none"
               style={{
                 fontFamily: "'Courier New', monospace",
-                fontSize: '0.75rem',
+                fontSize: '1.5rem',
                 color: '#ffed4e',
                 letterSpacing: '0.1em',
-                textShadow: '1px 1px 0px #000',
+                textShadow: '2px 2px 0px #000',
               }}
             >
               EMAIL ADDRESS
@@ -407,14 +407,14 @@ export default function RegisterPage() {
               disabled={isLoading}
               style={{
                 fontFamily: "'Courier New', monospace",
-                fontSize: '0.85rem',
+                fontSize: '1.7rem',
                 background: isLoading ? 'rgba(50, 50, 50, 0.5)' : errors.email ? 'rgba(60, 20, 20, 0.8)' : 'rgba(30, 30, 30, 0.8)',
-                border: errors.email ? '2px solid #ff3366' : '2px solid #666',
+                border: errors.email ? '4px solid #ff3366' : '4px solid #666',
                 color: '#fff',
-                borderRadius: '4px',
+                borderRadius: '8px',
                 transition: 'all 0.2s',
               }}
-              className={`w-full px-3 py-2.5 focus:outline-none focus:border-[#ff6b00] focus:shadow-[0_0_10px_rgba(255,107,0,0.5)] ${
+              className={`w-full px-6 py-5 focus:outline-none focus:border-[#ff6b00] focus:shadow-[0_0_20px_rgba(255,107,0,0.5)] ${
                 isLoading ? "cursor-not-allowed opacity-60" : ""
               }`}
             />
@@ -422,9 +422,9 @@ export default function RegisterPage() {
               <p
                 style={{
                   fontFamily: "'Courier New', monospace",
-                  fontSize: '0.7rem',
+                  fontSize: '1.4rem',
                   color: '#ff3366',
-                  textShadow: '0 0 5px rgba(255, 51, 102, 0.5)',
+                  textShadow: '0 0 10px rgba(255, 51, 102, 0.5)',
                 }}
               >
                 ! {errors.email}
@@ -433,16 +433,16 @@ export default function RegisterPage() {
           </div>
 
           {/* Password Fields */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-4">
               <label
                 className="block select-none"
                 style={{
                   fontFamily: "'Courier New', monospace",
-                  fontSize: '0.75rem',
+                  fontSize: '1.5rem',
                   color: '#ffed4e',
                   letterSpacing: '0.1em',
-                  textShadow: '1px 1px 0px #000',
+                  textShadow: '2px 2px 0px #000',
                 }}
               >
                 PASSWORD
@@ -456,14 +456,14 @@ export default function RegisterPage() {
                   disabled={isLoading}
                   style={{
                     fontFamily: "'Courier New', monospace",
-                    fontSize: '0.85rem',
+                    fontSize: '1.7rem',
                     background: isLoading ? 'rgba(50, 50, 50, 0.5)' : errors.password ? 'rgba(60, 20, 20, 0.8)' : 'rgba(30, 30, 30, 0.8)',
-                    border: errors.password ? '2px solid #ff3366' : '2px solid #666',
+                    border: errors.password ? '4px solid #ff3366' : '4px solid #666',
                     color: '#fff',
-                    borderRadius: '4px',
+                    borderRadius: '8px',
                     transition: 'all 0.2s',
                   }}
-                  className={`w-full px-3 py-2.5 pr-12 focus:outline-none focus:border-[#ff6b00] focus:shadow-[0_0_10px_rgba(255,107,0,0.5)] ${
+                  className={`w-full px-6 py-5 pr-24 focus:outline-none focus:border-[#ff6b00] focus:shadow-[0_0_20px_rgba(255,107,0,0.5)] ${
                     isLoading ? "cursor-not-allowed opacity-60" : ""
                   }`}
                 />
@@ -472,11 +472,11 @@ export default function RegisterPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   disabled={isLoading}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#ffed4e] hover:text-[#ff6b00] transition-colors ${
+                  className={`absolute right-6 top-1/2 -translate-y-1/2 p-2 text-[#ffed4e] hover:text-[#ff6b00] transition-colors ${
                     isLoading ? "pointer-events-none opacity-60" : ""
                   }`}
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-10 h-10" /> : <Eye className="w-10 h-10" />}
                 </button>
               </div>
 
@@ -486,7 +486,7 @@ export default function RegisterPage() {
                 <p
                   style={{
                     fontFamily: "'Courier New', monospace",
-                    fontSize: '0.7rem',
+                    fontSize: '1.4rem',
                     color: '#ff3366',
                     textShadow: '0 0 5px rgba(255, 51, 102, 0.5)',
                   }}
@@ -496,15 +496,15 @@ export default function RegisterPage() {
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               <label
                 className="block select-none"
                 style={{
                   fontFamily: "'Courier New', monospace",
-                  fontSize: '0.75rem',
+                  fontSize: '1.5rem',
                   color: '#ffed4e',
                   letterSpacing: '0.1em',
-                  textShadow: '1px 1px 0px #000',
+                  textShadow: '2px 2px 0px #000',
                 }}
               >
                 CONFIRM PASSWORD
@@ -518,14 +518,14 @@ export default function RegisterPage() {
                   disabled={isLoading}
                   style={{
                     fontFamily: "'Courier New', monospace",
-                    fontSize: '0.85rem',
+                    fontSize: '1.7rem',
                     background: isLoading ? 'rgba(50, 50, 50, 0.5)' : errors.passwordConfirm ? 'rgba(60, 20, 20, 0.8)' : 'rgba(30, 30, 30, 0.8)',
-                    border: errors.passwordConfirm ? '2px solid #ff3366' : '2px solid #666',
+                    border: errors.passwordConfirm ? '4px solid #ff3366' : '4px solid #666',
                     color: '#fff',
-                    borderRadius: '4px',
+                    borderRadius: '8px',
                     transition: 'all 0.2s',
                   }}
-                  className={`w-full px-3 py-2.5 pr-12 focus:outline-none focus:border-[#ff6b00] focus:shadow-[0_0_10px_rgba(255,107,0,0.5)] ${
+                  className={`w-full px-6 py-5 pr-24 focus:outline-none focus:border-[#ff6b00] focus:shadow-[0_0_20px_rgba(255,107,0,0.5)] ${
                     isLoading ? "cursor-not-allowed opacity-60" : ""
                   }`}
                 />
@@ -534,11 +534,11 @@ export default function RegisterPage() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                   disabled={isLoading}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#ffed4e] hover:text-[#ff6b00] transition-colors ${
+                  className={`absolute right-6 top-1/2 -translate-y-1/2 p-2 text-[#ffed4e] hover:text-[#ff6b00] transition-colors ${
                     isLoading ? "pointer-events-none opacity-60" : ""
                   }`}
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? <EyeOff className="w-10 h-10" /> : <Eye className="w-10 h-10" />}
                 </button>
               </div>
 
@@ -546,9 +546,9 @@ export default function RegisterPage() {
                 <p
                   style={{
                     fontFamily: "'Courier New', monospace",
-                    fontSize: '0.7rem',
+                    fontSize: '1.4rem',
                     color: '#ff3366',
-                    textShadow: '0 0 5px rgba(255, 51, 102, 0.5)',
+                    textShadow: '0 0 10px rgba(255, 51, 102, 0.5)',
                   }}
                 >
                   ! {errors.passwordConfirm}
@@ -558,35 +558,35 @@ export default function RegisterPage() {
           </div>
 
           {/* Submit Button */}
-          <div className="pt-2">
+          <div className="pt-4">
             <button
               type="submit"
               disabled={isLoading}
               className="w-full relative group"
               style={{
                 background: isLoading ? '#444' : '#6B0F1A',
-                border: isLoading ? '3px solid #222' : '3px solid #4a0a0e',
-                padding: '14px 40px',
+                border: isLoading ? '6px solid #222' : '6px solid #4a0a0e',
+                padding: '28px 80px',
                 cursor: isLoading ? 'not-allowed' : 'pointer',
-                borderRadius: '6px',
+                borderRadius: '12px',
                 boxShadow: isLoading
-                  ? '0 4px 0 #222'
-                  : '0 6px 0 #4a0a0e, 0 0 15px rgba(107, 15, 26, 0.5)',
+                  ? '0 8px 0 #222'
+                  : '0 12px 0 #4a0a0e, 0 0 30px rgba(107, 15, 26, 0.5)',
                 transform: 'translateY(0)',
                 transition: 'all 0.1s ease',
               }}
               onMouseEnter={(e) => {
                 if (!isLoading) {
                   e.currentTarget.style.background = '#8B1538';
-                  e.currentTarget.style.transform = 'translateY(3px)';
-                  e.currentTarget.style.boxShadow = '0 3px 0 #4a0a0e, 0 0 20px rgba(139, 21, 56, 0.7)';
+                  e.currentTarget.style.transform = 'translateY(6px)';
+                  e.currentTarget.style.boxShadow = '0 6px 0 #4a0a0e, 0 0 40px rgba(139, 21, 56, 0.7)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isLoading) {
                   e.currentTarget.style.background = '#6B0F1A';
                   e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 6px 0 #4a0a0e, 0 0 15px rgba(107, 15, 26, 0.5)';
+                  e.currentTarget.style.boxShadow = '0 12px 0 #4a0a0e, 0 0 30px rgba(107, 15, 26, 0.5)';
                 }
               }}
             >
@@ -594,11 +594,11 @@ export default function RegisterPage() {
                 className="select-none"
                 style={{
                   fontFamily: "'MK4', Impact, Haettenschweiler, 'Arial Black', sans-serif",
-                  fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
+                  fontSize: 'clamp(2.2rem, 6vw, 2.8rem)',
                   fontWeight: '900',
                   color: isLoading ? '#888' : '#fff',
                   letterSpacing: '0.12em',
-                  textShadow: isLoading ? 'none' : '2px 2px 4px rgba(0,0,0,0.8)',
+                  textShadow: isLoading ? 'none' : '4px 4px 8px rgba(0,0,0,0.8)',
                 }}
               >
                 {isLoading ? "CREATING..." : "CREATE ACCOUNT"}
@@ -612,10 +612,10 @@ export default function RegisterPage() {
               className="text-center"
               style={{
                 fontFamily: "'Courier New', monospace",
-                fontSize: '0.75rem',
+                fontSize: '1.5rem',
                 color: statusMessage.includes('failed') ? '#ff3366' : '#4ade80',
                 letterSpacing: '0.05em',
-                textShadow: '1px 1px 0px #000',
+                textShadow: '2px 2px 0px #000',
               }}
               aria-live="polite"
             >
@@ -624,11 +624,11 @@ export default function RegisterPage() {
           )}
 
           {/* Footer link */}
-          <div className="text-center pt-4 border-t border-gray-700">
+          <div className="text-center pt-8 border-t-2 border-gray-700">
             <p
               style={{
                 fontFamily: "'Courier New', monospace",
-                fontSize: '0.8rem',
+                fontSize: '1.6rem',
                 color: '#ccc',
               }}
             >
@@ -641,7 +641,7 @@ export default function RegisterPage() {
                   fontFamily: "'Courier New', monospace",
                   fontWeight: 'bold',
                   color: '#ffed4e',
-                  textShadow: '0 0 5px rgba(255, 237, 78, 0.5)',
+                  textShadow: '0 0 10px rgba(255, 237, 78, 0.5)',
                 }}
                 className={`hover:text-[#ff6b00] transition-colors ${
                   isLoading ? "pointer-events-none opacity-60" : ""
@@ -666,34 +666,34 @@ export default function RegisterPage() {
             aria-modal="true"
             style={{
               background: 'rgba(20, 20, 20, 0.95)',
-              border: '3px solid #4ade80',
-              borderRadius: '8px',
-              boxShadow: '0 0 30px rgba(74, 222, 128, 0.5)',
+              border: '6px solid #4ade80',
+              borderRadius: '16px',
+              boxShadow: '0 0 60px rgba(74, 222, 128, 0.5)',
             }}
-            className="relative z-10 w-full max-w-md mx-4 p-8 flex flex-col items-center gap-4"
+            className="relative z-10 w-full max-w-md mx-4 p-16 flex flex-col items-center gap-8"
           >
             <div
               style={{
-                width: '80px',
-                height: '80px',
+                width: '160px',
+                height: '160px',
                 background: '#4ade80',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 0 20px rgba(74, 222, 128, 0.8)',
+                boxShadow: '0 0 40px rgba(74, 222, 128, 0.8)',
               }}
             >
-              <CheckCircle className="w-10 h-10 text-black" />
+              <CheckCircle className="w-20 h-20 text-black" />
             </div>
 
             <h2
               style={{
                 fontFamily: "'MK4', Impact, Haettenschweiler, 'Arial Black', sans-serif",
-                fontSize: '1.5rem',
+                fontSize: '3rem',
                 color: '#4ade80',
                 letterSpacing: '0.1em',
-                textShadow: '0 0 10px rgba(74, 222, 128, 0.8), 2px 2px 0px #000',
+                textShadow: '0 0 20px rgba(74, 222, 128, 0.8), 4px 4px 0px #000',
               }}
             >
               SUCCESS!
@@ -702,7 +702,7 @@ export default function RegisterPage() {
               className="text-center"
               style={{
                 fontFamily: "'Courier New', monospace",
-                fontSize: '0.9rem',
+                fontSize: '1.8rem',
                 color: '#ccc',
                 letterSpacing: '0.05em',
               }}
