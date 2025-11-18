@@ -17,9 +17,9 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      # Restore only the solution (safe)
+      # Restore only the main project
       - name: Restore dependencies
-        run: dotnet restore algorithm-battle-arena.sln
+        run: dotnet restore AlgorithmBattleArena/AlgorithmBattleArena.csproj
 
       # Build ONLY the main project
       - name: Build main project
