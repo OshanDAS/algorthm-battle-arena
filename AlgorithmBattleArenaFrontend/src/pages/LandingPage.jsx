@@ -28,6 +28,7 @@ export default function LandingPage() {
         ></div>
       </div>
 
+
       {/* Main Content */}
       <div className="relative z-10 flex flex-col items-center gap-16 px-4">
         {/* Title */}
@@ -89,15 +90,16 @@ export default function LandingPage() {
           </span>
         </button>
 
-        {/* Subtitle Text */}
+        {/* Subtitle Text - below button, larger and bold, minimal shadow */}
         <p
-          className="text-center select-none"
+          className="text-center select-none font-bold"
           style={{
             fontFamily: "'Courier New', monospace",
-            fontSize: 'clamp(0.8rem, 2vw, 1.2rem)',
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
             color: '#ff3366',
-            letterSpacing: '0.2em',
-            textShadow: '0 0 15px rgba(255, 51, 102, 0.9), 2px 2px 0px #000',
+            letterSpacing: '0.22em',
+            textShadow: '1px 1px 0px #000',
+            marginTop: '1.5rem',
           }}
         >
           PREPARE YOUR CODE. ENTER THE ARENA.
