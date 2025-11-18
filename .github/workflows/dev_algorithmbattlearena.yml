@@ -50,7 +50,7 @@ jobs:
       # Publish ONLY the web app
       - name: Publish app
         if: github.ref == 'refs/heads/main'
-        run: dotnet publish AlgorithmBattleArena/AlgorithmBattleArena.csproj -c Release -o ./myapp
+        run: dotnet publish AlgorithmBattleArena/AlgorithmBattleArena.csproj -c Release -o ${{github.workspace}}/publish --no-build
 
       # Upload ONLY the publish folder
       - name: Upload artifact for deployment
@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: published-app
-          path: ./myapp
+          path: ${{github.workspace}}/publish
 
   deploy:
     runs-on: ubuntu-latest
@@ -70,12 +70,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: published-app
-          path: ./myapp
+          path: ./publish
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'AlgorithmBattleArena'
           slot-name: 'Production'
-          package: ./myapp
+          package: ./publish
+          startup-command: 'dotnet AlgorithmBattleArena.dll'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BD81C951B4754D6ABD5FD7AE9379497A }}
