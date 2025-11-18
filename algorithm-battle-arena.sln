@@ -6,10 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgorithmBattleArena", "Alg
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{62C46E2C-01E1-4598-9E51-F844DC56DC12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProblemImporter", "tools\ProblemImporter\ProblemImporter.csproj", "{1FB1AAFD-7609-4E85-97D3-D75E17181FC0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgorithmBattleArena.Tests", "AlgorithmBattleArena.Tests\AlgorithmBattleArena.Tests.csproj", "{0FB44411-6201-48C3-88B1-02A0785F8F21}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
