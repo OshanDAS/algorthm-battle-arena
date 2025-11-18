@@ -50,7 +50,7 @@ jobs:
 
       - name: Publish app
         if: github.ref == 'refs/heads/main'
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish AlgorithmBattleArena/AlgorithmBattleArena.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment
         if: github.ref == 'refs/heads/main'
