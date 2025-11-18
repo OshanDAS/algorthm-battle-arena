@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../services/auth"
 import { Eye, EyeOff, BookOpen, Shield } from "lucide-react"
+import '../styles/mortal-kombat-theme.css'
 
 export default function LoginPage() {
   // original states
@@ -50,7 +51,7 @@ export default function LoginPage() {
 
   return (
     // full-bleed background and prevent horizontal scroll (fixes grey bar)
-    <div className="min-h-screen w-screen overflow-x-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center">
+    <div className="mk-arena flex items-center">
       <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 py-8">
         {/* two-column layout on lg+, full-width content stretched horizontally */}
         <div className="w-full lg:grid lg:grid-cols-2 lg:gap-12 xl:gap-16 lg:items-center">
@@ -61,8 +62,8 @@ export default function LoginPage() {
                 <BookOpen className="w-12 h-12 text-white" />
               </div>
 
-              <h1 className="text-4xl xl:text-5xl font-bold text-gray-900 mb-6 leading-tight">Welcome back, Warrior!</h1>
-              <p className="text-gray-600 text-lg xl:text-xl leading-relaxed mb-8">
+              <h1 className="mk-title text-3xl xl:text-4xl mb-6 leading-tight">Welcome back, Warrior!</h1>
+              <p className="text-gray-300 text-lg xl:text-xl leading-relaxed mb-8 mk-text-shadow">
                 Log in to return to the arena and access your battles, rankings, and coding community.
               </p>
 
@@ -103,14 +104,13 @@ export default function LoginPage() {
 
             {/* translucent card */}
             <div
-              // we intentionally keep the card full-width within the page padding so it stretches left-to-right
-              className="bg-white/90 backdrop-blur-sm border border-white/50 shadow-2xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 xl:p-12"
+              className="mk-combat-frame p-6 sm:p-8 lg:p-10 xl:p-12"
               aria-hidden={isLoading ? "true" : "false"}
             >
               <form onSubmit={onSubmit} className="space-y-6">
                 {/* Email */}
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">Email</label>
+                  <label className="text-sm font-semibold text-yellow-400 block mb-2 mk-text-shadow">Email</label>
                   <input
                     type="email"
                     placeholder="you@domain.com"
@@ -118,7 +118,7 @@ export default function LoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     disabled={isLoading}
-                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 text-gray-900 border-2 rounded-lg sm:rounded-xl transition-all duration-200 focus:outline-none text-sm sm:text-base focus:border-blue-400 focus:bg-white focus:shadow-md ${
+                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-black/80 text-white border-2 border-yellow-600 rounded-lg transition-all duration-200 focus:outline-none text-sm sm:text-base focus:border-red-400 focus:shadow-md ${
                       isLoading ? "opacity-60 cursor-not-allowed" : ""
                     }`}
                   />
@@ -126,7 +126,7 @@ export default function LoginPage() {
 
                 {/* Password */}
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">Password</label>
+                  <label className="text-sm font-semibold text-yellow-400 block mb-2 mk-text-shadow">Password</label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
@@ -135,7 +135,7 @@ export default function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       disabled={isLoading}
-                      className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 bg-gray-50 text-gray-900 border-2 rounded-lg sm:rounded-xl transition-all duration-200 focus:outline-none text-sm sm:text-base focus:border-blue-400 focus:bg-white focus:shadow-md ${
+                      className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 bg-black/80 text-white border-2 border-yellow-600 rounded-lg transition-all duration-200 focus:outline-none text-sm sm:text-base focus:border-red-400 focus:shadow-md ${
                         isLoading ? "opacity-60 cursor-not-allowed" : ""
                       }`}
                     />
@@ -158,10 +158,10 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className={`w-full py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base lg:text-lg flex justify-center items-center gap-2 sm:gap-3 transition-all duration-300 transform ${
+                    className={`mk-btn mk-btn-fight w-full py-3 sm:py-4 text-sm sm:text-base lg:text-lg flex justify-center items-center gap-2 sm:gap-3 ${
                       isLoading
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl active:scale-95"
+                        ? "opacity-60 cursor-not-allowed"
+                        : ""
                     }`}
                   >
                     {isLoading ? (

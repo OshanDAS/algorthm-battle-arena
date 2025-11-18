@@ -1,0 +1,475 @@
+/* Mortal Kombat 90's Style Theme */
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Metal+Mania&display=swap');
+
+:root {
+  /* MK Color Palette - Custom */
+  --mk-black: #D40000;
+  --mk-blood-red: #D40000;
+  --mk-fire-red: #FF4D00;
+  --mk-gold: #FFD800;
+  --mk-silver: #FFB366;
+  --mk-bone-white: #FFFFFF;
+  --mk-shadow-purple: #FF1A75;
+  --mk-ice-blue: #FF8C1A;
+  --mk-poison-green: #00FF41;
+  --mk-lightning-yellow: #FFD800;
+  
+  /* Fonts */
+  --mk-title-font: 'Creepster', cursive;
+  --mk-combat-font: 'Metal Mania', cursive;
+  --mk-ui-font: 'Courier New', monospace;
+}
+
+/* Base MK Arena Background */
+.mk-arena {
+  background: 
+    radial-gradient(circle at 30% 20%, rgba(255, 77, 0, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(255, 26, 117, 0.2) 0%, transparent 50%),
+    linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 50%, #000000 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated Fire Effects */
+.mk-arena::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 10% 90%, rgba(255, 0, 0, 0.1) 0%, transparent 30%),
+    radial-gradient(circle at 90% 90%, rgba(255, 215, 0, 0.1) 0%, transparent 30%);
+  animation: mkFlameFlicker 3s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes mkFlameFlicker {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+  100% { opacity: 0.4; }
+}
+
+/* MK Title Logo */
+.mk-title {
+  font-family: var(--mk-title-font);
+  font-size: 4rem;
+  color: var(--mk-fire-red);
+  text-shadow: 
+    0 0 10px var(--mk-fire-red),
+    0 0 20px var(--mk-fire-red),
+    0 0 30px var(--mk-fire-red),
+    3px 3px 0 var(--mk-black),
+    -3px -3px 0 var(--mk-black);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  animation: mkTitlePulse 2s ease-in-out infinite;
+}
+
+@keyframes mkTitlePulse {
+  0%, 100% { 
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% { 
+    transform: scale(1.05);
+    filter: brightness(1.2);
+  }
+}
+
+/* Combat UI Frame */
+.mk-combat-frame {
+  background: 
+    linear-gradient(145deg, rgba(204, 68, 68, 0.3), rgba(240, 240, 240, 0.95));
+  border: 4px solid var(--mk-gold);
+  border-radius: 0;
+  box-shadow: 
+    0 0 20px var(--mk-gold),
+    inset 0 0 20px rgba(255, 255, 255, 0.3),
+    0 0 40px rgba(255, 215, 0, 0.3);
+  position: relative;
+}
+
+.mk-combat-frame::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, var(--mk-gold), var(--mk-fire-red), var(--mk-gold));
+  z-index: -1;
+  border-radius: 0;
+}
+
+/* Fighter Select Cards */
+.mk-fighter-card {
+  background: 
+    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(204, 68, 68, 0.2));
+  border: 3px solid var(--mk-silver);
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.mk-fighter-card:hover {
+  border-color: var(--mk-gold);
+  transform: translateY(-5px);
+  box-shadow: 
+    0 10px 30px rgba(255, 215, 0, 0.5),
+    0 0 20px var(--mk-gold);
+}
+
+.mk-fighter-card.selected {
+  border-color: var(--mk-fire-red);
+  box-shadow: 
+    0 0 30px var(--mk-fire-red),
+    inset 0 0 20px rgba(255, 0, 0, 0.2);
+  animation: mkSelected 1s ease-in-out infinite alternate;
+}
+
+@keyframes mkSelected {
+  0% { box-shadow: 0 0 30px var(--mk-fire-red); }
+  100% { box-shadow: 0 0 50px var(--mk-fire-red), 0 0 80px rgba(255, 0, 0, 0.3); }
+}
+
+/* Health Bars */
+.mk-health-bar {
+  background: #f0f0f0;
+  border: 2px solid var(--mk-gold);
+  height: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mk-health-fill {
+  background: linear-gradient(90deg, var(--mk-fire-red), var(--mk-lightning-yellow));
+  height: 100%;
+  transition: width 0.5s ease-out;
+  position: relative;
+  box-shadow: 
+    0 0 10px rgba(255, 0, 0, 0.8),
+    inset 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.mk-health-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    rgba(255, 255, 255, 0.1) 2px,
+    transparent 4px
+  );
+  animation: mkHealthScan 2s linear infinite;
+}
+
+@keyframes mkHealthScan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* MK Buttons */
+.mk-btn {
+  background: linear-gradient(145deg, var(--mk-gold), #B8860B);
+  border: 3px solid var(--mk-black);
+  color: var(--mk-black);
+  font-family: var(--mk-combat-font);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 12px 24px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 4px 0 #8B7355,
+    0 8px 15px rgba(0, 0, 0, 0.5);
+}
+
+.mk-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 0 #8B7355,
+    0 12px 20px rgba(0, 0, 0, 0.6),
+    0 0 20px var(--mk-gold);
+}
+
+.mk-btn:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 2px 0 #8B7355,
+    0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.mk-btn-fight {
+  background: linear-gradient(145deg, var(--mk-fire-red), #8B0000);
+  color: var(--mk-bone-white);
+  animation: mkFightPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes mkFightPulse {
+  0%, 100% { 
+    box-shadow: 
+      0 4px 0 #660000,
+      0 8px 15px rgba(0, 0, 0, 0.5),
+      0 0 20px var(--mk-fire-red);
+  }
+  50% { 
+    box-shadow: 
+      0 4px 0 #660000,
+      0 8px 15px rgba(0, 0, 0, 0.5),
+      0 0 40px var(--mk-fire-red),
+      0 0 60px rgba(255, 0, 0, 0.3);
+  }
+}
+
+/* VS Screen */
+.mk-vs-screen {
+  background: 
+    radial-gradient(circle, rgba(255, 0, 0, 0.2) 0%, transparent 70%),
+    var(--mk-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  position: relative;
+}
+
+.mk-vs-text {
+  font-family: var(--mk-title-font);
+  font-size: 8rem;
+  color: var(--mk-fire-red);
+  text-shadow: 
+    0 0 20px var(--mk-fire-red),
+    0 0 40px var(--mk-fire-red),
+    5px 5px 0 var(--mk-black),
+    -5px -5px 0 var(--mk-black);
+  animation: mkVsFlash 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes mkVsFlash {
+  0% { 
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  100% { 
+    transform: scale(1.1);
+    filter: brightness(1.5);
+  }
+}
+
+/* Fatality Text */
+.mk-fatality {
+  font-family: var(--mk-title-font);
+  font-size: 6rem;
+  color: var(--mk-fire-red);
+  text-shadow: 
+    0 0 30px var(--mk-fire-red),
+    0 0 60px var(--mk-fire-red),
+    4px 4px 0 var(--mk-black);
+  animation: mkFatality 2s ease-in-out;
+}
+
+@keyframes mkFatality {
+  0% { 
+    transform: scale(0.5) rotate(-10deg);
+    opacity: 0;
+  }
+  50% { 
+    transform: scale(1.2) rotate(5deg);
+    opacity: 1;
+  }
+  100% { 
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Score Display */
+.mk-score {
+  font-family: var(--mk-ui-font);
+  font-size: 2rem;
+  color: #b8860b;
+  text-shadow: 
+    0 0 10px var(--mk-gold),
+    2px 2px 0 rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 20px;
+  border: 2px solid var(--mk-gold);
+}
+
+/* Round Counter */
+.mk-round {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.mk-round-pip {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--mk-gold);
+  background: var(--mk-black);
+  transition: all 0.3s ease;
+}
+
+.mk-round-pip.won {
+  background: var(--mk-fire-red);
+  box-shadow: 0 0 10px var(--mk-fire-red);
+}
+
+/* Character Portrait Frame */
+.mk-portrait {
+  border: 4px solid var(--mk-gold);
+  background: 
+    linear-gradient(145deg, rgba(0, 0, 0, 0.9), rgba(139, 0, 0, 0.3));
+  position: relative;
+  overflow: hidden;
+}
+
+.mk-portrait::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    repeating-linear-gradient(
+      45deg,
+      transparent 0px,
+      rgba(255, 215, 0, 0.1) 1px,
+      transparent 2px,
+      transparent 10px
+    );
+  pointer-events: none;
+}
+
+/* Menu Navigation */
+.mk-menu {
+  background: 
+    linear-gradient(145deg, rgba(0, 0, 0, 0.95), rgba(139, 0, 0, 0.8));
+  border: 3px solid var(--mk-gold);
+  padding: 20px;
+}
+
+.mk-menu-item {
+  font-family: var(--mk-combat-font);
+  font-size: 1.5rem;
+  color: var(--mk-bone-white);
+  text-transform: uppercase;
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.mk-menu-item:hover {
+  color: var(--mk-gold);
+  border-left-color: var(--mk-gold);
+  background: rgba(255, 215, 0, 0.1);
+  text-shadow: 0 0 10px var(--mk-gold);
+}
+
+.mk-menu-item.active {
+  color: var(--mk-fire-red);
+  border-left-color: var(--mk-fire-red);
+  background: rgba(255, 0, 0, 0.1);
+  text-shadow: 0 0 10px var(--mk-fire-red);
+}
+
+/* Combo Counter */
+.mk-combo {
+  font-family: var(--mk-combat-font);
+  font-size: 3rem;
+  color: var(--mk-lightning-yellow);
+  text-shadow: 
+    0 0 15px var(--mk-lightning-yellow),
+    3px 3px 0 var(--mk-black);
+  animation: mkComboFlash 0.3s ease-in-out;
+}
+
+@keyframes mkComboFlash {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* Blood Splatter Effect */
+.mk-blood-splatter {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, var(--mk-blood-red) 30%, transparent 70%);
+  border-radius: 50%;
+  animation: mkBloodSplat 0.5s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes mkBloodSplat {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* Lightning Effect */
+.mk-lightning {
+  position: absolute;
+  width: 2px;
+  height: 100vh;
+  background: linear-gradient(180deg, transparent, var(--mk-lightning-yellow), transparent);
+  box-shadow: 0 0 20px var(--mk-lightning-yellow);
+  animation: mkLightningStrike 0.2s ease-in-out;
+}
+
+@keyframes mkLightningStrike {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .mk-title { font-size: 2.5rem; }
+  .mk-vs-text { font-size: 4rem; }
+  .mk-fatality { font-size: 3rem; }
+  .mk-combo { font-size: 2rem; }
+  .mk-menu-item { font-size: 1.2rem; }
+}
+
+/* Utility Classes */
+.mk-text-shadow {
+  text-shadow: 2px 2px 0 var(--mk-black);
+}
+
+.mk-glow-red {
+  box-shadow: 0 0 20px var(--mk-fire-red);
+}
+
+.mk-glow-gold {
+  box-shadow: 0 0 20px var(--mk-gold);
+}
+
+.mk-border-gold {
+  border: 2px solid var(--mk-gold);
+}
+
+.mk-bg-dark {
+  background: rgba(0, 0, 0, 0.8);
+}

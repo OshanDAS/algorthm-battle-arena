@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
-import { Clock, LogOut, Play, Send, ChevronDown, ChevronRight, CheckCircle, XCircle, MessageCircle } from 'lucide-react';
+import { Clock, LogOut, Play, Send, ChevronDown, ChevronRight, CheckCircle, XCircle, MessageCircle, Zap, Shield, Sword, Target } from 'lucide-react';
 import apiService from '../services/api';
 import { useAuth } from '../services/auth';
 import codeExecutor from '../services/codeExecutor';
 import ResultsModal from '../components/ResultsModal';
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import { useChat } from '../hooks/useChat';
+import '../styles/streetfighter-theme.css';
 
 const MatchChatWindow = ({ conversationId, currentUserEmail, onSendMessage, messages }) => {
   const [newMessage, setNewMessage] = useState('');
@@ -348,116 +349,143 @@ export default function MatchPage() {
 
     if (!match || !activeProblem) return null;
 
+    useEffect(() => {
+        // Create floating embers for battle atmosphere
+        const createEmber = () => {
+            const ember = document.createElement('div');
+            ember.className = 'ember';
+            ember.style.left = Math.random() * 100 + '%';
+            ember.style.animationDelay = Math.random() * 15 + 's';
+            ember.style.animationDuration = (15 + Math.random() * 10) + 's';
+            document.querySelector('.arena-embers')?.appendChild(ember);
+            
+            setTimeout(() => ember.remove(), 25000);
+        };
+
+        const emberInterval = setInterval(createEmber, 4000);
+        return () => clearInterval(emberInterval);
+    }, []);
+
     return (
-        <div className="min-h-screen w-full bg-gray-900 text-white flex flex-col p-4">
-            <header className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">Algorithm Battle</h1>
-                <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2 bg-red-600 px-4 py-2 rounded-lg">
-                        <Clock className="h-6 w-6" />
-                        <span className="text-xl font-bold">{remaining !== null ? formatCountdown(remaining) : '...'}</span>
+        <div className="min-h-screen w-full arena-bg text-white flex flex-col p-4 relative">
+            <div className="arena-embers"></div>
+            <header className="arena-nav p-4 rounded-lg mb-6 relative z-10">
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-4">
+                        <div className="battle-frame p-3 rounded-lg">
+                            <Sword className="w-8 h-8 text-orange-400" style={{filter: 'drop-shadow(0 0 10px #ff4500)'}} />
+                        </div>
+                        <h1 className="arena-title text-3xl">Code Battle Arena</h1>
                     </div>
-                    <button
-                        onClick={async () => {
-                            if (!activeProblem) return;
-                            const pid = activeProblem.problemId;
-                            const now = Date.now();
-                            const last = lastMicroCourseRequest[pid] || 0;
-                            // cooldown 60 seconds per problem
-                            if (now - last < 60000) {
-                                alert('Please wait before requesting another micro-course for this problem.');
-                                return;
-                            }
-                            setMicroCourseLoading(true);
-                            try {
-                                const resp = await apiService.problems.getMicroCourse(pid, { 
-                                    timeLimitSeconds: match.durationSec, 
-                                    remainingSec: Math.floor(remaining/1000), 
-                                    language: language 
-                                });
-                                setMicroCourse(resp.data);
-                                setLastMicroCourseRequest(prev => ({ ...prev, [pid]: Date.now() }));
-                            } catch (err) {
-                                console.error('Failed to fetch micro-course', err);
-                                if (err?.response) {
-                                    console.error('Server responded with:', err.response.status, err.response.data);
-                                } else {
-                                    console.error('Network or other error:', err.message);
+                    <div className="flex items-center space-x-6">
+                        <div className="battle-frame px-6 py-3 rounded-lg flex items-center space-x-3">
+                            <Clock className="h-6 w-6 text-red-400" style={{filter: 'drop-shadow(0 0 8px #ff0040)'}} />
+                            <span className="battle-timer text-2xl font-bold">{remaining !== null ? formatCountdown(remaining) : '...'}</span>
+                        </div>
+                        <button
+                            onClick={async () => {
+                                if (!activeProblem) return;
+                                const pid = activeProblem.problemId;
+                                const now = Date.now();
+                                const last = lastMicroCourseRequest[pid] || 0;
+                                // cooldown 60 seconds per problem
+                                if (now - last < 60000) {
+                                    alert('Please wait before requesting another micro-course for this problem.');
+                                    return;
                                 }
-                            } finally {
-                                setMicroCourseLoading(false);
-                            }
-                        }}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-xl flex items-center justify-center space-x-2"
-                    >
-                        <Play className="h-4 w-4" />
-                        <span>{microCourseLoading ? 'Loading...' : 'Get Quick Course'}</span>
-                    </button>
-                    <button 
-                        onClick={handleSubmitAndExit}
-                        className="bg-red-700 text-white font-bold py-2 px-4 rounded-xl flex items-center justify-center space-x-2"
-                    >
-                        <LogOut className="h-6 w-6" />
-                        <span>Submit and Exit</span>
-                    </button>
+                                setMicroCourseLoading(true);
+                                try {
+                                    const resp = await apiService.problems.getMicroCourse(pid, { 
+                                        timeLimitSeconds: match.durationSec, 
+                                        remainingSec: Math.floor(remaining/1000), 
+                                        language: language 
+                                    });
+                                    setMicroCourse(resp.data);
+                                    setLastMicroCourseRequest(prev => ({ ...prev, [pid]: Date.now() }));
+                                } catch (err) {
+                                    console.error('Failed to fetch micro-course', err);
+                                    if (err?.response) {
+                                        console.error('Server responded with:', err.response.status, err.response.data);
+                                    } else {
+                                        console.error('Network or other error:', err.message);
+                                    }
+                                } finally {
+                                    setMicroCourseLoading(false);
+                                }
+                            }}
+                            className="battle-btn-cyan py-3 px-6 font-bold flex items-center space-x-2"
+                        >
+                            <Target className="h-5 w-5" />
+                            <span>{microCourseLoading ? 'Loading...' : 'Battle Guide'}</span>
+                        </button>
+                        <button 
+                            onClick={handleSubmitAndExit}
+                            className="battle-btn-fire py-3 px-6 font-bold flex items-center space-x-2"
+                        >
+                            <Shield className="h-5 w-5" />
+                            <span>Surrender</span>
+                        </button>
+                    </div>
                 </div>
             </header>
 
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4">
-                <div className="md:col-span-4 col-span-1 bg-slate-800 p-4 rounded-lg max-h-[60vh] md:max-h-none overflow-y-auto">
-                    <h2 className="text-xl font-bold mb-4">Problems</h2>
-                    <div className="space-y-2">
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-6 relative z-10">
+                <div className="md:col-span-4 col-span-1 battle-frame p-6 rounded-lg max-h-[60vh] md:max-h-none overflow-y-auto">
+                    <div className="flex items-center gap-3 mb-6">
+                        <Target className="w-6 h-6 text-purple-400" style={{filter: 'drop-shadow(0 0 8px #bf00ff)'}} />
+                        <h2 className="cyber-text text-xl font-bold">Battle Challenges</h2>
+                    </div>
+                    <div className="space-y-3">
                         {problems.map(p => {
                             const isExpanded = expandedProblem === p.problemId;
                             const isActive = activeProblem?.problemId === p.problemId;
                             const hasSubmission = submitResults[p.problemId];
                             
                             return (
-                                <div key={p.problemId} className="border border-slate-600 rounded-lg">
+                                <div key={p.problemId} className={`fighter-card rounded-lg ${isActive ? 'selected' : ''}`}>
                                     <div 
                                         onClick={() => {
                                             setActiveProblem(p);
                                             setExpandedProblem(isExpanded ? null : p.problemId);
                                         }}
-                                        className={`p-3 cursor-pointer flex items-center justify-between ${
-                                            isActive ? 'bg-purple-600' : 'bg-slate-700 hover:bg-slate-600'
-                                        }`}
+                                        className="p-4 cursor-pointer flex items-center justify-between hover-lift"
                                     >
-                                        <div className="flex items-center space-x-2">
-                                            <span className="font-medium">{p.title}</span>
+                                        <div className="flex items-center space-x-3">
+                                            <Zap className="w-4 h-4 text-orange-400" />
+                                            <span className="cyber-text font-medium">{p.title}</span>
                                             {submissionCounts[p.problemId] > 0 && (
-                                                <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">
+                                                <span className="battle-badge text-xs px-2 py-1">
                                                     {submissionCounts[p.problemId]}
                                                 </span>
                                             )}
                                             {hasSubmission && (
                                                 hasSubmission.allPassed ? 
-                                                    <CheckCircle className="h-4 w-4 text-green-400" /> :
-                                                    <XCircle className="h-4 w-4 text-red-400" />
+                                                    <CheckCircle className="h-5 w-5 text-green-400" style={{filter: 'drop-shadow(0 0 5px #00ff41)'}} /> :
+                                                    <XCircle className="h-5 w-5 text-red-400" style={{filter: 'drop-shadow(0 0 5px #ff0040)'}} />
                                             )}
                                         </div>
                                         {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                                     </div>
                                     
                                     {isExpanded && (
-                                        <div className="p-4 bg-slate-900 border-t border-slate-600">
-                                            <div className="mb-3">
-                                                <h4 className="font-semibold text-sm text-gray-300 mb-1">Description</h4>
-                                                <p className="text-sm text-gray-400">{p.description}</p>
+                                        <div className="p-4 bg-black/50 border-t border-green-500/30">
+                                            <div className="mb-4">
+                                                <h4 className="cyber-text text-sm font-semibold mb-2">Mission Brief</h4>
+                                                <p className="text-gray-300 text-sm leading-relaxed">{p.description}</p>
                                             </div>
                                             
                                             {p.testCases?.filter(tc => tc.isSample).length > 0 && (
-                                                <div className="mb-3">
-                                                    <h4 className="font-semibold text-sm text-gray-300 mb-2">Sample Test Cases</h4>
+                                                <div className="mb-4">
+                                                    <h4 className="cyber-text text-sm font-semibold mb-3">Battle Scenarios</h4>
                                                     {p.testCases.filter(tc => tc.isSample).map((tc, idx) => (
-                                                        <div key={idx} className="mb-2 p-2 bg-slate-800 rounded text-xs">
-                                                            <div className="mb-1">
-                                                                <span className="text-blue-300">Input:</span>
-                                                                <pre className="text-gray-300 mt-1 whitespace-pre-wrap break-words max-w-full">{tc.inputData}</pre>
+                                                        <div key={idx} className="mb-3 p-3 battle-frame rounded text-xs">
+                                                            <div className="mb-2">
+                                                                <span className="text-cyan-400 font-semibold">Input:</span>
+                                                                <pre className="text-gray-300 mt-1 whitespace-pre-wrap break-words max-w-full bg-black/30 p-2 rounded">{tc.inputData}</pre>
                                                             </div>
                                                             <div>
-                                                                <span className="text-green-300">Output:</span>
-                                                                <pre className="text-gray-300 mt-1 whitespace-pre-wrap break-words max-w-full">{tc.expectedOutput}</pre>
+                                                                <span className="text-green-400 font-semibold">Expected:</span>
+                                                                <pre className="text-gray-300 mt-1 whitespace-pre-wrap break-words max-w-full bg-black/30 p-2 rounded">{tc.expectedOutput}</pre>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -465,23 +493,23 @@ export default function MatchPage() {
                                             )}
                                             
                                             {runResults && isActive && (
-                                                <div className="mb-3">
-                                                    <h4 className="font-semibold text-sm text-gray-300 mb-2">Run Results</h4>
-                                                    <div className="p-2 bg-slate-800 rounded text-xs">
+                                                <div className="mb-4">
+                                                    <h4 className="cyber-text text-sm font-semibold mb-3">Battle Results</h4>
+                                                    <div className="battle-stats p-3 rounded text-xs">
                                                         {runResults.error ? (
-                                                            <div className="text-red-400">{runResults.error}</div>
+                                                            <div className="text-red-400 font-semibold">{runResults.error}</div>
                                                         ) : (
                                                             <div>
-                                                                <div className="text-green-300 mb-1">
-                                                                    Passed: {runResults.passedCount}/{runResults.totalCount}
+                                                                <div className="text-green-400 font-semibold mb-2">
+                                                                    Victory Rate: {runResults.passedCount}/{runResults.totalCount}
                                                                 </div>
                                                                 {runResults.results.map((result, idx) => (
-                                                                    <div key={idx} className={`mb-1 ${result.passed ? 'text-green-400' : 'text-red-400'}`}>
-                                                                        Test {idx + 1}: {result.passed ? '✓' : '✗'}
+                                                                    <div key={idx} className={`mb-2 p-2 rounded ${result.passed ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
+                                                                        <div className="font-semibold">Battle {idx + 1}: {result.passed ? '⚔️ Victory' : '💀 Defeat'}</div>
                                                                         {!result.passed && (
-                                                                            <div className="text-gray-400 ml-2">
+                                                                            <div className="text-gray-400 ml-2 mt-1 text-xs">
                                                                                 Expected: {result.expectedOutput}<br/>
-                                                                                Got: {result.actualOutput}
+                                                                                Your Output: {result.actualOutput}
                                                                             </div>
                                                                         )}
                                                                     </div>
