@@ -50,7 +50,7 @@ jobs:
       # Publish ONLY the web app
       - name: Publish app
         if: github.ref == 'refs/heads/main'
-        run: dotnet publish AlgorithmBattleArena/AlgorithmBattleArena.csproj -c Release -o ${{github.workspace}}/publish --no-build
+        run: dotnet publish AlgorithmBattleArena/AlgorithmBattleArena.csproj -c Release -o ./publish
 
       # Upload ONLY the publish folder
       - name: Upload artifact for deployment
@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: published-app
-          path: ${{github.workspace}}/publish
+          path: ./publish
 
   deploy:
     runs-on: ubuntu-latest
