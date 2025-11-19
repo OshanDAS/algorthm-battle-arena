@@ -20,23 +20,45 @@ const MatchChatWindow = ({ conversationId, currentUserEmail, onSendMessage, mess
     }
   };
   
-  return (
-    <div className="flex-1 flex flex-col bg-slate-900/50 rounded-lg border border-slate-600">
+    return (
+        <div 
+                className="flex-1 flex flex-col rounded-lg overflow-hidden"
+        style={{
+            background: 'rgba(30, 30, 30, 0.8)',
+            border: '2px solid #666',
+        }}
+    >
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-gray-400">
-            <p className="text-sm">No messages yet. Chat with your opponents!</p>
+          <div 
+              className="flex items-center justify-center h-full"
+              style={{
+                  fontFamily: "'Courier New', monospace",
+                  fontSize: '1.2rem',
+                  color: '#888',
+              }}
+          >
+            <p>No messages yet. Chat with your opponents!</p>
           </div>
         ) : (
           messages.map((message, index) => (
             <div key={index} className={`flex ${message.senderEmail === currentUserEmail ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-xs px-4 py-2 rounded-xl text-sm shadow-lg ${
-                message.senderEmail === currentUserEmail 
-                  ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
-                  : 'bg-slate-700 text-white border border-slate-600'
-              }`}>
+              <div 
+                  className="max-w-xs px-4 py-2 rounded-xl shadow-lg"
+                  style={{
+                      fontFamily: "'Courier New', monospace",
+                      fontSize: '1.2rem',
+                      background: message.senderEmail === currentUserEmail 
+                          ? 'linear-gradient(90deg, #ff6b00, #ff4d4d)' 
+                          : 'rgba(40, 40, 40, 0.9)',
+                      color: '#fff',
+                      border: message.senderEmail === currentUserEmail ? 'none' : '1px solid #666',
+                  }}
+              >
                 {message.senderEmail !== currentUserEmail && (
-                  <div className="text-xs text-gray-300 mb-1 font-medium">{message.senderName || message.senderEmail}</div>
+                  <div style={{ fontSize: '1rem', color: '#ffed4e', marginBottom: '4px', fontWeight: 'bold' }}>
+                      {message.senderName || message.senderEmail}
+                  </div>
                 )}
                 <div className="break-words">{message.content}</div>
               </div>
@@ -45,19 +67,31 @@ const MatchChatWindow = ({ conversationId, currentUserEmail, onSendMessage, mess
         )}
       </div>
       
-      <form onSubmit={handleSubmit} className="p-4 border-t border-slate-600">
+      <form onSubmit={handleSubmit} className="p-4" style={{ borderTop: '2px solid #666' }}>
         <div className="flex space-x-3">
-          <input
+                    <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 bg-slate-700 border border-slate-600 rounded-xl px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 focus:bg-slate-600 transition-all text-sm"
+                        className="flex-1 min-w-0 rounded-xl px-4 py-2 focus:outline-none focus:border-[#ff6b00]"
+            style={{
+                background: 'rgba(40, 40, 40, 0.8)',
+                border: '2px solid #666',
+                color: '#fff',
+                fontFamily: "'Courier New', monospace",
+                fontSize: '1.2rem',
+            }}
           />
           <button
             type="submit"
             disabled={!newMessage.trim()}
-            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-600 disabled:to-gray-700 text-white p-2 rounded-xl transition-all shadow-lg disabled:shadow-none"
+            className="p-2 rounded-xl transition-all disabled:opacity-50"
+            style={{
+                background: newMessage.trim() ? 'linear-gradient(90deg, #ff6b00, #ff4d4d)' : '#666',
+                border: '2px solid ' + (newMessage.trim() ? '#ff6b00' : '#444'),
+                color: '#fff',
+            }}
           >
             <Send className="h-4 w-4" />
           </button>
@@ -103,6 +137,7 @@ export default function MatchPage() {
     const [microCourse, setMicroCourse] = useState(null);
     const [microCourseLoading, setMicroCourseLoading] = useState(false);
     const [lastMicroCourseRequest, setLastMicroCourseRequest] = useState({}); // { [problemId]: timestamp }
+    const [notification, setNotification] = useState(null); // { message: string, type: 'info'|'error'|'success' }
 
     
     // Chat functionality
@@ -349,13 +384,51 @@ export default function MatchPage() {
     if (!match || !activeProblem) return null;
 
     return (
-        <div className="min-h-screen w-full bg-gray-900 text-white flex flex-col p-4">
-            <header className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">Algorithm Battle</h1>
-                <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2 bg-red-600 px-4 py-2 rounded-lg">
-                        <Clock className="h-6 w-6" />
-                        <span className="text-xl font-bold">{remaining !== null ? formatCountdown(remaining) : '...'}</span>
+        <div className="relative min-h-screen w-full bg-black text-white flex flex-col">
+            {/* Background Image with Overlay */}
+            <div className="absolute inset-0 bg-black">
+                <img src="/images/LandingPage.jpg" alt="Arena Background" className="w-full h-full object-cover opacity-30" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80"></div>
+            </div>
+            {/* Scanline Effect */}
+            <div className="absolute inset-0 pointer-events-none opacity-10">
+                <div className="w-full h-full" style={{ backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.5) 2px,rgba(0,0,0,0.5) 4px)' }}></div>
+            </div>
+
+            <div className="relative z-10 flex flex-col h-screen p-4 lg:p-6">
+            <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                <h1
+                    className="select-none"
+                    style={{
+                        fontFamily: "'MK4', Impact, Haettenschweiler, 'Arial Black', sans-serif",
+                        fontSize: 'clamp(2rem, 5vw, 2.5rem)',
+                        color: '#ffed4e',
+                        WebkitTextStroke: '1.5px #ff6b00',
+                        textShadow: '3px 3px 0px #ff6b00, 6px 6px 0px #000, 0 0 20px #ffed4e',
+                    }}
+                >
+                    ALGORITHM BATTLE ARENA
+                </h1>
+                <div className="flex flex-wrap items-center gap-3">
+                    <div 
+                        className="flex items-center space-x-2 px-4 py-2 rounded-xl"
+                        style={{
+                            background: '#B71C1C',
+                            border: '2px solid #8B0000',
+                            boxShadow: '0 0 15px rgba(183, 28, 28, 0.5)',
+                        }}
+                    >
+                        <Clock className="h-6 w-6" style={{ color: '#ffed4e' }} />
+                        <span 
+                            style={{
+                                fontFamily: "'Courier New', monospace",
+                                fontSize: '1.4rem',
+                                fontWeight: 'bold',
+                                color: '#ffed4e',
+                            }}
+                        >
+                            {remaining !== null ? formatCountdown(remaining) : '...'}
+                        </span>
                     </div>
                     <button
                         onClick={async () => {
@@ -365,7 +438,8 @@ export default function MatchPage() {
                             const last = lastMicroCourseRequest[pid] || 0;
                             // cooldown 60 seconds per problem
                             if (now - last < 60000) {
-                                alert('Please wait before requesting another micro-course for this problem.');
+                                setNotification({ message: 'Please wait before requesting another micro-course for this problem.', type: 'info' });
+                                setTimeout(() => setNotification(null), 3000);
                                 return;
                             }
                             setMicroCourseLoading(true);
@@ -388,14 +462,34 @@ export default function MatchPage() {
                                 setMicroCourseLoading(false);
                             }
                         }}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-xl flex items-center justify-center space-x-2"
+                        className="rounded-xl flex items-center justify-center space-x-2 transition-transform duration-200 hover:scale-105"
+                        style={{
+                            fontFamily: "'Courier New', monospace",
+                            fontWeight: 'bold',
+                            letterSpacing: '0.05em',
+                            padding: '10px 16px',
+                            color: '#000',
+                            backgroundImage: 'linear-gradient(90deg, #ffed4e, #ff9f43)',
+                            border: '2px solid #ffed4e',
+                            boxShadow: '0 0 12px rgba(255, 237, 78, 0.5)',
+                        }}
                     >
                         <Play className="h-4 w-4" />
                         <span>{microCourseLoading ? 'Loading...' : 'Get Quick Course'}</span>
                     </button>
-                    <button 
+                    <button
                         onClick={handleSubmitAndExit}
-                        className="bg-red-700 text-white font-bold py-2 px-4 rounded-xl flex items-center justify-center space-x-2"
+                        className="rounded-xl flex items-center justify-center space-x-2 transition-transform duration-200 hover:scale-105"
+                        style={{
+                            fontFamily: "'Courier New', monospace",
+                            fontWeight: 'bold',
+                            letterSpacing: '0.05em',
+                            padding: '10px 16px',
+                            color: '#fff',
+                            background: '#B71C1C',
+                            border: '2px solid #8B0000',
+                            boxShadow: '0 0 10px rgba(183, 28, 28, 0.4)',
+                        }}
                     >
                         <LogOut className="h-6 w-6" />
                         <span>Submit and Exit</span>
@@ -403,9 +497,27 @@ export default function MatchPage() {
                 </div>
             </header>
 
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4">
-                <div className="md:col-span-4 col-span-1 bg-slate-800 p-4 rounded-lg max-h-[60vh] md:max-h-none overflow-y-auto">
-                    <h2 className="text-xl font-bold mb-4">Problems</h2>
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6 overflow-hidden">
+                <div 
+                    className="md:col-span-4 col-span-1 p-4 rounded-lg max-h-[60vh] md:max-h-none overflow-y-auto"
+                    style={{
+                        background: 'rgba(20, 20, 20, 0.85)',
+                        border: '2px solid #ff6b00',
+                        boxShadow: '0 0 18px rgba(255, 107, 0, 0.35)',
+                    }}
+                >
+                    <h2 
+                        className="mb-4"
+                        style={{
+                            fontFamily: "'MK4', Impact, sans-serif",
+                            fontSize: '1.8rem',
+                            color: '#ffed4e',
+                            textShadow: '0 0 10px rgba(255, 237, 78, 0.5), 2px 2px 0px #000',
+                            letterSpacing: '0.05em',
+                        }}
+                    >
+                        Problems
+                    </h2>
                     <div className="space-y-2">
                         {problems.map(p => {
                             const isExpanded = expandedProblem === p.problemId;
@@ -413,51 +525,103 @@ export default function MatchPage() {
                             const hasSubmission = submitResults[p.problemId];
                             
                             return (
-                                <div key={p.problemId} className="border border-slate-600 rounded-lg">
+                                <div 
+                                    key={p.problemId} 
+                                    className="rounded-lg"
+                                    style={{
+                                        border: '2px solid #666',
+                                    }}
+                                >
                                     <div 
                                         onClick={() => {
                                             setActiveProblem(p);
                                             setExpandedProblem(isExpanded ? null : p.problemId);
                                         }}
-                                        className={`p-3 cursor-pointer flex items-center justify-between ${
-                                            isActive ? 'bg-purple-600' : 'bg-slate-700 hover:bg-slate-600'
-                                        }`}
+                                        className="p-3 cursor-pointer flex items-center justify-between rounded-lg transition-all"
+                                        style={{
+                                            background: isActive ? 'linear-gradient(90deg, #ff6b00, #ff4d4d)' : 'rgba(30, 30, 30, 0.8)',
+                                            fontFamily: "'Courier New', monospace",
+                                            fontSize: '1.3rem',
+                                        }}
                                     >
                                         <div className="flex items-center space-x-2">
-                                            <span className="font-medium">{p.title}</span>
+                                            <span style={{ fontWeight: 'bold', color: '#fff' }}>{p.title}</span>
                                             {submissionCounts[p.problemId] > 0 && (
-                                                <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">
+                                                <span 
+                                                    className="text-xs px-2 py-0.5 rounded-md"
+                                                    style={{
+                                                        backgroundImage: 'linear-gradient(90deg, #ffed4e, #ff9f43)',
+                                                        color: '#000',
+                                                        border: '1px solid #ff6b00',
+                                                        fontFamily: "'Courier New', monospace",
+                                                        fontWeight: 'bold',
+                                                        boxShadow: '0 0 8px rgba(255, 107, 0, 0.35)'
+                                                    }}
+                                                >
                                                     {submissionCounts[p.problemId]}
                                                 </span>
                                             )}
                                             {hasSubmission && (
                                                 hasSubmission.allPassed ? 
-                                                    <CheckCircle className="h-4 w-4 text-green-400" /> :
-                                                    <XCircle className="h-4 w-4 text-red-400" />
+                                                        <CheckCircle className="h-3.5 w-3.5" style={{ color: '#4ade80' }} /> :
+                                                        <XCircle className="h-3.5 w-3.5" style={{ color: '#ff4d4d' }} />
                                             )}
                                         </div>
                                         {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                                     </div>
                                     
                                     {isExpanded && (
-                                        <div className="p-4 bg-slate-900 border-t border-slate-600">
+                                        <div 
+                                            className="p-4"
+                                            style={{
+                                                background: 'rgba(10, 10, 10, 0.9)',
+                                                borderTop: '2px solid #666',
+                                            }}
+                                        >
                                             <div className="mb-3">
-                                                <h4 className="font-semibold text-sm text-gray-300 mb-1">Description</h4>
-                                                <p className="text-sm text-gray-400">{p.description}</p>
+                                                <h4 
+                                                    className="mb-1"
+                                                    style={{
+                                                        fontFamily: "'Courier New', monospace",
+                                                        fontSize: '1.2rem',
+                                                        color: '#ffed4e',
+                                                        fontWeight: 'bold',
+                                                    }}
+                                                >
+                                                    Description
+                                                </h4>
+                                                <p style={{ fontFamily: "'Courier New', monospace", fontSize: '1.1rem', color: '#ccc' }}>{p.description}</p>
                                             </div>
                                             
                                             {p.testCases?.filter(tc => tc.isSample).length > 0 && (
                                                 <div className="mb-3">
-                                                    <h4 className="font-semibold text-sm text-gray-300 mb-2">Sample Test Cases</h4>
+                                                    <h4 
+                                                        className="mb-2"
+                                                        style={{
+                                                            fontFamily: "'Courier New', monospace",
+                                                            fontSize: '1.2rem',
+                                                            color: '#ffed4e',
+                                                            fontWeight: 'bold',
+                                                        }}
+                                                    >
+                                                        Sample Test Cases
+                                                    </h4>
                                                     {p.testCases.filter(tc => tc.isSample).map((tc, idx) => (
-                                                        <div key={idx} className="mb-2 p-2 bg-slate-800 rounded text-xs">
+                                                        <div 
+                                                            key={idx} 
+                                                            className="mb-2 p-2 rounded"
+                                                            style={{
+                                                                background: 'rgba(30, 30, 30, 0.8)',
+                                                                border: '1px solid #666',
+                                                            }}
+                                                        >
                                                             <div className="mb-1">
-                                                                <span className="text-blue-300">Input:</span>
-                                                                <pre className="text-gray-300 mt-1 whitespace-pre-wrap break-words max-w-full">{tc.inputData}</pre>
+                                                                <span style={{ color: '#4ade80', fontFamily: "'Courier New', monospace", fontSize: '1.1rem' }}>Input:</span>
+                                                                <pre style={{ color: '#ccc', fontFamily: "'Courier New', monospace", fontSize: '1rem' }} className="mt-1 whitespace-pre-wrap break-words max-w-full">{tc.inputData}</pre>
                                                             </div>
                                                             <div>
-                                                                <span className="text-green-300">Output:</span>
-                                                                <pre className="text-gray-300 mt-1 whitespace-pre-wrap break-words max-w-full">{tc.expectedOutput}</pre>
+                                                                <span style={{ color: '#ffed4e', fontFamily: "'Courier New', monospace", fontSize: '1.1rem' }}>Output:</span>
+                                                                <pre style={{ color: '#ccc', fontFamily: "'Courier New', monospace", fontSize: '1rem' }} className="mt-1 whitespace-pre-wrap break-words max-w-full">{tc.expectedOutput}</pre>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -466,20 +630,38 @@ export default function MatchPage() {
                                             
                                             {runResults && isActive && (
                                                 <div className="mb-3">
-                                                    <h4 className="font-semibold text-sm text-gray-300 mb-2">Run Results</h4>
-                                                    <div className="p-2 bg-slate-800 rounded text-xs">
+                                                    <h4 
+                                                        className="mb-2"
+                                                        style={{
+                                                            fontFamily: "'Courier New', monospace",
+                                                            fontSize: '1.2rem',
+                                                            color: '#ffed4e',
+                                                            fontWeight: 'bold',
+                                                        }}
+                                                    >
+                                                        Run Results
+                                                    </h4>
+                                                    <div 
+                                                        className="p-2 rounded"
+                                                        style={{
+                                                            background: 'rgba(30, 30, 30, 0.8)',
+                                                            border: '1px solid #666',
+                                                            fontFamily: "'Courier New', monospace",
+                                                            fontSize: '1.1rem',
+                                                        }}
+                                                    >
                                                         {runResults.error ? (
-                                                            <div className="text-red-400">{runResults.error}</div>
+                                                            <div style={{ color: '#ff3366' }}>{runResults.error}</div>
                                                         ) : (
                                                             <div>
-                                                                <div className="text-green-300 mb-1">
+                                                                <div style={{ color: '#4ade80' }} className="mb-1">
                                                                     Passed: {runResults.passedCount}/{runResults.totalCount}
                                                                 </div>
                                                                 {runResults.results.map((result, idx) => (
-                                                                    <div key={idx} className={`mb-1 ${result.passed ? 'text-green-400' : 'text-red-400'}`}>
+                                                                    <div key={idx} className="mb-1" style={{ color: result.passed ? '#4ade80' : '#ff3366' }}>
                                                                         Test {idx + 1}: {result.passed ? '✓' : '✗'}
                                                                         {!result.passed && (
-                                                                            <div className="text-gray-400 ml-2">
+                                                                            <div style={{ color: '#888' }} className="ml-2">
                                                                                 Expected: {result.expectedOutput}<br/>
                                                                                 Got: {result.actualOutput}
                                                                             </div>
@@ -500,19 +682,13 @@ export default function MatchPage() {
                 </div>
 
                 <div className="md:col-span-6 col-span-1 flex flex-col">
-                    <div className="flex justify-end mb-2">
-                        <select 
-                            value={language}
-                            onChange={(e) => setLanguage(e.target.value)}
-                            className="bg-slate-700 text-white rounded-lg p-2"
-                        >
-                            <option value="javascript">JavaScript</option>
-                            <option value="python">Python</option>
-                            <option value="java">Java</option>
-                            <option value="csharp">C#</option>
-                        </select>
-                    </div>
-                    <div className="flex-1 rounded-lg overflow-hidden">
+                    <div 
+                        className="flex-1 rounded-lg overflow-hidden"
+                        style={{
+                            border: '2px solid #ff6b00',
+                            boxShadow: '0 0 18px rgba(255, 107, 0, 0.35)',
+                        }}
+                    >
                         <Editor
                             height="100%"
                             language={language}
@@ -521,11 +697,51 @@ export default function MatchPage() {
                             onChange={setCode}
                         />
                     </div>
-                    <div className="mt-4 flex justify-end space-x-4">
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                            <span 
+                                className="hidden sm:inline"
+                                style={{
+                                    fontFamily: "'Courier New', monospace",
+                                    fontSize: '1.1rem',
+                                    color: '#ffed4e',
+                                }}
+                            >
+                                Language:
+                            </span>
+                            <select 
+                                value={language}
+                                onChange={(e) => setLanguage(e.target.value)}
+                                className="rounded-lg p-2 focus:outline-none focus:border-[#ff6b00]"
+                                style={{
+                                    background: 'rgba(30, 30, 30, 0.8)',
+                                    border: '2px solid #666',
+                                    color: '#fff',
+                                    fontFamily: "'Courier New', monospace",
+                                    fontSize: '1.1rem',
+                                }}
+                            >
+                                <option value="javascript">JavaScript</option>
+                                <option value="python">Python</option>
+                                <option value="java">Java</option>
+                                <option value="csharp">C#</option>
+                            </select>
+                        </div>
+                        <div className="flex flex-wrap justify-end gap-3">
                         <button 
                             onClick={handleRun}
                             disabled={isRunning || !activeProblem}
-                            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg flex items-center space-x-2"
+                            className="rounded-xl flex items-center space-x-2 transition-transform duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{
+                                fontFamily: "'Courier New', monospace",
+                                fontWeight: 'bold',
+                                letterSpacing: '0.05em',
+                                padding: '10px 20px',
+                                color: '#ff6b00',
+                                background: '#000',
+                                border: '2px solid #ff6b00',
+                                boxShadow: '0 0 10px rgba(255, 107, 0, 0.35)',
+                            }}
                         >
                             <Play className="h-4 w-4" />
                             <span>{isRunning ? 'Running...' : 'Run'}</span>
@@ -533,18 +749,45 @@ export default function MatchPage() {
                         <button 
                             onClick={() => handleSubmit(false, true)}
                             disabled={isSubmitting || !activeProblem}
-                            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg flex items-center space-x-2"
+                            className="rounded-xl flex items-center space-x-2 transition-transform duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{
+                                fontFamily: "'Courier New', monospace",
+                                fontWeight: 'bold',
+                                letterSpacing: '0.05em',
+                                padding: '10px 20px',
+                                color: '#000',
+                                backgroundImage: 'linear-gradient(90deg, #ffed4e, #ff9f43, #ff4d4d)',
+                                border: '2px solid #ffed4e',
+                                boxShadow: '0 0 12px rgba(255, 237, 78, 0.5)',
+                            }}
                         >
                             <Send className="h-4 w-4" />
                             <span>{isSubmitting ? 'Submitting...' : 'Submit'}</span>
                         </button>
+                        </div>
                     </div>
                 </div>
                 
                 {/* Chat Column */}
-                <div className="md:col-span-2 col-span-1 bg-slate-800 p-4 rounded-lg flex flex-col max-h-[60vh] md:max-h-none overflow-y-auto">
-                    <h2 className="text-xl font-bold mb-4 flex items-center">
-                        <MessageCircle className="mr-2" />
+                <div 
+                    className="md:col-span-2 col-span-1 p-4 rounded-lg flex flex-col max-h-[60vh] md:max-h-none overflow-y-auto"
+                    style={{
+                        background: 'rgba(20, 20, 20, 0.85)',
+                        border: '2px solid #ff6b00',
+                        boxShadow: '0 0 18px rgba(255, 107, 0, 0.35)',
+                    }}
+                >
+                    <h2 
+                        className="mb-4 flex items-center"
+                        style={{
+                            fontFamily: "'MK4', Impact, sans-serif",
+                            fontSize: '1.8rem',
+                            color: '#ffed4e',
+                            textShadow: '0 0 10px rgba(255, 237, 78, 0.5), 2px 2px 0px #000',
+                            letterSpacing: '0.05em',
+                        }}
+                    >
+                        <MessageCircle className="mr-2" style={{ color: '#ff6b00' }} />
                         Match Chat
                     </h2>
                     
@@ -556,11 +799,19 @@ export default function MatchPage() {
                             messages={messages[matchConversationId] || []}
                         />
                     ) : (
-                        <div className="flex-1 flex items-center justify-center text-gray-400">
+                        <div 
+                            className="flex-1 flex items-center justify-center"
+                            style={{
+                                fontFamily: "'Courier New', monospace",
+                                fontSize: '1.3rem',
+                                color: '#888',
+                            }}
+                        >
                             <p>Loading chat...</p>
                         </div>
                     )}
                 </div>
+            </div>
             </div>
             
             {/* Results Modal */}
@@ -662,6 +913,39 @@ export default function MatchPage() {
                 </div>
             )}
 
+            {/* Notification Modal */}
+            {notification && (
+                <div className="fixed top-4 right-4 z-50 animate-fade-in">
+                    <div 
+                        className="rounded-xl px-6 py-4 shadow-2xl flex items-center space-x-3"
+                        style={{
+                            background: notification.type === 'error' ? 'linear-gradient(90deg, #B71C1C, #8B0000)' : 
+                                       notification.type === 'success' ? 'linear-gradient(90deg, #4ade80, #22c55e)' :
+                                       'linear-gradient(90deg, #ff6b00, #ff9f43)',
+                            border: '2px solid ' + (notification.type === 'error' ? '#8B0000' : notification.type === 'success' ? '#4ade80' : '#ffed4e'),
+                            boxShadow: '0 0 20px rgba(255, 107, 0, 0.6)',
+                        }}
+                    >
+                        <div 
+                            style={{
+                                fontFamily: "'Courier New', monospace",
+                                fontSize: '1.3rem',
+                                color: '#fff',
+                                fontWeight: 'bold',
+                            }}
+                        >
+                            {notification.message}
+                        </div>
+                        <button 
+                            onClick={() => setNotification(null)}
+                            style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 'bold' }}
+                            className="hover:opacity-80"
+                        >
+                            ×
+                        </button>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

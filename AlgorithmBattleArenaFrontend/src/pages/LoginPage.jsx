@@ -50,6 +50,20 @@ export default function LoginPage() {
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-black flex items-center justify-center">
+      <style>{`
+.aba-nav-btn,
+.aba-nav-btn:focus,
+.aba-nav-btn:hover,
+.aba-nav-btn:active,
+.aba-nav-btn:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.aba-nav-btn::-moz-focus-inner { border: 0 !important; }
+.aba-nav-btn:-moz-focusring { outline: none !important; }
+.aba-nav-btn { -webkit-tap-highlight-color: transparent; }
+.aba-focus:focus-visible { outline: 3px solid #ff6b00 !important; box-shadow: 0 0 20px rgba(255,107,0,0.5) !important; }
+      `}</style>
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 bg-black">
         <img
@@ -193,7 +207,7 @@ export default function LoginPage() {
                   onClick={() => setShowPassword((s) => !s)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   disabled={isLoading}
-                  className={`absolute right-6 top-1/2 -translate-y-1/2 p-2 text-[#ffed4e] hover:text-[#ff6b00] transition-colors ${
+                  className={`aba-nav-btn aba-focus absolute right-6 top-1/2 -translate-y-1/2 p-2 text-[#ffed4e] hover:text-[#ff6b00] transition-colors ${
                     isLoading ? "pointer-events-none opacity-60" : ""
                   }`}
                 >
@@ -207,7 +221,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full relative group"
+                className="aba-nav-btn aba-focus w-full relative group"
                 style={{
                   background: isLoading ? '#444' : '#6B0F1A',
                   border: isLoading ? '6px solid #222' : '6px solid #4a0a0e',
@@ -283,14 +297,32 @@ export default function LoginPage() {
                   onClick={() => navigate("/register")}
                   disabled={isLoading}
                   style={{
+                    background: 'transparent',
+                    border: '0',
+                    borderBottom: '3px solid transparent',
+                    padding: '4px 0',
                     fontFamily: "'Courier New', monospace",
                     fontWeight: 'bold',
                     color: '#ffed4e',
                     textShadow: '0 0 10px rgba(255, 237, 78, 0.5)',
+                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s',
                   }}
-                  className={`hover:text-[#ff6b00] transition-colors ${
+                  className={`aba-nav-btn aba-focus ${
                     isLoading ? "pointer-events-none opacity-60" : ""
                   }`}
+                  onMouseEnter={(e) => {
+                    if (!isLoading) {
+                      e.currentTarget.style.color = '#ff3366';
+                      e.currentTarget.style.borderBottom = '3px solid #ff3366';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isLoading) {
+                      e.currentTarget.style.color = '#ffed4e';
+                      e.currentTarget.style.borderBottom = '3px solid transparent';
+                    }
+                  }}
                 >
                   REGISTER HERE
                 </button>

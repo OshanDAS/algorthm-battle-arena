@@ -7,22 +7,38 @@ import { useAuth } from '../services/auth';
 
 const LobbyItem = ({ lobby, onJoin }) => (
   <div
-    className="bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-2xl flex items-center justify-between"
+    className="rounded-2xl flex items-center justify-between"
+    style={{
+      background: 'rgba(20,20,20,0.85)',
+      border: '2px solid #ff6b00',
+      padding: '18px 20px',
+      boxShadow: '0 0 18px rgba(255, 107, 0, 0.35)'
+    }}
   >
     <Link to={`/lobby/${lobby.lobbyId}`} className="flex-grow">
       <div>
-        <p className="text-xl font-bold text-white">{lobby.lobbyName}</p>
-        <p className="text-sm text-gray-300">{lobby.mode}</p>
+        <p style={{ fontFamily: "'Courier New', monospace", fontSize: '1.3rem', color: '#fff', fontWeight: 'bold', letterSpacing: '0.04em' }}>{lobby.lobbyName}</p>
+        <p style={{ fontFamily: "'Courier New', monospace", fontSize: '1.1rem', color: '#ff3366' }}>{lobby.mode}</p>
       </div>
     </Link>
     <div className="flex items-center space-x-4">
       <div className="flex items-center space-x-2">
-        <Users className="h-6 w-6 text-gray-400" />
-        <span className="text-lg font-semibold text-white">{lobby.participants.length}/{lobby.maxPlayers}</span>
+        <Users className="h-6 w-6" style={{ color: '#ffed4e' }} />
+        <span style={{ fontFamily: "'Courier New', monospace", fontSize: '1.2rem', color: '#ffed4e', fontWeight: 'bold' }}>{lobby.participants.length}/{lobby.maxPlayers}</span>
       </div>
-      <button 
+      <button
         onClick={() => onJoin(lobby.lobbyCode)}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl transition-transform duration-300 transform hover:scale-105"
+        className="rounded-xl transition-transform duration-200 hover:scale-105"
+        style={{
+          fontFamily: "'Courier New', monospace",
+          fontWeight: 'bold',
+          letterSpacing: '0.05em',
+          padding: '10px 18px',
+          color: '#000',
+          backgroundImage: 'linear-gradient(90deg,#ffed4e,#ff9f43,#ff4d4d)',
+          border: '2px solid #ffed4e',
+          boxShadow: '0 0 10px rgba(255,237,78,0.5)'
+        }}
       >
         Join
       </button>
@@ -121,70 +137,154 @@ export default function LobbyPage() {
 
   return (
     <>
-      <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 relative text-white">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+      <div className="relative min-h-screen w-full bg-black text-white">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 bg-black">
+          <img src="/images/LandingPage.jpg" alt="Arena Background" className="w-full h-full object-cover opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70"></div>
+        </div>
+        {/* Scanline Effect */}
+        <div className="absolute inset-0 pointer-events-none opacity-10">
+          <div className="w-full h-full" style={{ backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.5) 2px,rgba(0,0,0,0.5) 4px)' }}></div>
         </div>
 
-        <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 relative z-10">
-          <header className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-bold flex items-center"><Swords className="mr-4"/> Lobbies</h1>
-            <div className="flex items-center space-x-4">
-              <button 
+        {/* Main Content */}
+        <div className="relative z-10 w-full max-w-none mx-auto px-4 lg:px-12 py-10">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <Swords className="h-12 w-12" style={{ color: '#ffed4e' }} />
+              <h1
+                className="select-none"
+                style={{
+                  fontFamily: "'MK4', Impact, Haettenschweiler, 'Arial Black', sans-serif",
+                  fontSize: 'clamp(2.5rem,6vw,4rem)',
+                  color: '#ffed4e',
+                  WebkitTextStroke: '2px #ff6b00',
+                  textShadow: '4px 4px 0px #ff6b00, 8px 8px 0px #000, 0 0 30px #ffed4e'
+                }}
+              >
+                LOBBIES
+              </h1>
+            </div>
+            <div className="flex items-center space-x-3">
+              <button
                 onClick={() => setIsModalOpen(true)}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-6 rounded-xl flex items-center justify-center space-x-2 transform hover:scale-105 transition-transform duration-300"
+                className="rounded-xl transition-transform duration-200 hover:scale-105 flex items-center gap-2"
+                style={{
+                  fontFamily: "'Courier New', monospace",
+                  fontWeight: 'bold',
+                  letterSpacing: '0.05em',
+                  padding: '12px 18px',
+                  color: '#000',
+                  backgroundImage: 'linear-gradient(90deg,#ffed4e,#ff9f43,#ff4d4d)',
+                  border: '2px solid #ffed4e',
+                  boxShadow: '0 0 12px rgba(255,237,78,0.5)'
+                }}
               >
                 <PlusSquare className="h-6 w-6" />
                 <span>Create New Lobby</span>
               </button>
-              <button 
+              <button
                 onClick={handleBackToDashboard}
-                className="bg-slate-700 text-white font-bold py-3 px-6 rounded-xl flex items-center justify-center space-x-2 transform hover:scale-105 transition-transform duration-300"
+                className="aba-nav-btn rounded-xl flex items-center gap-2 hover:opacity-80"
+                style={{
+                  fontFamily: "'Courier New', monospace",
+                  fontWeight: 'bold',
+                  letterSpacing: '0.05em',
+                  padding: '12px 18px',
+                  color: '#ffed4e',
+                  background: 'rgba(20,20,20,0.9)',
+                  borderBottom: '3px solid #ffed4e',
+                  borderTop: '3px solid transparent',
+                  borderLeft: '3px solid transparent',
+                  borderRight: '3px solid transparent'
+                }}
               >
-                <ArrowLeft className="h-6 w-6" />
+                <ArrowLeft className="h-6 w-6" style={{ color: '#ff6b00' }} />
                 <span>Dashboard</span>
               </button>
             </div>
-          </header>
+          </div>
 
+          {/* Join Private Lobby */}
           <div className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Join a Private Lobby</h2>
-            <div className="flex items-center space-x-2 bg-white/10 p-2 rounded-2xl">
-              <input 
-                type="text" 
+            <h2
+              className="mb-3 select-none"
+              style={{
+                fontFamily: "'MK4', Impact, Haettenschweiler, 'Arial Black', sans-serif",
+                fontSize: 'clamp(1.6rem,4vw,2.2rem)',
+                color: '#ffed4e',
+                textShadow: '0 0 15px rgba(255, 237, 78, 0.6), 3px 3px 0px #000',
+                letterSpacing: '0.08em'
+              }}
+            >
+              JOIN A PRIVATE LOBBY
+            </h2>
+            <div
+              className="flex items-center gap-3 rounded-2xl"
+              style={{ background: 'rgba(20,20,20,0.85)', border: '2px solid #ff6b00', padding: '10px', boxShadow: '0 0 18px rgba(255, 107, 0, 0.35)' }}
+            >
+              <input
+                type="text"
                 placeholder="Enter lobby code..."
                 value={joinCode}
                 onChange={(e) => setJoinCode(e.target.value)}
-                className="w-full bg-transparent text-white rounded-lg p-3 outline-none"
+                className="w-full rounded-lg outline-none"
+                style={{ background: 'transparent', color: '#fff', fontFamily: "'Courier New', monospace", fontSize: '1.2rem', padding: '10px 12px' }}
               />
-              <button 
+              <button
                 onClick={() => handleJoinLobby(joinCode)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-transform duration-300 transform hover:scale-105"
+                className="rounded-xl transition-transform duration-200 hover:scale-105"
+                style={{
+                  fontFamily: "'Courier New', monospace",
+                  fontWeight: 'bold',
+                  letterSpacing: '0.05em',
+                  padding: '10px 18px',
+                  color: '#000',
+                  backgroundImage: 'linear-gradient(90deg,#ffed4e,#ff9f43,#ff4d4d)',
+                  border: '2px solid #ffed4e',
+                  boxShadow: '0 0 10px rgba(255,237,78,0.5)'
+                }}
               >
                 Join
               </button>
             </div>
           </div>
 
-          <div className="space-y-6">
-              <h2 className="text-2xl font-semibold">Available Lobbies</h2>
-              {isLoading ? (
-                <div className="flex justify-center items-center h-40">
-                  <Loader2 className="w-12 h-12 text-white animate-spin" />
-                </div>
-              ) : lobbies.length > 0 ? (
-                  lobbies.map(lobby => <LobbyItem key={lobby.lobbyId} lobby={lobby} onJoin={handleJoinLobby} />)
-              ) : (
-                  <p className="text-center text-gray-400">No lobbies available. Why not create one?</p>
-              )}
+          {/* Available Lobbies */}
+          <div className="space-y-4">
+            <h2
+              className="select-none"
+              style={{
+                fontFamily: "'MK4', Impact, Haettenschweiler, 'Arial Black', sans-serif",
+                fontSize: 'clamp(1.6rem,4vw,2.2rem)',
+                color: '#ffed4e',
+                textShadow: '0 0 15px rgba(255, 237, 78, 0.6), 3px 3px 0px #000',
+                letterSpacing: '0.08em'
+              }}
+            >
+              AVAILABLE LOBBIES
+            </h2>
+            {isLoading ? (
+              <div className="flex justify-center items-center h-40">
+                <Loader2 className="w-12 h-12 animate-spin" style={{ color: '#ffed4e' }} />
+              </div>
+            ) : lobbies.length > 0 ? (
+              lobbies.map(lobby => <LobbyItem key={lobby.lobbyId} lobby={lobby} onJoin={handleJoinLobby} />)
+            ) : (
+              <p className="text-center" style={{ fontFamily: "'Courier New', monospace", fontSize: '1.2rem', color: '#ccc' }}>
+                No lobbies available. Why not create one?
+              </p>
+            )}
           </div>
         </div>
       </div>
-      <CreateLobbyModal 
+
+      <CreateLobbyModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)} 
-        onCreate={handleCreateLobby} 
+        onClose={() => setIsModalOpen(false)}
+        onCreate={handleCreateLobby}
       />
     </>
   );
