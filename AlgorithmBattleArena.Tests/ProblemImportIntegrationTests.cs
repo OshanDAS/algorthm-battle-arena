@@ -234,7 +234,8 @@ public class ProblemImportIntegrationTests : IDisposable
     private static string GetProjectRoot()
     {
         var currentDir = Directory.GetCurrentDirectory();
-        while (currentDir != null && !File.Exists(Path.Combine(currentDir, "algorithm-battle-arena.sln")))
+        // Look for the data directory which contains our test files
+        while (currentDir != null && !Directory.Exists(Path.Combine(currentDir, "data")))
         {
             currentDir = Directory.GetParent(currentDir)?.FullName;
         }
