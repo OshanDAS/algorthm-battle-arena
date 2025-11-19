@@ -1263,11 +1263,11 @@ export default function StudentDashboard() {
           </div>
 
           {/* Nav Items and User - Centered under title */}
-          <div className="grid grid-cols-3 items-center">
+          <div className="grid grid-cols-3 items-center gap-4 justify-center">
             {/* Left spacer (empty) */}
             <div></div>
             {/* Nav Items - Center column, centered */}
-            <div className="flex items-center space-x-2 justify-center">
+            <div className="flex items-center space-x-2 justify-center w-full flex-shrink-0 min-w-0">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -1311,14 +1311,14 @@ export default function StudentDashboard() {
             </div>
 
             {/* User & Logout - Right side column */}
-            <div className="flex items-center space-x-4 justify-end">
+            <div className="flex items-center space-x-4 justify-end flex-shrink-0 min-w-[120px]">
               <div className="hidden md:block" aria-hidden="true" style={{ width: '2px', height: '32px', background: '#666' }} />
               {/* Make profile area a reliable, accessible click target */}
               <button
                 type="button"
                 onClick={() => setActiveTab('profile')}
                 title="Profile"
-                className="aba-nav-btn flex items-center space-x-3 focus:outline-none"
+                className="aba-nav-btn flex items-center space-x-3 focus:outline-none z-20"
                 style={{
                   background: 'transparent',
                   border: '0',
