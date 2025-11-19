@@ -234,11 +234,17 @@ public class ProblemImportIntegrationTests : IDisposable
     private static string GetProjectRoot()
     {
         var currentDir = Directory.GetCurrentDirectory();
-        while (currentDir != null && !File.Exists(Path.Combine(currentDir, "algorithm-battle-arena.sln")))
+        // Navigate up to find the solution root (where AlgorithmBattleArena folder is)
+        while (currentDir != null)
         {
+            var solutionPath = Path.Combine(currentDir, "AlgorithmBattleArena", "AlgorithmBattleArena.sln");
+            if (File.Exists(solutionPath))
+            {
+                return currentDir; // Return the parent of AlgorithmBattleArena folder
+            }
             currentDir = Directory.GetParent(currentDir)?.FullName;
         }
-        return currentDir ?? Directory.GetCurrentDirectory();
+        return Directory.GetCurrentDirectory();
     }
 
     private class TestLogger<T> : ILogger<T>
