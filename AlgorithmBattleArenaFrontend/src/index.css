@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom retro display font */
+@font-face {
+  font-family: 'MK4';
+  src: url('/fonts/MK4.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Browser compatibility fixes */
 * {
   box-sizing: border-box;
@@ -90,6 +99,8 @@ body {
   width: 100%;
   height: auto; /* allow content to exceed viewport height on small screens */
   overflow-x: hidden;
+  overflow-y: scroll; /* always reserve scrollbar space */
+  scrollbar-gutter: stable both-edges; /* modern browsers: prevent width shift */
 }
 
 #root {
