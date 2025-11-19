@@ -268,8 +268,7 @@ export default function StudentDashboard() {
     { id: 'analytics', label: 'STATS', icon: TrendingUp },
     { id: 'battle', label: 'BATTLE', icon: Swords },
     { id: 'contests', label: 'CONTESTS', icon: Calendar },
-    { id: 'friends', label: 'CONTACTS', icon: UserPlus },
-    { id: 'profile', label: 'PROFILE', icon: User }
+    { id: 'friends', label: 'CONTACTS', icon: UserPlus }
   ];
 
   const Card = ({ children }) => (
@@ -510,7 +509,7 @@ export default function StudentDashboard() {
                     background: 'linear-gradient(to right, rgba(139, 21, 56, 0.3), rgba(255, 107, 0, 0.3))',
                     border: '2px solid #ff6b00',
                     borderRadius: '8px',
-                    padding: '48px',
+                    padding: 'clamp(16px, 4vw, 48px)',
                   }}
                 >
                   <h4
@@ -543,7 +542,7 @@ export default function StudentDashboard() {
                     background: 'linear-gradient(to right, rgba(139, 21, 56, 0.3), rgba(255, 107, 0, 0.3))',
                     border: '2px solid #ff6b00',
                     borderRadius: '8px',
-                    padding: '48px',
+                    padding: 'clamp(16px, 4vw, 48px)',
                   }}
                 >
                   <h4
@@ -871,12 +870,24 @@ export default function StudentDashboard() {
                     border: '3px solid #ff6b00',
                     borderRadius: '8px',
                     boxShadow: '0 0 30px rgba(255, 107, 0, 0.5)',
-                    maxWidth: '500px',
+                    maxWidth: '640px',
                     width: '100%',
                     padding: '24px',
+                    position: 'relative',
                   }}
                 >
-                  <div className="flex justify-between items-center mb-4">
+                  {/* Modal scanline overlay */}
+                  <div className="absolute inset-0 pointer-events-none opacity-10">
+                    <div
+                      className="w-full h-full"
+                      style={{
+                        backgroundImage:
+                          'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.5) 2px, rgba(0, 0, 0, 0.5) 4px)',
+                      }}
+                    ></div>
+                  </div>
+
+                  <div className="flex justify-between items-center mb-2 relative z-10">
                     <h3
                       style={{
                         fontFamily: "'MK4', Impact, sans-serif",
@@ -884,21 +895,30 @@ export default function StudentDashboard() {
                         color: '#ffed4e',
                         textShadow: '0 0 10px rgba(255, 237, 78, 0.5), 2px 2px 0px #000',
                         letterSpacing: '0.05em',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
                       }}
                     >
+                      <Users className="h-6 w-6" />
                       SELECT TEACHER
                     </h3>
-                    <button 
+                    <button
                       onClick={() => setShowTeacherModal(false)}
                       style={{ color: '#ff3366' }}
-                      className="hover:opacity-80"
+                      className="hover:opacity-80 p-2"
+                      aria-label="Close"
                     >
                       <X className="h-5 w-5" />
                     </button>
                   </div>
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                  <p style={{ color: '#ccc', fontFamily: "'Courier New', monospace", fontSize: '1.3rem', marginBottom: '12px' }} className="relative z-10">
+                    Choose a teacher to send a request.
+                  </p>
+
+                  <div className="space-y-3 max-h-96 overflow-y-auto relative z-10">
                     {teachers.map((teacher) => (
-                      <div 
+                      <div
                         key={teacher.teacherId}
                         style={{
                           background: 'rgba(30, 30, 30, 0.8)',
@@ -906,7 +926,7 @@ export default function StudentDashboard() {
                           borderRadius: '4px',
                           padding: '12px',
                         }}
-                        className="flex items-center justify-between"
+                        className="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0"
                       >
                         <div>
                           <p style={{ color: '#fff', fontFamily: "'Courier New', monospace", fontSize: '1.3rem', fontWeight: 'bold' }}>
@@ -916,7 +936,7 @@ export default function StudentDashboard() {
                             {teacher.email}
                           </p>
                         </div>
-                        <Button onClick={() => handleRequestTeacher(teacher.teacherId)}>
+                        <Button onClick={() => handleRequestTeacher(teacher.teacherId)} className="w-full md:w-auto">
                           REQUEST
                         </Button>
                       </div>
@@ -926,6 +946,12 @@ export default function StudentDashboard() {
                         No teachers available
                       </p>
                     )}
+                  </div>
+
+                  <div className="mt-4 relative z-10">
+                    <Button variant="secondary" className="w-full" onClick={() => setShowTeacherModal(false)}>
+                      CLOSE
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -1201,7 +1227,7 @@ export default function StudentDashboard() {
 .aba-nav-btn:-moz-focusring { outline: none !important; }
 .aba-nav-btn { -webkit-tap-highlight-color: transparent; }
 `}</style>
-        <div className="w-full px-8 py-6">
+        <div className="w-full px-4 sm:px-8 py-4 sm:py-6">
           {/* Logo - Centered and Prominent */}
           <div className="flex justify-center items-center mb-6">
             <div className="flex items-center space-x-4">
@@ -1287,7 +1313,26 @@ export default function StudentDashboard() {
             {/* User & Logout - Right side column */}
             <div className="flex items-center space-x-4 justify-end">
               <div className="hidden md:block" aria-hidden="true" style={{ width: '2px', height: '32px', background: '#666' }} />
-              <div className="flex items-center space-x-3">
+              {/* Make profile area a reliable, accessible click target */}
+              <button
+                type="button"
+                onClick={() => setActiveTab('profile')}
+                title="Profile"
+                className="aba-nav-btn flex items-center space-x-3 focus:outline-none"
+                style={{
+                  background: 'transparent',
+                  border: '0',
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                  borderRadius: '6px',
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setActiveTab('profile');
+                  }
+                }}
+              >
                 <div
                   style={{
                     width: '50px',
@@ -1313,7 +1358,7 @@ export default function StudentDashboard() {
                 >
                   {profile?.fullName || 'Warrior'}
                 </span>
-              </div>
+              </button>
               <button
                 onClick={handleLogout}
                 style={{ color: '#ff3366' }}
