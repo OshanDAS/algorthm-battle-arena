@@ -120,14 +120,14 @@ export default function TeacherDashboard() {
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:border-purple-500/50 transition-all">
+                <Link to="/create-challenge" className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:border-purple-500/50 transition-all block">
                   <Plus className="w-12 h-12 text-purple-400 mb-4" />
                   <h3 className="text-xl font-bold mb-2">Create Challenge</h3>
                   <p className="text-gray-300 mb-4">Forge new coding trials</p>
-                  <button className="w-full py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-all">
+                  <div className="w-full py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-all text-center">
                     Create
-                  </button>
-                </div>
+                  </div>
+                </Link>
                 
                 <Link to="/manage-students" className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:border-blue-500/50 transition-all block">
                   <Users className="w-12 h-12 text-blue-400 mb-4" />

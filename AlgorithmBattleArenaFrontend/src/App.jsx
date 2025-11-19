@@ -11,6 +11,7 @@ import TeacherChatPage from './pages/TeacherChatPage';
 import AdminDashboard from './pages/AdminDashboard';
 import ManageStudentsPage from './pages/ManageStudentsPage';
 import HostBattlePage from './pages/HostBattlePage';
+import CreateChallengePage from './pages/CreateChallengePage';
 import LobbyPage from './pages/LobbyPage';
 import LobbyInstancePage from './pages/LobbyInstancePage';
 import MatchPage from './pages/MatchPage';
@@ -30,6 +31,7 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/manage-students" element={<ManageStudentsPage />} />
           <Route path="/host-battle" element={<HostBattlePage />} />
+          <Route path="/create-challenge" element={<CreateChallengePage />} />
           <Route path="/lobby" element={<LobbyPage />} />
           <Route path="/lobby/:lobbyId" element={<LobbyInstancePage />} />
           <Route path="/match/:matchId" element={<MatchPage />} />
