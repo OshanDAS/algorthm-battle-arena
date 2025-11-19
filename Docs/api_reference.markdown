@@ -73,9 +73,7 @@
 }
 ```
 
-**Error Responses:**
-- `401 Unauthorized` - Invalid credentials
-- `401 Unauthorized` - Account has been deactivated
+
 
 ### Refresh Token
 
@@ -1051,11 +1049,7 @@
 **Event:** `LobbyUpdated`
 ```json
 {
-  "lobbyId": 0,
-  "name": "string",
-  "currentPlayers": 0,
-  "maxPlayers": 0,
-  "status": "string"
+  "content": "string"
 }
 ```
 
@@ -1063,10 +1057,7 @@
 **Event:** `LobbyCreated`
 ```json
 {
-  "lobbyId": 0,
-  "name": "string",
-  "hostEmail": "string",
-  "lobbyCode": "string"
+  "messageId": 0
 }
 ```
 
@@ -1077,30 +1068,72 @@
 **Event:** `MatchStarted`
 ```json
 {
-  "matchId": 0,
-  "problemIds": [1, 2, 3],
-  "startAtUtc": "2024-01-01T00:00:00Z",
-  "durationSec": 3600,
-  "sentAtUtc": "2024-01-01T00:00:00Z"
+  "friendEmail": "string",
+  "friendId": 0
 }
 ```
 
-## Authorization Levels
-
-- **Anonymous:** No authentication required
-- **Bearer Token Required:** Valid JWT token required
-- **Student Only:** Student role required
-- **Teacher Only:** Teacher role required
-- **Student or Admin:** Student or Admin role required
-- **Admin Only:** Admin role required
-- **Host Only:** Must be the lobby host
-
-## Error Responses
-
-### 400 Bad Request
+**Response:** `200 OK`
 ```json
 {
-  "message": "Error description"
+  "conversationId": 0,
+  "type": "Friend",
+  "name": "string",
+  "participantEmails": ["user1@example.com", "user2@example.com"]
+}
+```
+
+## Friends
+
+### Get Friends
+
+**Endpoint:** `GET /api/Friends`  
+**Authorization:** Student Only
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "studentId": 0,
+    "firstName": "string",
+    "lastName": "string",
+    "email": "string",
+    "isOnline": true
+  }
+]
+```
+
+### Search Students
+
+**Endpoint:** `GET /api/Friends/search`  
+**Authorization:** Student Only
+
+**Query Parameters:**
+- `query` (string, required) - Search term for student name or email
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "studentId": 0,
+    "firstName": "string",
+    "lastName": "string",
+    "email": "string",
+    "isFriend": false,
+    "hasPendingRequest": false
+  }
+]
+```
+
+### Send Friend Request
+
+**Endpoint:** `POST /api/Friends/request`  
+**Authorization:** Student Only
+
+**Request Body:**
+```json
+{
+  "receiverId": 0
 }
 ```
 
@@ -1125,26 +1158,103 @@
 ### 401 Unauthorized
 ```json
 {
-  "message": "Invalid credentials" 
+  "requestId": 0,
+  "message": "Friend request sent successfully"
 }
 ```
 
+### Get Received Friend Requests
+
+**Endpoint:** `GET /api/Friends/requests/received`  
+**Authorization:** Student Only
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "requestId": 0,
+    "senderId": 0,
+    "senderName": "string",
+    "senderEmail": "string",
+    "sentAt": "2024-01-01T00:00:00Z",
+    "status": "Pending"
+  }
+]
+```
+
+### Get Sent Friend Requests
+
+**Endpoint:** `GET /api/Friends/requests/sent`  
+**Authorization:** Student Only
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "requestId": 0,
+    "receiverId": 0,
+    "receiverName": "string",
+    "receiverEmail": "string",
+    "sentAt": "2024-01-01T00:00:00Z",
+    "status": "Pending"
+  }
+]
+```
+
+### Accept Friend Request
+
+**Endpoint:** `PUT /api/Friends/requests/{requestId}/accept`  
+**Authorization:** Student Only
+
+**Response:** `200 OK`
 ```json
 {
-  "message": "Account has been deactivated"
+  "message": "Friend request accepted successfully"
 }
 ```
 
+### Reject Friend Request
+
+**Endpoint:** `PUT /api/Friends/requests/{requestId}/reject`  
+**Authorization:** Student Only
+
+**Response:** `200 OK`
 ```json
 {
-  "message": "User not found or not a student"
+  "message": "Friend request rejected successfully"
 }
 ```
 
-### 403 Forbidden
+### Remove Friend
+
+**Endpoint:** `DELETE /api/Friends/{friendId}`  
+**Authorization:** Student Only
+
+**Response:** `200 OK`
 ```json
 {
-  "message": "Access denied"
+  "message": "Friend removed successfully"
+}
+```
+
+## Statistics
+
+### Get User Statistics
+
+**Endpoint:** `GET /api/Statistics/user`  
+**Authorization:** Student or Admin
+
+**Response:** `200 OK`
+```json
+{
+  "rank": 0,
+  "matchesPlayed": 0,
+  "matchesWon": 0,
+  "winRate": 0.0,
+  "totalScore": 0,
+  "averageScore": 0.0,
+  "problemsSolved": 0,
+  "favoriteCategory": "string"
 }
 ```
 
@@ -1157,7 +1267,11 @@
 ### 404 Not Found
 ```json
 {
-  "message": "Resource not found"
+  "lobbyId": 0,
+  "name": "string",
+  "currentPlayers": 0,
+  "maxPlayers": 0,
+  "status": "string"
 }
 ```
 
@@ -1170,20 +1284,36 @@
 ### 413 Payload Too Large
 ```json
 {
-  "message": "File too large"
+  "lobbyId": 0,
+  "name": "string",
+  "hostEmail": "string",
+  "lobbyCode": "string"
 }
 ```
 
+**Event:** `LobbyDeleted`
+
+**Event:** `MatchStarted`
 ```json
 {
-  "message": "Too many rows. Maximum 1000 allowed."
+  "matchId": 0,
+  "problemIds": [1, 2, 3],
+  "startAtUtc": "2024-01-01T00:00:00Z",
+  "durationSec": 3600,
+  "sentAtUtc": "2024-01-01T00:00:00Z"
 }
 ```
 
-### 500 Internal Server Error
+#### Chat Events
+**Event:** `NewMessage`
 ```json
 {
-  "message": "Internal server error: [details]"
+  "messageId": 0,
+  "conversationId": 0,
+  "senderEmail": "string",
+  "senderName": "string",
+  "content": "string",
+  "sentAt": "2024-01-01T00:00:00Z"
 }
 ```
 
